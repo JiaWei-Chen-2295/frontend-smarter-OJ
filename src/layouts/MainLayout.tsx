@@ -36,7 +36,9 @@ function MainLayout ({children}: {children: ReactNode}) {
                 padding: 0,
             }}>
                 <div className="my-logo" >
-                    <h2>Smarter OJ</h2>
+                    <h2
+                        className={"text-3xl text-green-700 font-bold pl-12 pr-5 "}
+                    >Smarter OJ</h2>
                 </div>
                 <Menu
                     theme="light"
@@ -53,7 +55,7 @@ function MainLayout ({children}: {children: ReactNode}) {
                     style={{ flex: 1, minWidth: 0 }}
                 />
             </Header>
-            <Content style={{ padding: '0 48px' }}>
+            <Content className={"p-6"}>
                 <div
                     style={{
                         background: colorBgContainer,
