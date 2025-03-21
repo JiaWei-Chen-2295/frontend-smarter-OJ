@@ -2,6 +2,9 @@ import {Layout, Menu, theme} from 'antd';
 import {ReactNode, useEffect, useState} from "react";
 import NavBarItems, {getPathByKey} from "../config/NavBarItem.config.tsx";
 import {useLocation, useNavigate} from "react-router";
+import {useSelector} from "react-redux";
+import { RootState } from "../context/store.ts";
+
 
 const { Header, Content, Footer } = Layout;
 
@@ -13,8 +16,11 @@ function MainLayout ({children}: {children: ReactNode}) {
     const [currentKey, setCurrentKey] = useState<string>('');
 
     const navigate = useNavigate();
-
     const location = useLocation();
+    // @ts-expect-error useSelector
+    const currentUser = useSelector<RootState, OJModel.User>(state => state.User?.currentUser)
+
+
     useEffect(() => {
         const path = location.pathname;
         const selectedItem = NavBarItems.find(item => item.path === path);
@@ -54,6 +60,13 @@ function MainLayout ({children}: {children: ReactNode}) {
                     }}
                     style={{ flex: 1, minWidth: 0 }}
                 />
+                <div className="my-user">
+                    <img
+                        className={"w-10 h-10 rounded-full"}
+                        src={currentUser?.avatar}
+                        alt={currentUser?.username}
+                    />
+                </div>
             </Header>
             <Content className={"p-6"}>
                 <div

@@ -1,10 +1,11 @@
 import './App.css'
 import {RouterProvider} from "react-router";
 import {router} from "./config/router.config.tsx";
-import {Button, Checkbox, Form, Input, message, Modal, QRCode, Tabs} from "antd";
+import {Button, Checkbox, Form, FormProps, Input, message, Modal, QRCode, Tabs} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {setCurrentUser} from "./features/userSlice.ts";
-import {ReactNode, useState} from "react";
+import {ReactNode, useEffect, useState} from "react";
+import {RootState} from "./context/store.ts";
 
 
 function App() {
@@ -21,24 +22,36 @@ function App() {
     };
 
 
-    const currentUser = useSelector(state => state.currentUser.value)
+    // @ts-expect-error useSelector
+    const currentUser = useSelector<RootState, OJModel.User>(state => state.User.currentUser)
     const dispatch = useDispatch();
 
-    if (!currentUser && !isModalOpen && loginCounter === 0) {
-        messageApi.warning('用户请登录')
-        showModal()
-        setLoginCounter(loginCounter + 1)
-        console.log('loginCounter', loginCounter)
-    }
-    const mockUser = {
-        username: 'admin',
-        password: 'admin',
-        email: 'admin@admin.com',
-        avatar: 'https://avatars.githubusercontent.com/u/102040770?v=4',
-        role: 'admin',
-        id: '1'
-    }
-    dispatch(setCurrentUser(mockUser))
+
+    useEffect(() => {
+        // TODO: 未来使用请求的方式获取当前用户
+        const fetchCurrentUser = {
+            username: 'admin',
+            password: 'admin',
+            email: 'admin@admin.com',
+            avatar: 'https://avatars.githubusercontent.com/u/102040770?v=4',
+            role: 'admin',
+            id: '1'
+        }
+        if (fetchCurrentUser) {
+            setTimeout(() => {
+                dispatch(setCurrentUser(fetchCurrentUser));
+            }, 5000)
+        }
+
+        if (!currentUser && !isModalOpen && loginCounter === 0) {
+            messageApi.warning('用户请登录').then()
+            showModal()
+            setLoginCounter(loginCounter + 1)
+            console.log('loginCounter', loginCounter)
+        }
+
+    }, [dispatch]);
+
 
     // 关于登录相关
     type FieldType = {
@@ -120,16 +133,11 @@ function App() {
     <>
         { contextHolder }
        <RouterProvider router={router}></RouterProvider>
-        { currentUser }
-
-        <Button type="primary" onClick={showModal}>
-            Open Modal
-        </Button>
         <Modal title="请先登录" open={isModalOpen} onCancel={handleClose} centered={true} footer={null}>
             <Tabs
                 type="card"
                 centered={true}
-                items={loginTabArray.map( item => item )}
+                items={loginTabArray.map( item => item ) as never}
             />
         </Modal>
     </>
