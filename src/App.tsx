@@ -34,7 +34,7 @@ function App() {
             password: 'admin',
             email: 'admin@admin.com',
             avatar: 'https://avatars.githubusercontent.com/u/102040770?v=4',
-            role: 'admin',
+            role: 'user',
             id: '1'
         }
         if (fetchCurrentUser) {
@@ -50,7 +50,7 @@ function App() {
             console.log('loginCounter', loginCounter)
         }
 
-    }, [dispatch]);
+    }, [currentUser, dispatch, isModalOpen, loginCounter, messageApi]);
 
 
     // 关于登录相关
@@ -132,7 +132,7 @@ function App() {
     return (
     <>
         { contextHolder }
-       <RouterProvider router={router}></RouterProvider>
+            <RouterProvider router={router}></RouterProvider>
         <Modal title="请先登录" open={isModalOpen} onCancel={handleClose} centered={true} footer={null}>
             <Tabs
                 type="card"

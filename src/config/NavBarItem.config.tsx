@@ -1,4 +1,4 @@
-import {HomeOutlined, QuestionOutlined} from "@ant-design/icons";
+import {CrownOutlined, HomeOutlined, QuestionOutlined} from "@ant-design/icons";
 
 const NavBarItems: ConfigModel.NavBarItem[] = [
     {
@@ -13,6 +13,12 @@ const NavBarItems: ConfigModel.NavBarItem[] = [
         path: '/qs',
         icon: <QuestionOutlined />,
     },
+    {
+        key: '3',
+        label: '管理员',
+        path: '/admin',
+        icon: <CrownOutlined />,
+    }
 ];
 
 export function getPathByKey(key: string)  {

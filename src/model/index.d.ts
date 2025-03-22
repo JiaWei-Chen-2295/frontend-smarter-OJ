@@ -4,7 +4,9 @@ declare namespace OJModel {
         password: string
         email: string
         avatar?: string
-        role: string
+        role: Role,
         id: string
     }
+    type Role = 'admin' | 'user'
+
 }
