@@ -1,6 +1,6 @@
 import {Button, Result} from "antd";
 import MainLayout from "../layouts/MainLayout.tsx";
-import {Navigate, NavLink, useNavigate} from "react-router";
+import {NavLink} from "react-router";
 
 
 export function NoAdmin() {

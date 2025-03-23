@@ -12,6 +12,7 @@ const AuthRouter = ({children}: { children: React.ReactElement }) => {
 
     const location = useLocation();
     const navigate = useNavigate();
+    // @ts-expect-error useSelector
     const currentUser = useSelector<RootState, User>(state => state.User?.currentUser)
 
     // 根据当前路由状况获取配置
@@ -29,8 +30,6 @@ const AuthRouter = ({children}: { children: React.ReactElement }) => {
             navigate('/no-admin')
         }
     }, [currentRoute, currentUser, navigate])
-
-
 
     return currentRoute?.meta?.requiresAuth
         ? currentUser ? children : null

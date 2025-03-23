@@ -1,16 +1,17 @@
 import {Layout, Menu, theme} from 'antd';
 import {ReactNode, useEffect, useState} from "react";
 import NavBarItems, {getPathByKey} from "../config/NavBarItem.config.tsx";
-import {useLocation, useNavigate} from "react-router";
+import {matchRoutes, useLocation, useNavigate} from "react-router";
 import {useSelector} from "react-redux";
-import { RootState } from "../context/store.ts";
+import {RootState} from "../context/store.ts";
+import {router} from "../config/router.config.tsx";
 
 
-const { Header, Content, Footer } = Layout;
+const {Header, Content, Footer} = Layout;
 
-function MainLayout ({children}: {children: ReactNode}) {
+function MainLayout({children}: { children: ReactNode }) {
     const {
-        token: { colorBgContainer, borderRadiusLG },
+        token: {colorBgContainer, borderRadiusLG},
     } = theme.useToken();
 
     const [currentKey, setCurrentKey] = useState<string>('');
@@ -31,7 +32,7 @@ function MainLayout ({children}: {children: ReactNode}) {
 
     return (
         <Layout>
-            <Header  style={{
+            <Header style={{
                 position: 'sticky',
                 top: 0,
                 zIndex: 1,
@@ -41,7 +42,7 @@ function MainLayout ({children}: {children: ReactNode}) {
                 background: colorBgContainer,
                 padding: 0,
             }}>
-                <div className="my-logo" >
+                <div className="my-logo">
                     <h2
                         className={"text-3xl text-green-700 font-bold pl-12 pr-5 "}
                     >Smarter OJ</h2>
@@ -51,14 +52,17 @@ function MainLayout ({children}: {children: ReactNode}) {
                     mode="horizontal"
                     defaultSelectedKeys={['1']}
                     selectedKeys={[currentKey]}
-                    items={NavBarItems}
+                    items={NavBarItems.filter(item => {
+                        const findRoute = router.routes.find(route => item.path === route.path);
+                        return !(findRoute?.meta?.requiresAuth && currentUser?.role !== 'admin');
+                    })}
                     onClick={(info) => {
-                         const path = getPathByKey(info.key);
-                         if (path) {
+                        const path = getPathByKey(info.key);
+                        if (path) {
                             navigate(path)
-                         }
+                        }
                     }}
-                    style={{ flex: 1, minWidth: 0 }}
+                    style={{flex: 1, minWidth: 0}}
                 />
                 <div className="my-user">
                     <img
@@ -82,7 +86,7 @@ function MainLayout ({children}: {children: ReactNode}) {
                     {children}
                 </div>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>
+            <Footer style={{textAlign: 'center'}}>
                 Smarter OJ ©{new Date().getFullYear()} Created by JavierChen
             </Footer>
         </Layout>
