@@ -26,9 +26,11 @@ const AuthRouter = ({children}: { children: React.ReactElement }) => {
 
         if (currentRoute?.meta?.requiresAuth && currentUser?.role !== 'admin') {
             message.error('您没有权限访问此页面').then()
-            navigate('/', { replace: true })
+            navigate('/no-admin')
         }
     }, [currentRoute, currentUser, navigate])
+
+
 
     return currentRoute?.meta?.requiresAuth
         ? currentUser ? children : null

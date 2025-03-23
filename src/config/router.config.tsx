@@ -5,6 +5,7 @@ import Questions from "../pages/index/Questions";
 import OJMain from "../pages/index/Main";
 import AdminPageMain from "../pages/admin";
 import AuthRouter from "../router/AuthRouter";
+import {NoAdmin} from "../pages/NoAdmin.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -49,5 +50,14 @@ export const router = createBrowserRouter([
             </AuthRouter>
         </>
         ,
+    },
+    {
+        path: "/no-admin",
+        meta: {
+            title: "无权限",
+            requiresAuth: false,
+        },
+        element: <NoAdmin/>
     }
+
 ]);

@@ -73,7 +73,9 @@ function MainLayout ({children}: {children: ReactNode}) {
                     style={{
                         background: colorBgContainer,
                         minHeight: '100vh',
-                        paddingTop: 48 ,
+                        paddingTop: 48,
+                        paddingLeft: 48,
+                        paddingRight: 48,
                         borderRadius: borderRadiusLG,
                     }}
                 >
