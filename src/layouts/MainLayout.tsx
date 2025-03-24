@@ -1,7 +1,7 @@
 import {Layout, Menu, theme} from 'antd';
 import {ReactNode, useEffect, useState} from "react";
 import NavBarItems, {getPathByKey} from "../config/NavBarItem.config.tsx";
-import {matchRoutes, useLocation, useNavigate} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import {useSelector} from "react-redux";
 import {RootState} from "../context/store.ts";
 import {router} from "../config/router.config.tsx";
@@ -54,7 +54,8 @@ function MainLayout({children}: { children: ReactNode }) {
                     selectedKeys={[currentKey]}
                     items={NavBarItems.filter(item => {
                         const findRoute = router.routes.find(route => item.path === route.path);
-                        return !(findRoute?.meta?.requiresAuth && currentUser?.role !== 'admin');
+                        // @ts-expect-error meta
+                        return !(findRoute?.meta?.requiresAuth && currentUser?.userRole !== 'admin');
                     })}
                     onClick={(info) => {
                         const path = getPathByKey(info.key);
@@ -67,8 +68,8 @@ function MainLayout({children}: { children: ReactNode }) {
                 <div className="my-user">
                     <img
                         className={"w-10 h-10 rounded-full"}
-                        src={currentUser?.avatar}
-                        alt={currentUser?.username}
+                        src={currentUser?.userAvatar}
+                        alt={currentUser?.userName}
                     />
                 </div>
             </Header>

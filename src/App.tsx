@@ -6,6 +6,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {setCurrentUser} from "./features/userSlice.ts";
 import {ReactNode, useEffect, useState} from "react";
 import {RootState} from "./context/store.ts";
+import {UserControllerService} from "../generated";
 
 
 function App() {
@@ -13,6 +14,10 @@ function App() {
     const [messageApi, contextHolder] = message.useMessage()
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loginCounter, setLoginCounter] = useState(0);
+    // @ts-expect-error useSelector
+    const currentUser = useSelector<RootState, OJModel.User>(state => state.User.currentUser)
+    const dispatch = useDispatch();
+
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -22,32 +27,13 @@ function App() {
     };
 
 
-    // @ts-expect-error useSelector
-    const currentUser = useSelector<RootState, OJModel.User>(state => state.User.currentUser)
-    const dispatch = useDispatch();
-
-
     useEffect(() => {
         // TODO: 未来使用请求的方式获取当前用户
-        const fetchCurrentUser = {
-            username: 'admin',
-            password: 'admin',
-            email: 'admin@admin.com',
-            avatar: 'https://avatars.githubusercontent.com/u/102040770?v=4',
-            role: 'user',
-            id: '1'
-        }
-        if (fetchCurrentUser) {
-            setTimeout(() => {
-                dispatch(setCurrentUser(fetchCurrentUser));
-            }, 5000)
-        }
 
         if (!currentUser && !isModalOpen && loginCounter === 0) {
             messageApi.warning('用户请登录').then()
             showModal()
             setLoginCounter(loginCounter + 1)
-            console.log('loginCounter', loginCounter)
         }
 
     }, [currentUser, dispatch, isModalOpen, loginCounter, messageApi]);
@@ -60,8 +46,16 @@ function App() {
         remember?: string;
     };
 
-    const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-        console.log('Success:', values);
+    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+        const resp = await UserControllerService.userLoginUsingPost({
+                userAccount: values.username,
+                userPassword: values.password
+            })
+        dispatch(setCurrentUser({...resp.data}));
+        if (resp.code === 0) {
+            handleClose()
+        }
+        console.log('Success:', resp);
     };
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
@@ -92,17 +86,17 @@ function App() {
                     <Form.Item<FieldType>
                         label="用户名"
                         name="username"
-                        rules={[{ required: true, message: 'Please input your username!' }]}
+                        rules={[{ required: true, message: '请填入用户名!' }]}
                     >
-                        <Input />
+                        <Input autoComplete={'username'}/>
                     </Form.Item>
 
                     <Form.Item<FieldType>
                         label="密码"
                         name="password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
+                        rules={[{ required: true, message: '必须输入密码!' }]}
                     >
-                        <Input.Password />
+                        <Input.Password autoComplete={'current-password'}/>
                     </Form.Item>
 
                     <Form.Item<FieldType> name="remember" valuePropName="checked" label={null}>

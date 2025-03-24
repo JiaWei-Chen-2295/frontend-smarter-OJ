@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import {createBrowserRouter} from "react-router";
 import OJIndex from "../pages/index";
 import OJQuestion from "../pages/OJQuestion";

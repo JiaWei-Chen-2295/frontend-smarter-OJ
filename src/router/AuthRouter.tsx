@@ -8,6 +8,11 @@ import {RootState} from "../context/store.ts";
 import {message} from "antd";
 import User = OJModel.User;
 
+/**
+ * 用于权限校验的路由守卫组件
+ * @param children
+ * @constructor
+ */
 const AuthRouter = ({children}: { children: React.ReactElement }) => {
 
     const location = useLocation();
@@ -21,16 +26,18 @@ const AuthRouter = ({children}: { children: React.ReactElement }) => {
     }, [location.pathname])
 
     useEffect(() => {
+        // @ts-expect-error meta
         if (currentRoute?.meta?.requiresAuth && !currentUser) {
             navigate('/', { replace: true })
         }
-
-        if (currentRoute?.meta?.requiresAuth && currentUser?.role !== 'admin') {
+        // @ts-expect-error meta
+        if (currentRoute?.meta?.requiresAuth && currentUser?.userRole !== 'admin') {
             message.error('您没有权限访问此页面').then()
             navigate('/no-admin')
         }
     }, [currentRoute, currentUser, navigate])
 
+    // @ts-expect-error meta
     return currentRoute?.meta?.requiresAuth
         ? currentUser ? children : null
         : children

@@ -5,7 +5,15 @@ declare module 'react-router' {
         meta?: {
             title?: string;
             requiresAuth?: boolean;
-            // 可在此继续扩展字段
+
+        };
+    }
+
+    interface AgnosticDataIndexRouteObject {
+        meta?: {
+            title?: string;
+            requiresAuth?: boolean;
+
         };
     }
 }
