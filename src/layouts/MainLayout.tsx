@@ -1,4 +1,4 @@
-import {Layout, Menu, theme} from 'antd';
+import {Avatar, Layout, Menu, theme} from 'antd';
 import {ReactNode, useEffect, useState} from "react";
 import NavBarItems, {getPathByKey} from "../config/NavBarItem.config.tsx";
 import {useLocation, useNavigate} from "react-router";
@@ -65,12 +65,16 @@ function MainLayout({children}: { children: ReactNode }) {
                     }}
                     style={{flex: 1, minWidth: 0}}
                 />
-                <div className="my-user">
-                    <img
-                        className={"w-10 h-10 rounded-full"}
-                        src={currentUser?.userAvatar}
-                        alt={currentUser?.userName}
-                    />
+                <div className="my-user pr-6">
+                    <Avatar
+                        style={{ backgroundColor: '#c7fdbb', color: '#096105' }}
+                        size={'large'}
+                        src={
+                            <img src={currentUser?.userAvatar} alt={currentUser?.userName}></img>
+                        }
+                    >{
+                        currentUser?.userName?.slice(0, 1)
+                    }</Avatar>
                 </div>
             </Header>
             <Content className={"p-6"}>

@@ -14,5 +14,4 @@ declare namespace OJModel {
         userRole?: string;
     }
     type Role = 'admin' | 'user'
-
 }

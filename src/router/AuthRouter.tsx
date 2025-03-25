@@ -25,6 +25,7 @@ const AuthRouter = ({children}: { children: React.ReactElement }) => {
         return router.routes.find(r => r.path === location.pathname)
     }, [location.pathname])
 
+    // todo： 细化权限控制 包括：是否登录 是否是管理员
     useEffect(() => {
         // @ts-expect-error meta
         if (currentRoute?.meta?.requiresAuth && !currentUser) {

@@ -16,7 +16,6 @@ axios.interceptors.request.use(function (config) {
 axios.interceptors.response.use(function (response) {
     // 2xx 范围内的状态码都会触发该函数。
     // 对响应数据做点什么
-    console.log('axios', response)
     if (response.data.code !== 0) {
         message.error(response.data.message)
     }

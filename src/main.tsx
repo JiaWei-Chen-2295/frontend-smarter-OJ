@@ -8,7 +8,6 @@ import {store} from "./context/store.ts";
 import {getCurrentUser} from "./features/userSlice.ts";
 import './plugins/ojaxios.ts'
 
-
 function logMayDayLyrics() {
     console.log('%c五月天 - 顽固%c',
         'font-size: 24px; ' +
