@@ -1,10 +1,11 @@
-import {Avatar, Layout, Menu, theme} from 'antd';
+import {Avatar, Divider, Layout, Menu, theme} from 'antd';
 import {ReactNode, useEffect, useState} from "react";
 import NavBarItems, {getPathByKey} from "../config/NavBarItem.config.tsx";
 import {useLocation, useNavigate} from "react-router";
 import {useSelector} from "react-redux";
 import {RootState} from "../context/store.ts";
 import {router} from "../config/router.config.tsx";
+import {SourceCode} from "@icon-park/react";
 
 
 const {Header, Content, Footer} = Layout;
@@ -93,6 +94,11 @@ function MainLayout({children}: { children: ReactNode }) {
             </Content>
             <Footer style={{textAlign: 'center'}}>
                 Smarter OJ ©{new Date().getFullYear()} Created by JavierChen
+                <Divider type={"vertical"} />
+                <span className={'flex items-center justify-center gap-1.5'}>
+                <SourceCode theme="outline" size="16" fill="#000000"/>
+                    <p>开源代码许可</p>
+                </span>
             </Footer>
         </Layout>
     );

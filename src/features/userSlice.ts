@@ -6,7 +6,6 @@ interface UserState {
     status: UserStateStatus;
 }
 
-
 // 通过请求获得当前用户登录态
 export const getCurrentUser = createAsyncThunk('/user/get/login', async () => {
     const resp = await UserControllerService.getLoginUserUsingGet()

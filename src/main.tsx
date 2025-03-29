@@ -7,6 +7,7 @@ import {Provider} from "react-redux";
 import {store} from "./context/store.ts";
 import {getCurrentUser} from "./features/userSlice.ts";
 import './plugins/ojaxios.ts'
+import 'bytemd/dist/index.css'
 
 function logMayDayLyrics() {
     console.log('%c五月天 - 顽固%c',
@@ -77,7 +78,7 @@ createRoot(document.getElementById('root')!).render(
                 "colorInfo": "#228B22",
                 "sizeStep": 6,
                 "wireframe": false,
-                "fontSize": 18,
+                "fontSize": 16,
                 "colorBgBase": "#ffffff"
             }
         }}> <StrictMode>
