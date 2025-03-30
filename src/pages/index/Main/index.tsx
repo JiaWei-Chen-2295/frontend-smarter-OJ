@@ -18,14 +18,7 @@ function OJMain() {
                 开始今天的随机练习
                 {}
             </Card>
-            <MarkDownNewEditor height={"350px"} toolbarConfig={{pin: true}} onValueChange={(value) => {
-                console.log(value)
-            }}></MarkDownNewEditor>
 
-            <Card>
-
-                <CodeEditor className={'h-64 w-64'} />
-            </Card>
 
         </>
     )

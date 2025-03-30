@@ -1,4 +1,4 @@
-import {CrownOutlined, HomeOutlined, QuestionOutlined} from "@ant-design/icons";
+import {CrownOutlined, ExperimentOutlined, HomeOutlined, QuestionOutlined} from "@ant-design/icons";
 
 const NavBarItems: ConfigModel.NavBarItem[] = [
     {
@@ -15,6 +15,12 @@ const NavBarItems: ConfigModel.NavBarItem[] = [
     },
     {
         key: '3',
+        label: '实验室',
+        path: '/lab',
+        icon: <ExperimentOutlined />,
+    },
+    {
+        key: '4',
         label: '管理员',
         path: '/admin',
         icon: <CrownOutlined />,

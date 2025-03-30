@@ -8,6 +8,7 @@ import OJMain from "../pages/index/Main";
 import AdminPageMain from "../pages/admin";
 import AuthRouter from "../router/AuthRouter";
 import {NoAdmin} from "../pages/NoAdmin.tsx";
+import Lab from "../pages/index/Lab";
 
 export const router = createBrowserRouter([
     {
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
             {
                 path: "/qs",
                 element: <Questions/>,
+            },
+            {
+                path: "lab",
+                element: <Lab />
             }
         ]
     },

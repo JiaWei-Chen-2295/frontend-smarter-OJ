@@ -27,7 +27,8 @@ const MarkDownNewEditor = ({ onValueChange, ...options }: IOptions & { onValueCh
         ],
         width: "90%",
         toolbarConfig: {
-            pin: true, // 固定工具栏，滚动时保持可见
+            hide: true,
+            pin: false, // 固定工具栏，滚动时保持可见
         },
         counter: {
             enable: true,
@@ -44,6 +45,7 @@ const MarkDownNewEditor = ({ onValueChange, ...options }: IOptions & { onValueCh
                 vditor.setValue(value);
                 setVd(vditor);
             },
+            cdn: 'https://cdn.jsdelivr.net/npm/vditor@3.10.9',
             ...viditorOption,
         });
         return () => {

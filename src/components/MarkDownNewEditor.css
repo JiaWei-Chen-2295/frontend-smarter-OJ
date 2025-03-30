@@ -1,6 +1,7 @@
 /* 设定markdown编辑器的主题色与项目一致 */
 .vditor {
     --toolbar-icon-hover-color: #228B22;
+    z-index: 0;
 }
 
 /* 解决markdown编辑器有序列表无法显示 */

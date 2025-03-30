@@ -23,7 +23,7 @@ export const OpenAPI: OpenAPIConfig = {
     BASE: 'http://localhost:8101',
     VERSION: '1.0',
     WITH_CREDENTIALS: true,
-    CREDENTIALS: 'include',
+    CREDENTIALS: 'same-origin',
     TOKEN: undefined,
     USERNAME: undefined,
     PASSWORD: undefined,

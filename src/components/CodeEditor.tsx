@@ -21,9 +21,11 @@ export const CodeEditor = (props: JSX.IntrinsicAttributes & ClassAttributes<HTML
             {...props}
             defaultLanguage="java"
             defaultValue="public class MainApplication {
-                            public static void main(String[] args) {
-                                SpringApplication.run(MainApplication.class, args);
-                            }}"
+    public static void main(String[] args) {
+        SpringApplication.run(MainApplication.class, args);
+    }
+
+}"
             onMount={handleEditorDidMount}
         />
     </>;
