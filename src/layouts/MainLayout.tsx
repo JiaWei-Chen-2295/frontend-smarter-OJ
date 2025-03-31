@@ -1,18 +1,24 @@
-import {Avatar, Divider, Layout, Menu, theme} from 'antd';
-import {ReactNode, useEffect, useState} from "react";
-import NavBarItems, {getPathByKey} from "../config/NavBarItem.config.tsx";
-import {useLocation, useNavigate} from "react-router";
-import {useSelector} from "react-redux";
-import {RootState} from "../context/store.ts";
-import {router} from "../config/router.config.tsx";
-import {SourceCode} from "@icon-park/react";
+import { Avatar, Button, Divider, Dropdown, Layout, Menu, MenuProps, Space, theme } from 'antd';
+import { ReactNode, useEffect, useState } from "react";
+import NavBarItems, { getPathByKey } from "../config/NavBarItem.config.tsx";
+import { useLocation, useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { RootState } from "../context/store.ts";
+import { router } from "../config/router.config.tsx";
+import { SourceCode } from "@icon-park/react";
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import React from 'react';
+import { UserControllerService } from '../../generated/index.ts';
+
+const { Header, Content, Footer } = Layout;
 
 
-const {Header, Content, Footer} = Layout;
 
-function MainLayout({children}: { children: ReactNode }) {
+
+function MainLayout({ children }: { children: ReactNode }) {
+
     const {
-        token: {colorBgContainer, borderRadiusLG},
+        token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
 
     const [currentKey, setCurrentKey] = useState<string>('');
@@ -22,6 +28,53 @@ function MainLayout({children}: { children: ReactNode }) {
     // @ts-expect-error useSelector
     const currentUser = useSelector<RootState, OJModel.User>(state => state.User?.currentUser)
 
+    const { useToken } = theme;
+    const { token } = useToken();
+    console.log('token', token);
+
+
+    const contentStyle: React.CSSProperties = {
+        backgroundColor: token.colorBgElevated,
+        borderRadius: token.borderRadiusLG,
+        boxShadow: token.boxShadowSecondary,
+    };
+
+    const menuStyle: React.CSSProperties = {
+        boxShadow: 'none',
+    };
+
+    const items: MenuProps['items'] = [
+        {
+            key: '1',
+            label: (
+                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+                    个人中心
+                </a>
+            ),
+            icon: <UserOutlined />,
+            disabled: currentUser === null,
+        },
+        {
+            key: '2',
+            label: (
+                <a target="_blank" rel="noopener noreferrer">
+                    注销
+                </a>
+            ),
+            icon: <LogoutOutlined />,
+            onClick: () => {
+                UserControllerService.userLogoutUsingPost()
+                    .then(() => {
+                        navigate('/', { replace: true })
+                        window.location.reload()
+                    })
+                    .catch((error) => {
+                        console.error(error)
+                    })
+            },
+            disabled: currentUser === null,
+        },
+    ];
 
     useEffect(() => {
         const path = location.pathname;
@@ -64,19 +117,49 @@ function MainLayout({children}: { children: ReactNode }) {
                             navigate(path)
                         }
                     }}
-                    style={{flex: 1, minWidth: 0}}
+                    style={{ flex: 1, minWidth: 0 }}
                 />
-                <div className="my-user pr-6">
-                    <Avatar
-                        style={{ backgroundColor: '#c7fdbb', color: '#096105' }}
-                        size={'large'}
-                        src={
-                            <img src={currentUser?.userAvatar} alt={currentUser?.userName}></img>
-                        }
-                    >{
-                        currentUser?.userName?.slice(0, 1)
-                    }</Avatar>
-                </div>
+
+                <Dropdown
+                    menu={{ items }}
+                    placement="bottomLeft"
+                    dropdownRender={(menu) => (
+                        <div style={contentStyle}>
+                            {React.cloneElement(
+                                menu as React.ReactElement<{
+                                    style: React.CSSProperties;
+                                }>,
+                                { style: menuStyle },
+                            )}
+                            <Divider style={{ margin: 0 }} />
+                            {
+                                currentUser === null && (
+                                    <Space style={{ padding: 8 }}>
+                                        <Button type="primary" onClick={() => { window.location.reload() }}>立即登录</Button>
+                                    </Space>
+                                )
+                            }
+                        </div>
+                    )}
+                >
+                    <a onClick={(e) => e.preventDefault()}>
+                        <div className="my-user pr-6">
+                            <Avatar
+                                style={{ backgroundColor: '#c7fdbb', color: '#096105' }}
+                                size={'large'}
+                                src={
+                                    <img src={currentUser?.userAvatar} alt={currentUser?.userName}></img>
+                                }
+                            >{
+                                    currentUser?.userName?.slice(0, 1)
+                                }</Avatar>
+                        </div>
+                    </a>
+                </Dropdown>
+
+
+
+
             </Header>
             <Content className={"p-6"}>
                 <div
@@ -92,11 +175,11 @@ function MainLayout({children}: { children: ReactNode }) {
                     {children}
                 </div>
             </Content>
-            <Footer style={{textAlign: 'center'}}>
+            <Footer style={{ textAlign: 'center' }}>
                 Smarter OJ ©{new Date().getFullYear()} Created by JavierChen
                 <Divider type={"vertical"} />
                 <span className={'flex items-center justify-center gap-1.5'}>
-                <SourceCode theme="outline" size="16" fill="#000000"/>
+                    <SourceCode theme="outline" size="16" fill="#000000" />
                     <p>开源代码许可</p>
                 </span>
             </Footer>

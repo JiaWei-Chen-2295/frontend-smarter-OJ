@@ -7,9 +7,11 @@ import Questions from "../pages/index/Questions";
 import OJMain from "../pages/index/Main";
 import AdminPageMain from "../pages/admin";
 import AuthRouter from "../router/AuthRouter";
+import Dashboard from "../pages/admin/Dashboard";
+import QuestionManager from "../pages/admin/QuestionManager";
 import {NoAdmin} from "../pages/NoAdmin.tsx";
 import Lab from "../pages/index/Lab";
-
+import UserManager from "../pages/admin/UserManager";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -55,8 +57,21 @@ export const router = createBrowserRouter([
             <AuthRouter>
             <AdminPageMain/>
             </AuthRouter>
-        </>
-        ,
+        </>,
+        children: [
+            {
+                path: "dashboard",
+                element: <Dashboard/>
+            },
+            {
+                path: "question-manager",
+                element: <QuestionManager/>
+            },
+            {
+                path: "user-manager",
+                element: <UserManager/>
+            }
+        ],
     },
     {
         path: "/no-admin",

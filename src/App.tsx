@@ -129,7 +129,6 @@ function App() {
             >
                 <div className={'flex flex-col items-center justify-center h-1/2 w-full'}>
                     <Tabs aria-label="Dynamic tabs" items={tabs}
-                        color={'success'}
                     >
                         {(item) => (
                             <Tab key={item.id} title={item.label}>
