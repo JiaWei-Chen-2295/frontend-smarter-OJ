@@ -1,7 +1,7 @@
-import { Button, Modal, Form, InputNumber, message } from "antd";
+import { Button, Modal, Form, InputNumber, message, Row, Col, Tooltip } from "antd";
 import { useState } from "react";
 import { ProForm, ProFormText, ProFormTextArea, ProFormItem } from '@ant-design/pro-components';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import MarkDownNewEditor from "../../../components/MarkDownNewEditor";
 import { QuestionControllerService } from "../../../../generated";
 
@@ -79,6 +79,7 @@ function QuestionManager() {
                 confirmLoading={confirmLoading}
                 onCancel={handleCancel}
                 width={800}
+                bodyStyle={{ maxHeight: '60vh', overflowY: 'auto' }}
             >
                 <ProForm
                     form={form}
@@ -87,15 +88,16 @@ function QuestionManager() {
                 >
                     <ProFormText
                         name="title"
-                        label="Title"
+                        label="题目标题"
                         placeholder="请输入题目标题"
                         rules={[{ required: true, message: '请输入题目标题!' }]}
+                        style={{ marginBottom: 16 }}
                     />
                     <ProFormItem
                         name="content"
-                        label="Content"
+                        label="题目内容"
                         rules={[{ required: true, message: '请输入题目内容!' }]}
-                        style={{ width: '100%' }}
+                        style={{ width: '100%', marginBottom: 16 }}
                     >
                         <div style={{ width: '100%' }}>
                             <MarkDownNewEditor
@@ -110,23 +112,29 @@ function QuestionManager() {
                     </ProFormItem>
                     <ProFormTextArea
                         name="answer"
-                        label="Answer"
+                        label="参考答案"
                         placeholder="请输入题目答案"
                         rules={[{ required: true, message: '请输入题目答案!' }]}
+                        style={{ marginBottom: 16 }}
                     />
                     <Form.List name="tags">
                         {(fields, operation) => {
                             return (
-                                <>
-                                    {fields.map((field) => (
-                                        <ProFormText
-                                            key={String(field.key)}
-                                            name={field.name}
-                                            fieldKey={field.fieldKey}
-                                            rules={[{ required: true, message: 'Tag is required' }]}
-                                            placeholder="Tag"
-                                            addonAfter={<a onClick={() => operation.remove(field.name)}>删除</a>}
-                                        />
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', marginBottom: 8 }}>标签</label>
+                                    {fields.map((field, index) => (
+                                        <div key={String(field.key)} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                                            <ProFormText
+                                                name={field.name}
+                                                fieldKey={field.fieldKey}
+                                                rules={[{ required: true, message: '请输入标签！' }]}
+                                                placeholder={`标签 ${index + 1}`}
+                                                style={{ flex: 1, marginRight: 8 }}
+                                            />
+                                            <Tooltip title="删除此标签">
+                                                <Button danger type="text" icon={<DeleteOutlined />} onClick={() => operation.remove(field.name)} />
+                                            </Tooltip>
+                                        </div>
                                     ))}
                                     <Button
                                         type="dashed"
@@ -137,33 +145,41 @@ function QuestionManager() {
                                     >
                                         添加 Tag
                                     </Button>
-                                </>
+                                </div>
                             );
                         }}
                     </Form.List>
                     <Form.List name="judgeCase">
                         {(fields, operation) => {
                             return (
-                                <>
-                                    {fields.map((field) => (
-                                        <div key={String(field.key)}>
-                                            <ProFormText
-                                                {...field}
-                                                key={`${field.key}-input`}
-                                                name={[field.name, 'input']}
-                                                fieldKey={[field.fieldKey, 'input']}
-                                                rules={[{ required: true, message: 'Input is required' }]}
-                                                placeholder="Input"
-                                            />
-                                            <ProFormText
-                                                {...field}
-                                                key={`${field.key}-output`}
-                                                name={[field.name, 'output']}
-                                                fieldKey={[field.fieldKey, 'output']}
-                                                rules={[{ required: true, message: 'Output is required' }]}
-                                                placeholder="Output"
-                                            />
-                                            <a onClick={() => operation.remove(field.name)}>删除</a>
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', marginBottom: 8 }}>判题用例</label>
+                                    {fields.map((field, index) => (
+                                        <div key={String(field.key)} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: index === fields.length - 1 ? 'none' : '1px dashed #d9d9d9' }}>
+                                            <Row gutter={16}>
+                                                <Col span={21}>
+                                                    <ProFormText
+                                                        {...field}
+                                                        name={[field.name, 'input']}
+                                                        fieldKey={[field.fieldKey, 'input']}
+                                                        rules={[{ required: true, message: '请输入输入用例！' }]}
+                                                        placeholder={`输入 ${index + 1}`}
+                                                        style={{ marginBottom: 8 }}
+                                                    />
+                                                    <ProFormText
+                                                        {...field}
+                                                        name={[field.name, 'output']}
+                                                        fieldKey={[field.fieldKey, 'output']}
+                                                        rules={[{ required: true, message: '请输入输出用例！' }]}
+                                                        placeholder={`输出 ${index + 1}`}
+                                                    />
+                                                </Col>
+                                                <Col span={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Tooltip title="删除此用例">
+                                                        <Button danger type="text" icon={<DeleteOutlined />} onClick={() => operation.remove(field.name)} />
+                                                    </Tooltip>
+                                                </Col>
+                                            </Row>
                                         </div>
                                     ))}
                                     <Button
@@ -175,35 +191,35 @@ function QuestionManager() {
                                     >
                                         添加 Judge Case
                                     </Button>
-                                </>
+                                </div>
                             );
                         }}
                     </Form.List>
-                    <ProForm.Group>
+                    <ProForm.Group title="判题配置" style={{ marginTop: 16 }}>
                         <ProFormItem
                             name={['judgeConfig', 'memoryLimit']}
-                            label="Memory Limit"
-                            rules={[{ required: true, message: '请输入内存限制!' }]}
+                            label="内存限制 (KB)"
+                            rules={[{ required: true, message: '请输入内存限制 (KB)!' }]}
                         >
-                            <InputNumber placeholder="请输入内存限制" style={{ width: '100%' }} />
+                            <InputNumber placeholder="请输入内存限制，单位 KB" style={{ width: '100%' }} />
                         </ProFormItem>
                         <ProFormItem
                             name={['judgeConfig', 'stackLimit']}
-                            label="Stack Limit"
+                            label="堆栈限制 (MB)"
                             rules={[{ required: true, message: '请输入栈限制!' }]}
                         >
                             <InputNumber placeholder="请输入栈限制" style={{ width: '100%' }} />
                         </ProFormItem>
                         <ProFormItem
                             name={['judgeConfig', 'timeLimit']}
-                            label="Time Limit"
-                            rules={[{ required: true, message: '请输入时间限制!' }]}
+                            label="运行时间限制 (ms)"
+                            rules={[{ required: true, message: '请输入时间限制 (ms)!' }]}
                         >
-                            <InputNumber placeholder="请输入时间限制" style={{ width: '100%' }} />
+                            <InputNumber placeholder="请输入运行时间限制，单位 ms" style={{ width: '100%' }} />
                         </ProFormItem>
                         <ProFormText
                             name={['judgeConfig', 'customField']}
-                            label="Custom Field"
+                            label="自定义字段"
                             placeholder="请输入自定义字段"
                         />
                     </ProForm.Group>
