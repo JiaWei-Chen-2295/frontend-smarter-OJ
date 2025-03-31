@@ -2,11 +2,10 @@ import {useEffect, useState} from "react";
 import Vditor from 'vditor'
 import "vditor/dist/index.css";
 import "./MarkDownNewEditor.css"
-import {Button, Card} from "antd";
 
-const MarkDownNewEditor = ({ onValueChange, ...options }: IOptions & { onValueChange?: (value: string) => void }) => {
+const MarkDownNewEditor = ( {defaultValue, onValueChange, ...options }: IOptions & {defaultValue?: string, onValueChange?: (value: string) => void }) => {
     const [vd, setVd] = useState<Vditor>();
-    const [value, setValue] = useState<string>("# 写点什么吧😎 支持`markdown`\n## 二标题")
+    const [value, setValue] = useState<string>(defaultValue ? defaultValue : "# 写点什么吧😎 支持`markdown`\n## 二标题")
     const viditorOption: IOptions = {
         toolbar: [
             "headings",
@@ -62,20 +61,9 @@ const MarkDownNewEditor = ({ onValueChange, ...options }: IOptions & { onValueCh
 
     return (
         <>
-            <Card style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
-                <div className={"flex flex-col items-center gap-4"}>
+            <div className={"flex flex-col items-center gap-4"}>
                     <div id="vditor" className={' w-full'} onInput={handleInput} />
-                    <Button
-                        onClick={() => {
-                            setValue(vd?.getValue() || "");
-                        }}
-                        type="primary"
-                        className={"mt-2"}
-                    >
-                        提交
-                    </Button>
                 </div>
-            </Card>
         </>
     );
 }
