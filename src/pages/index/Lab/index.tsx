@@ -14,9 +14,9 @@ function Lab() {
                 <CodeEditor className={'h-64 w-64'} />
             </Card>
 
-            <Card>
+
                  <QuestionList />
-            </Card>
+    
            
         </>
     )

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
+    "@ant-design/pro-components": "^2.8.7",
     "@bytemd/plugin-gfm": "^1.22.0",
     "@bytemd/react": "^1.22.0",
     "@heroui/react": "^2.7.5",
