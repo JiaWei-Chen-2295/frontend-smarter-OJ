@@ -12,6 +12,7 @@ import QuestionManager from "../pages/admin/QuestionManager";
 import {NoAdmin} from "../pages/NoAdmin.tsx";
 import Lab from "../pages/index/Lab";
 import UserManager from "../pages/admin/UserManager";
+import { ErrorBoundary } from "../router/ErrorBoundary";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
             title: "首页",
             requiresAuth: false,
         },
+        errorElement: <ErrorBoundary />,
         children: [
             {
                 path: "/",
@@ -47,6 +49,7 @@ export const router = createBrowserRouter([
                 <OJQuestion/>
             </AuthRouter></>
         ,
+        errorElement: <ErrorBoundary />,
     }, {
         path: "/admin",
         meta: {
@@ -58,6 +61,7 @@ export const router = createBrowserRouter([
             <AdminPageMain/>
             </AuthRouter>
         </>,
+        errorElement: <ErrorBoundary />,
         children: [
             {
                 path: "dashboard",
@@ -80,6 +84,10 @@ export const router = createBrowserRouter([
             requiresAuth: false,
         },
         element: <NoAdmin/>
+    },
+    {
+        path: "*",
+        element: <ErrorBoundary />
     }
 
 ]);

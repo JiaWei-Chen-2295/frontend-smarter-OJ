@@ -9,6 +9,7 @@ import {useEffect, useState} from "react";
 import {RootState} from "./context/store.ts";
 import {UserControllerService} from "../generated";
 import {HeroUIProvider} from "@heroui/system";
+import { ErrorBoundary } from './router/ErrorBoundary.tsx';
 
 function App() {
     const [messageApi, contextHolder] = message.useMessage()
@@ -117,6 +118,7 @@ function App() {
     return (
     <>
         { contextHolder }
+
             <RouterProvider router={router}></RouterProvider>
         <HeroUIProvider>
             <Modal title="请先登录" open={isModalOpen} onCancel={handleClose} centered={true} footer={null}

@@ -12,9 +12,6 @@ import { UserControllerService } from '../../generated/index.ts';
 
 const { Header, Content, Footer } = Layout;
 
-
-
-
 function MainLayout({ children }: { children: ReactNode }) {
 
     const {
