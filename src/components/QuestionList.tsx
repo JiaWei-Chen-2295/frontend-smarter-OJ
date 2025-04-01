@@ -5,7 +5,7 @@ import { Tag, Button, Modal, Form, InputNumber, message, Row, Col, Tooltip } fro
 import { EditOutlined, PlusOutlined, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
 import { ProForm, ProFormText, ProFormTextArea, ProFormItem } from '@ant-design/pro-components';
 import MarkDownNewEditor from "../components/MarkDownNewEditor"; // Re-check this path
-import useModal from "antd/es/modal/useModal";
+
 
 // Define the type for the data records using Question
 type DataType = Question;
@@ -50,6 +50,7 @@ export default function QuestionList() {
             if (response.code === 0 && response.data) {
                 const questionData = response.data;
                 setCurrentQuestion(questionData);
+                
                 form.setFieldsValue({
                     title: questionData.title,
                     tags: questionData.tags,
@@ -309,9 +310,11 @@ return (
                     rules={[{ required: true, message: '请输入题目内容!' }]}
                     style={{ width: '100%', marginBottom: 16 }}
                 >
+
                     <div style={{ width: '100%' }}>
                         <MarkDownNewEditor
-                            value={currentQuestion?.content ?? "# 写点什么吧😎 支持`markdown`\n## 这是题目添加页面"}
+                            value={currentQuestion?.content}
+                            defaultValue={currentQuestion?.content ?? "#请你指定一个内容吧 \n 支持`markdown` 😎"}
                             height={"350px"}
                             toolbarConfig={{ pin: true }}
                             onValueChange={(value: string) => {
