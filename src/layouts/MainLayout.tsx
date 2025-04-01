@@ -27,8 +27,6 @@ function MainLayout({ children }: { children: ReactNode }) {
 
     const { useToken } = theme;
     const { token } = useToken();
-    console.log('token', token);
-
 
     const contentStyle: React.CSSProperties = {
         backgroundColor: token.colorBgElevated,
