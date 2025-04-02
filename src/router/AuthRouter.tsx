@@ -1,7 +1,7 @@
 // 创建一个高阶函数
 import * as React from "react";
 import {useEffect, useMemo} from "react";
-import {useLocation, useNavigate} from "react-router";
+import {useLocation, useNavigate} from "react-router-dom";
 import {router} from "../config/router.config.tsx";
 import {useSelector} from "react-redux";
 import {RootState} from "../context/store.ts";

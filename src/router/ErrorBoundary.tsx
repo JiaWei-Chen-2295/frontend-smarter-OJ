@@ -2,7 +2,7 @@ import { CloseCircleOutlined } from '@ant-design/icons';
 import { Button, Result, Typography } from 'antd';
 
 const { Paragraph, Text } = Typography;
-import { isRouteErrorResponse, useNavigate, useRouteError } from "react-router";
+import { isRouteErrorResponse, useNavigate, useRouteError } from "react-router-dom";
 
 export function ErrorBoundary() {
     const error = useRouteError();

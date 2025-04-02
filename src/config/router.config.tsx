@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import {createBrowserRouter} from "react-router";
+import {createBrowserRouter} from "react-router-dom";
 import OJIndex from "../pages/index";
 import OJQuestion from "../pages/OJQuestion";
 import Questions from "../pages/index/Questions";
@@ -43,7 +43,7 @@ export const router = createBrowserRouter([
         ]
     },
     {
-        path: "/oj",
+        path: "/oj/:questionId",
         element:
             <>   <AuthRouter>
                 <OJQuestion/>

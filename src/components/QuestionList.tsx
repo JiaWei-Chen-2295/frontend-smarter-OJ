@@ -48,9 +48,9 @@ export default function QuestionList() {
             const response = await QuestionControllerService.getQuestionByIdUsingGet(id);
             if (response.code === 0 && response.data) {
                 const questionData = response.data;
-                questionData.tags = JSON.parse(questionData?.tags);
-                questionData.judgeCase = JSON.parse(questionData?.judgeCase);
-                questionData.judgeConfig = JSON.parse(questionData?.judgeConfig);
+                questionData.tags = JSON.parse(questionData?.tags ?? " ");
+                questionData.judgeCase = JSON.parse(questionData?.judgeCase ?? " ");
+                questionData.judgeConfig = JSON.parse(questionData?.judgeConfig ?? " ");
                 setCurrentQuestion(questionData);
 
                 form.setFieldsValue({
@@ -343,7 +343,7 @@ export default function QuestionList() {
                         <ProFormTextArea
                             name="answer"
                             label="参考答案"
-                            placeholder="请输入题目答案 (编辑时需重新输入)"
+                            placeholder="请输入题目答案"
                             rules={[{ required: true, message: '请输入题目答案!' }]}
                             style={{ marginBottom: 16 }}
                         />
@@ -380,7 +380,7 @@ export default function QuestionList() {
                         <Form.List name="judgeCase">
                             {(fields, operation) => (
                                 <div style={{ marginBottom: 16 }}>
-                                    <label style={{ display: 'block', marginBottom: 8 }}>判题用例 (编辑时需重新输入)</label>
+                                    <label style={{ display: 'block', marginBottom: 8 }}>判题用例</label>
                                     {fields.map((field, index) => (
                                         <div key={String(field.key)} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: index === fields.length - 1 ? 'none' : '1px dashed #d9d9d9' }}>
                                             <Row gutter={16}>

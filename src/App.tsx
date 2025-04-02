@@ -1,5 +1,5 @@
 import './App.css'
-import {RouterProvider} from "react-router";
+import {RouterProvider} from "react-router-dom";
 import {router} from "./config/router.config.tsx";
 import {Button, Checkbox, Form, FormProps, Input, message, Modal, QRCode} from "antd";
 import {Card, CardBody, Tab, Tabs} from "@heroui/react";
@@ -10,6 +10,10 @@ import {RootState} from "./context/store.ts";
 import {UserControllerService} from "../generated";
 import {HeroUIProvider} from "@heroui/system";
 import { ErrorBoundary } from './router/ErrorBoundary.tsx';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ConfigProvider } from "antd";
+import zhCN from "antd/locale/zh_CN";
+import OJQuestion from "./pages/OJQuestion";
 
 function App() {
     const [messageApi, contextHolder] = message.useMessage()
