@@ -10,6 +10,7 @@ function OJQuestion() {
     const params = useParams<{questionId: string}>();
     const [question, setQuestion] = useState<QuestionVO>();
     const [loading, setLoading] = useState(true);
+    const [fontSize, setFontSize] = useState(14);
     
     useEffect(() => {
         const fetchQuestion = async () => {
@@ -45,9 +46,9 @@ function OJQuestion() {
                 }
             }}
         >
-            <QuestionLayout>
+            <QuestionLayout fontSize={fontSize} onFontSizeChange={setFontSize}>
                 <Spin spinning={loading} tip="加载中...">
-                    <CustomSplitter question={question} />
+                    <CustomSplitter question={question} fontSize={fontSize} />
                 </Spin>
             </QuestionLayout>
         </ConfigProvider>

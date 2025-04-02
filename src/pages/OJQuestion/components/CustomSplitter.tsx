@@ -1,17 +1,19 @@
-import { Layout, Select, Button, Space } from "antd";
+import { Layout, Select, Button, Space, InputNumber, message } from "antd";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
 import { useState, useRef } from "react";
 import type { QuestionVO } from "../../../../generated";
 import Veditor from "../../../components/Veditor";
 import { CodeEditor, CodeEditorRef } from "../../../components/CodeEditor";
-import { FormatPainterOutlined } from "@ant-design/icons";
+import { FormatPainterOutlined, SendOutlined, FontSizeOutlined } from "@ant-design/icons";
+import { QuestionControllerService } from "../../../../generated";
 
 const { Sider, Content } = Layout;
 const { Option } = Select;
 
 interface CustomSplitterProps {
     question?: QuestionVO;
+    fontSize?: number;
 }
 
 interface ResizeData {
@@ -31,10 +33,11 @@ const SUPPORTED_LANGUAGES = [
     { value: 'rust', label: 'Rust' },
 ];
 
-const CustomSplitter: React.FC<CustomSplitterProps> = ({ question }) => {
+const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14 }) => {
     const [width, setWidth] = useState(600);
     const codeEditorRef = useRef<CodeEditorRef>(null);
     const [currentLanguage, setCurrentLanguage] = useState('java');
+    const [messageApi, contextHolder] = message.useMessage();
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeData) => {
         setWidth(data.size.width);
@@ -54,8 +57,36 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question }) => {
         codeEditorRef.current?.formatCode();
     };
 
+    const handleSubmitCode = async () => {
+        try {
+            const code = codeEditorRef.current?.getValue();
+            if (!code) {
+                messageApi.error('请先编写代码');
+                return;
+            }
+            console.log('Submit code:', code);
+            return ;
+
+            const resp = await QuestionControllerService.editQuestionUsingPost({
+                questionId: question?.id,
+                language: currentLanguage,
+                code: code
+            });
+
+            if (resp.code === 0) {
+                messageApi.success('代码提交成功');
+            } else {
+                messageApi.error(resp.message || '提交失败');
+            }
+        } catch (error) {
+            messageApi.error('提交失败，请稍后重试');
+            console.error('提交代码失败:', error);
+        }
+    };
+
     return (
         <Layout className="h-screen bg-[#141414]">
+            {contextHolder}
             <ResizableBox
                 width={width}
                 height={Infinity}
@@ -125,6 +156,13 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question }) => {
                             >
                                 格式化代码
                             </Button>
+                            <Button 
+                                icon={<SendOutlined />}
+                                onClick={handleSubmitCode}
+                                className="bg-[#228B22] text-white hover:bg-[#1a6b1a]"
+                            >
+                                提交代码
+                            </Button>
                         </Space>
                     </div>
                     <div className="h-[calc(100%-48px)]">
@@ -133,6 +171,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question }) => {
                             language={currentLanguage}
                             onChange={handleCodeChange}
                             defaultValue="// 在这里编写你的代码"
+                            fontSize={fontSize}
                         />
                     </div>
                 </div>
