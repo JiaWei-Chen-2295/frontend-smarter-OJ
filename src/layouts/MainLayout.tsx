@@ -57,6 +57,7 @@ function MainLayout({ children }: { children: ReactNode }) {
                 </a>
             ),
             icon: <LogoutOutlined />,
+            danger: true,
             onClick: () => {
                 UserControllerService.userLogoutUsingPost()
                     .then(() => {

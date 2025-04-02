@@ -118,9 +118,9 @@ function App() {
     return (
     <>
         { contextHolder }
-
-            <RouterProvider router={router}></RouterProvider>
         <HeroUIProvider>
+            <RouterProvider router={router}></RouterProvider>
+       
             <Modal title="请先登录" open={isModalOpen} onCancel={handleClose} centered={true} footer={null}
                 // 添加固定尺寸配置
                    width={600}  // 设置固定宽度

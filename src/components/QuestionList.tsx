@@ -1,16 +1,14 @@
 import React, { useState, useRef } from "react";
 import { ProTable, ProColumns, ActionType } from "@ant-design/pro-components";
 import { QuestionControllerService, Question, QuestionQueryRequest, QuestionVO } from "../../generated"; // Import Question and QuestionQueryRequest
-import { Tag, Button, Modal, Form, InputNumber, message, Row, Col, Tooltip } from "antd";
-import { EditOutlined, PlusOutlined, DeleteOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { Tag, Button, Modal, Form, InputNumber, message, Row, Col, Tooltip, Space } from "antd";
+import { EditOutlined, PlusOutlined, DeleteOutlined, ExclamationCircleFilled, InboxOutlined } from "@ant-design/icons";
 import { ProForm, ProFormText, ProFormTextArea, ProFormItem } from '@ant-design/pro-components';
-import MarkDownNewEditor from "../components/MarkDownNewEditor"; // Re-check this path
+import MarkDownNewEditor from "../components/MarkDownNewEditor";
 
 
-// Define the type for the data records using Question
 type DataType = Question;
 
-// Define types for Form data
 type QuestionAddRequest = {
     answer?: string;
     content?: string;
@@ -39,21 +37,27 @@ export default function QuestionList() {
     const [form] = Form.useForm<QuestionAddRequest>();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
-    const [currentQuestion, setCurrentQuestion] = useState<QuestionVO | null>(null);
+    const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [modal, contextHolder] = Modal.useModal();
 
     const fetchQuestionData = async (id: number) => {
         setConfirmLoading(true);
         try {
             // Use getQuestionVOByIdUsingGet for filling the edit form
-            const response = await QuestionControllerService.getQuestionVoByIdUsingGet(id);
+            // const response = await QuestionControllerService.getQuestionVoByIdUsingGet(id);
+            const response = await QuestionControllerService.getQuestionByIdUsingGet(id);
             if (response.code === 0 && response.data) {
                 const questionData = response.data;
+                questionData.tags = JSON.parse(questionData?.tags);
+                questionData.judgeCase = JSON.parse(questionData?.judgeCase);
+                questionData.judgeConfig = JSON.parse(questionData?.judgeConfig);
                 setCurrentQuestion(questionData);
-                
+
                 form.setFieldsValue({
                     title: questionData.title,
                     tags: questionData.tags,
+                    answer: questionData.answer,
+                    judgeCase: questionData.judgeCase,
                     judgeConfig: {
                         memoryLimit: questionData.judgeConfig?.memoryLimit ? Number(questionData.judgeConfig.memoryLimit) : undefined,
                         stackLimit: questionData.judgeConfig?.stackLimit ? Number(questionData.judgeConfig.stackLimit) : undefined,
@@ -163,276 +167,298 @@ export default function QuestionList() {
     };
 
 
-// Define columns with updated render functions
-const columns: ProColumns<DataType>[] = [
-    { title: "ID", dataIndex: "id", key: "id", width: 100 },
-    { title: "题目标题", dataIndex: "title", key: "title" },
-    { title: "提交数", dataIndex: "submitNum", key: "submitNum", width: 80, hideInSearch: true },
-    { title: "通过数", dataIndex: "acceptedNum", key: "acceptedNum", width: 80, hideInSearch: true },
-    {
-        title: "标签",
-        dataIndex: "tags",
-        key: "tags",
-        render: (tagsString: unknown) => {
-            if (typeof tagsString !== 'string') return null;
-            try {
-                const tagsArray = JSON.parse(tagsString);
-                return Array.isArray(tagsArray) ? tagsArray.map((tag: string) => <Tag key={tag}>{tag}</Tag>) : null;
-            } catch (e) {
-                console.error('Failed to parse tags string:', tagsString, e);
-                return <Tag color="error">解析失败</Tag>;
-            }
-        },
-        width: 150
-    },
-    {
-        title: "判题配置",
-        dataIndex: "judgeConfig",
-        key: "judgeConfig",
-        hideInSearch: true,
-        render: (judgeConfigString: unknown) => {
-            if (typeof judgeConfigString !== 'string') return '-';
-            try {
-                const config = JSON.parse(judgeConfigString);
-                return `时:${config?.timeLimit || '?'}ms 存:${config?.memoryLimit || '?'}KB 栈:${config?.stackLimit || '?'}MB`;
-            } catch (e) {
-                console.error('Failed to parse judgeConfig string:', judgeConfigString, e);
-                return <Tag color="error">解析失败</Tag>;
-            }
-        },
-        width: 200
-    },
-    { title: "创建时间", dataIndex: "createTime", key: "createTime", valueType: 'dateTime', hideInSearch: true, width: 150 },
-    {
-        title: '操作',
-        valueType: 'option',
-        key: 'option',
-        width: 150,
-        render: (text, record) => [
-            <Button
-                key="edit"
-                type="link"
-                icon={<EditOutlined />}
-                onClick={() => showModal(record.id as number)}
-            >
-                编辑
-            </Button>,
-            <Button
-                key="delete"
-                type="link"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={() => handleDelete(record.id as number)} // 确保调用 handleDelete
-            >
-                删除
-            </Button>,
-        ],
-    },
-];
-
-return (
-    <div>
-        <ProTable<DataType>
-            columns={columns}
-            actionRef={actionRef}
-            request={async (params, sort, filter) => {
+    // Define columns with updated render functions
+    const columns: ProColumns<DataType>[] = [
+        { title: "ID", dataIndex: "id", key: "id", width: 100 },
+        { title: "题目标题", dataIndex: "title", key: "title" },
+        { title: "提交数", dataIndex: "submitNum", key: "submitNum", width: 80, hideInSearch: true },
+        { title: "通过数", dataIndex: "acceptedNum", key: "acceptedNum", width: 80, hideInSearch: true },
+        {
+            title: "标签",
+            dataIndex: "tags",
+            key: "tags",
+            render: (tagsString: unknown) => {
+                if (typeof tagsString !== 'string') return null;
                 try {
-                    const queryRequest: QuestionQueryRequest = {
-                        pageSize: params.pageSize || 10,
-                        current: params.current || 1,
-                    };
-                    console.log('Query Request:', queryRequest);
-                    const res = await QuestionControllerService.getQuestionListUsingPost(queryRequest);
-                    console.log('API Response (Question List):', res);
-
-                    return {
-                        data: res?.data?.records || [],
-                        success: !!res?.data,
-                        total: res?.data?.total || 0,
-                    };
-                } catch (error) {
-                    console.error("Error fetching data:", error);
-                    message.error('获取题目列表失败');
-                    return {
-                        data: [],
-                        success: false,
-                        total: 0,
-                    };
+                    const tagsArray = JSON.parse(tagsString);
+                    return Array.isArray(tagsArray) ? tagsArray.map((tag: string) => <Tag key={tag}>{tag}</Tag>) : null;
+                } catch (e) {
+                    console.error('Failed to parse tags string:', tagsString, e);
+                    return <Tag color="error">解析失败</Tag>;
                 }
-            }}
-            rowKey="id"
-            pagination={{
-                pageSize: 10,
-            }}
-            search={{
-                layout: 'vertical',
-            }}
-            dateFormatter="string"
-            headerTitle="题目列表"
-            toolBarRender={() => [
-                <Button
-                    key="add"
-                    type="primary"
-                    onClick={() => showModal()}
-                    icon={<PlusOutlined />}
-                >
-                    添加题目
-                </Button>,
-            ]}
-        />
+            },
+            width: 150
+        },
+        {
+            title: "判题配置",
+            dataIndex: "judgeConfig",
+            key: "judgeConfig",
+            hideInSearch: true,
+            render: (judgeConfigString: unknown) => {
+                if (typeof judgeConfigString !== 'string') return '-';
+                try {
+                    const config = JSON.parse(judgeConfigString);
+                    return `时:${config?.timeLimit || '?'}ms 存:${config?.memoryLimit || '?'}KB 栈:${config?.stackLimit || '?'}MB`;
+                } catch (e) {
+                    console.error('Failed to parse judgeConfig string:', judgeConfigString, e);
+                    return <Tag color="error">解析失败</Tag>;
+                }
+            },
+            width: 200
+        },
+        { title: "创建时间", dataIndex: "createTime", key: "createTime", valueType: 'dateTime', hideInSearch: true, width: 150 },
+        {
+            title: '操作',
+            valueType: 'option',
+            key: 'option',
+            width: 150,
+            render: (text, record) => [
+                <Space>
+                    <Space.Compact direction="vertical">
+                        <Button
+                            key="edit"
+                            type="link"
+                            icon={<EditOutlined />}
+                            onClick={() => showModal(record.id as number)}
+                        >
+                            编辑
+                        </Button>
+                        <Button
+                            key="edit"
+                            type="link"
+                            icon={<InboxOutlined />}
+                            onClick={() => showModal(record.id as number)}
+                        >
+                            详情
+                        </Button>
+                        <Button
+                            key="delete"
+                            type="link"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => handleDelete(record.id as number)} // 确保调用 handleDelete
+                        >
+                            删除
+                        </Button>
 
-        {/* === Modal and Form === */}
-        <Modal
-            title={isEditMode ? "修改题目" : "添加题目"}
-            open={open}
-            onOk={handleOk}
-            confirmLoading={confirmLoading}
-            onCancel={handleCancel}
-            width={800}
-            bodyStyle={{ maxHeight: '60vh', overflowY: 'auto' }}
-            destroyOnClose
-        >
-            <ProForm<QuestionAddRequest>
-                form={form}
-                layout="vertical"
-                submitter={false}
+                    </Space.Compact>
+                </Space>,
+            ],
+        },
+    ];
+
+    return (
+        <div>
+            <ProTable<DataType>
+                columns={columns}
+                actionRef={actionRef}
+                request={async (params, sort, filter) => {
+                    try {
+                        const queryRequest: QuestionQueryRequest = {
+                            pageSize: params.pageSize || 10,
+                            current: params.current || 1,
+                        };
+                        console.log('Query Request:', queryRequest);
+                        const res = await QuestionControllerService.getQuestionListUsingPost(queryRequest);
+                        console.log('API Response (Question List):', res);
+
+                        return {
+                            data: res?.data?.records || [],
+                            success: !!res?.data,
+                            total: res?.data?.total || 0,
+                        };
+                    } catch (error) {
+                        console.error("Error fetching data:", error);
+                        message.error('获取题目列表失败');
+                        return {
+                            data: [],
+                            success: false,
+                            total: 0,
+                        };
+                    }
+                }}
+                rowKey="id"
+                pagination={{
+                    pageSize: 10,
+                }}
+                search={{
+                    layout: 'vertical',
+                }}
+                dateFormatter="string"
+                headerTitle="题目列表"
+                toolBarRender={() => [
+                    <Button
+                        key="add"
+                        type="primary"
+                        onClick={() => showModal()}
+                        icon={<PlusOutlined />}
+                    >
+                        添加题目
+                    </Button>,
+                ]}
+            />
+
+            {/* === Modal and Form === */}
+            <Modal
+                title={isEditMode ? "修改题目" : "添加题目"}
+                open={open}
+                onOk={handleOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
+                width={800}
+                footer={null}
+                destroyOnClose
             >
-                <ProFormText
-                    name="title"
-                    label="题目标题"
-                    placeholder="请输入题目标题"
-                    rules={[{ required: true, message: '请输入题目标题!' }]}
-                    style={{ marginBottom: 16 }}
-                />
-                <ProFormItem
-                    name="content"
-                    label="题目内容"
-                    rules={[{ required: true, message: '请输入题目内容!' }]}
-                    style={{ width: '100%', marginBottom: 16 }}
-                >
-
-                    <div style={{ width: '100%' }}>
-                        <MarkDownNewEditor
-                            value={currentQuestion?.content}
-                            defaultValue={currentQuestion?.content ?? "#请你指定一个内容吧 \n 支持`markdown` 😎"}
-                            height={"350px"}
-                            toolbarConfig={{ pin: true }}
-                            onValueChange={(value: string) => {
-                                form.setFieldValue('content', value);
-                            }}
+                <div className="max-h-[60vh] overflow-y-auto pr-4">
+                    <ProForm<QuestionAddRequest>
+                        form={form}
+                        layout="vertical"
+                        submitter={false}
+                    >
+                        <ProFormText
+                            name="title"
+                            label="题目标题"
+                            placeholder="请输入题目标题"
+                            rules={[{ required: true, message: '请输入题目标题!' }]}
+                            style={{ marginBottom: 16 }}
                         />
-                    </div>
-                </ProFormItem>
-                <ProFormTextArea
-                    name="answer"
-                    label="参考答案"
-                    placeholder="请输入题目答案 (编辑时需重新输入)"
-                    rules={[{ required: true, message: '请输入题目答案!' }]}
-                    style={{ marginBottom: 16 }}
-                />
-                <Form.List name="tags">
-                    {(fields, operation) => (
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', marginBottom: 8 }}>标签</label>
-                            {fields.map((field, index) => (
-                                <div key={String(field.key)} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                                    <ProFormText
-                                        name={field.name}
-                                        fieldKey={field.fieldKey}
-                                        rules={[{ required: true, message: '请输入标签！' }]}
-                                        placeholder={`标签 ${index + 1}`}
-                                        style={{ flex: 1, marginRight: 8 }}
-                                    />
-                                    <Tooltip title="删除此标签">
-                                        <Button danger type="text" icon={<DeleteOutlined />} onClick={() => operation.remove(field.name)} />
-                                    </Tooltip>
-                                </div>
-                            ))}
-                            <Button
-                                type="dashed"
-                                onClick={() => operation.add()}
-                                block
-                                icon={<PlusOutlined />}
-                                style={{ marginTop: 8 }}
-                            >
-                                添加 Tag
-                            </Button>
-                        </div>
-                    )}
-                </Form.List>
-                <Form.List name="judgeCase">
-                    {(fields, operation) => (
-                        <div style={{ marginBottom: 16 }}>
-                            <label style={{ display: 'block', marginBottom: 8 }}>判题用例 (编辑时需重新输入)</label>
-                            {fields.map((field, index) => (
-                                <div key={String(field.key)} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: index === fields.length - 1 ? 'none' : '1px dashed #d9d9d9' }}>
-                                    <Row gutter={16}>
-                                        <Col span={21}>
+                        <ProFormItem
+                            name="content"
+                            label="题目内容"
+                            rules={[{ required: true, message: '请输入题目内容!' }]}
+                            style={{ width: '100%', marginBottom: 16 }}
+                        >
+                            <div style={{ width: '100%' }}>
+                                <MarkDownNewEditor
+                                    value={currentQuestion?.content}
+                                    defaultValue={currentQuestion?.content ?? "#请你指定一个内容吧 \n 支持`markdown` 😎"}
+                                    height={"350px"}
+                                    toolbarConfig={{ pin: true }}
+                                    onValueChange={(value: string) => {
+                                        form.setFieldValue('content', value);
+                                    }}
+                                />
+                            </div>
+                        </ProFormItem>
+                        <ProFormTextArea
+                            name="answer"
+                            label="参考答案"
+                            placeholder="请输入题目答案 (编辑时需重新输入)"
+                            rules={[{ required: true, message: '请输入题目答案!' }]}
+                            style={{ marginBottom: 16 }}
+                        />
+                        <Form.List name="tags">
+                            {(fields, operation) => (
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', marginBottom: 8 }}>标签</label>
+                                    {fields.map((field, index) => (
+                                        <div key={String(field.key)} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
                                             <ProFormText
-                                                name={[field.name, 'input']}
+                                                name={field.name}
                                                 fieldKey={field.fieldKey}
-                                                rules={[{ required: true, message: '请输入输入用例！' }]}
-                                                placeholder={`输入 ${index + 1}`}
-                                                style={{ marginBottom: 8 }}
+                                                rules={[{ required: true, message: '请输入标签！' }]}
+                                                placeholder={`标签 ${index + 1}`}
+                                                style={{ flex: 1, marginRight: 8 }}
                                             />
-                                            <ProFormText
-                                                name={[field.name, 'output']}
-                                                fieldKey={field.fieldKey}
-                                                rules={[{ required: true, message: '请输入输出用例！' }]}
-                                                placeholder={`输出 ${index + 1}`}
-                                            />
-                                        </Col>
-                                        <Col span={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <Tooltip title="删除此用例">
+                                            <Tooltip title="删除此标签">
                                                 <Button danger type="text" icon={<DeleteOutlined />} onClick={() => operation.remove(field.name)} />
                                             </Tooltip>
-                                        </Col>
-                                    </Row>
+                                        </div>
+                                    ))}
+                                    <Button
+                                        type="dashed"
+                                        onClick={() => operation.add()}
+                                        block
+                                        icon={<PlusOutlined />}
+                                        style={{ marginTop: 8 }}
+                                    >
+                                        添加 Tag
+                                    </Button>
                                 </div>
-                            ))}
-                            <Button
-                                type="dashed"
-                                onClick={() => operation.add()}
-                                block
-                                icon={<PlusOutlined />}
-                                style={{ marginTop: 8 }}
+                            )}
+                        </Form.List>
+                        <Form.List name="judgeCase">
+                            {(fields, operation) => (
+                                <div style={{ marginBottom: 16 }}>
+                                    <label style={{ display: 'block', marginBottom: 8 }}>判题用例 (编辑时需重新输入)</label>
+                                    {fields.map((field, index) => (
+                                        <div key={String(field.key)} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: index === fields.length - 1 ? 'none' : '1px dashed #d9d9d9' }}>
+                                            <Row gutter={16}>
+                                                <Col span={21}>
+                                                    <ProFormText
+                                                        name={[field.name, 'input']}
+                                                        fieldKey={field.fieldKey}
+                                                        rules={[{ required: true, message: '请输入输入用例！' }]}
+                                                        placeholder={`输入 ${index + 1}`}
+                                                        style={{ marginBottom: 8 }}
+                                                    />
+                                                    <ProFormText
+                                                        name={[field.name, 'output']}
+                                                        fieldKey={field.fieldKey}
+                                                        rules={[{ required: true, message: '请输入输出用例！' }]}
+                                                        placeholder={`输出 ${index + 1}`}
+                                                    />
+                                                </Col>
+                                                <Col span={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                    <Tooltip title="删除此用例">
+                                                        <Button danger type="text" icon={<DeleteOutlined />} onClick={() => operation.remove(field.name)} />
+                                                    </Tooltip>
+                                                </Col>
+                                            </Row>
+                                        </div>
+                                    ))}
+                                    <Button
+                                        type="dashed"
+                                        onClick={() => operation.add()}
+                                        block
+                                        icon={<PlusOutlined />}
+                                        style={{ marginTop: 8 }}
+                                    >
+                                        添加 Judge Case
+                                    </Button>
+                                </div>
+                            )}
+                        </Form.List>
+                        <ProForm.Group title="判题配置" style={{ marginTop: 16 }}>
+                            <ProFormItem
+                                name={['judgeConfig', 'memoryLimit']}
+                                label="内存限制 (KB)"
+                                rules={[{ required: true, message: '请输入内存限制 (KB)!' }]}
                             >
-                                添加 Judge Case
-                            </Button>
-                        </div>
-                    )}
-                </Form.List>
-                <ProForm.Group title="判题配置" style={{ marginTop: 16 }}>
-                    <ProFormItem
-                        name={['judgeConfig', 'memoryLimit']}
-                        label="内存限制 (KB)"
-                        rules={[{ required: true, message: '请输入内存限制 (KB)!' }]}
-                    >
-                        <InputNumber placeholder="请输入内存限制，单位 KB" style={{ width: '100%' }} />
-                    </ProFormItem>
-                    <ProFormItem
-                        name={['judgeConfig', 'stackLimit']}
-                        label="堆栈限制 (MB)"
-                        rules={[{ required: true, message: '请输入栈限制!' }]}
-                    >
-                        <InputNumber placeholder="请输入栈限制" style={{ width: '100%' }} />
-                    </ProFormItem>
-                    <ProFormItem
-                        name={['judgeConfig', 'timeLimit']}
-                        label="运行时间限制 (ms)"
-                        rules={[{ required: true, message: '请输入时间限制 (ms)!' }]}
-                    >
-                        <InputNumber placeholder="请输入运行时间限制，单位 ms" style={{ width: '100%' }} />
-                    </ProFormItem>
-                    <ProFormText
-                        name={['judgeConfig', 'customField']}
-                        label="自定义字段"
-                        placeholder="请输入自定义字段"
-                    />
-                </ProForm.Group>
-            </ProForm>
-        </Modal>
-        {contextHolder}
-    </div>
-);
+                                <InputNumber placeholder="请输入内存限制，单位 KB" style={{ width: '100%' }} />
+                            </ProFormItem>
+                            <ProFormItem
+                                name={['judgeConfig', 'stackLimit']}
+                                label="堆栈限制 (MB)"
+                                rules={[{ required: true, message: '请输入栈限制!' }]}
+                            >
+                                <InputNumber placeholder="请输入栈限制" style={{ width: '100%' }} />
+                            </ProFormItem>
+                            <ProFormItem
+                                name={['judgeConfig', 'timeLimit']}
+                                label="运行时间限制 (ms)"
+                                rules={[{ required: true, message: '请输入时间限制 (ms)!' }]}
+                            >
+                                <InputNumber placeholder="请输入运行时间限制，单位 ms" style={{ width: '100%' }} />
+                            </ProFormItem>
+                            <ProFormText
+                                name={['judgeConfig', 'customField']}
+                                label="自定义字段"
+                                placeholder="请输入自定义字段"
+                            />
+                        </ProForm.Group>
+                    </ProForm>
+                </div>
+                <div className="flex justify-end mt-4">
+                    <Button onClick={handleCancel} className="mr-2">
+                        取消
+                    </Button>
+                    <Button type="primary" onClick={handleOk} loading={confirmLoading}>
+                        确定
+                    </Button>
+                </div>
+            </Modal>
+            {contextHolder}
+        </div>
+    );
 } 
