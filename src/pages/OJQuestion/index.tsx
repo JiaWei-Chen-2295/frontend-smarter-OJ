@@ -1,4 +1,4 @@
-import { ConfigProvider, theme, Spin } from "antd";
+import { ConfigProvider, theme, Spin, message } from "antd";
 import QuestionLayout from "../../layouts/QuestionLayout";
 import { useParams } from "react-router-dom";
 import CustomSplitter from "./components/CustomSplitter";
@@ -20,9 +20,10 @@ function OJQuestion() {
                 );
                 if (resp.code === 0 && resp.data) {
                     setQuestion(resp.data);
+                    message.success("获取题目详情成功");
                 }
             } catch (error) {
-                console.error('获取题目详情失败:', error);
+                message.error(`获取题目详情失败:${error}`);
             } finally {
                 setLoading(false);
             }
