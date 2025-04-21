@@ -1,0 +1,34 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- 背景 -->
+    <rect width="200" height="200" fill="white"/>
+
+    <!-- 书本（背景主体） -->
+    <g>
+        <!-- 左页 -->
+        <path d="M40,70 Q70,65 100,70 Q100,110 100,150 Q70,145 40,150 Z"
+              fill="#dfffdc" stroke="#008000" stroke-width="2"/>
+        <!-- 右页 -->
+        <path d="M100,70 Q130,65 160,70 Q160,110 160,150 Q130,145 100,150 Z"
+              fill="#e0ffe0" stroke="#008000" stroke-width="2"/>
+        <!-- 中缝线 -->
+        <line x1="100" y1="70" x2="100" y2="150" stroke="#006400" stroke-width="1.5"/>
+    </g>
+
+    <!-- 代码符号 -->
+    <text x="58" y="118" font-size="24" fill="#006400" font-family="monospace" font-weight="bold">&lt;/&gt;</text>
+
+    <!-- OJ字母 -->
+    <text x="110" y="118" font-size="26" fill="#008000" font-family="Arial" font-weight="bold">OJ</text>
+
+    <!-- 对勾（更圆润） -->
+    <path d="M125 130 Q135 145 145 135 Q155 125 165 110"
+          stroke="#00aa00" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- 渐变定义 -->
+    <defs>
+        <linearGradient id="bulbGradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00e676"/>
+            <stop offset="100%" stop-color="#008000"/>
+        </linearGradient>
+    </defs>
+</svg>

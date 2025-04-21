@@ -1,0 +1,41 @@
+<svg width="200" height="250" viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+  <!-- Body -->
+  <circle cx="100" cy="150" r="75" fill="#F37720" />
+
+  <!-- 立体化叶子 -->
+  <g id="leaves">
+    <!-- 中心叶 -->
+    <path d="M100 75 C90 30,60 15,100 35 C140 15,110 30,100 75 Z" fill="#60D936">
+      <animate attributeName="opacity" values="1;0.9;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- 左侧叶 -->
+    <path d="M100 75 C70 45,30 30,70 80 C85 90,95 90,100 75 Z" fill="url(#leafGradient)">
+      <animate attributeName="fill" values="#60D936;#8CEB6C;#60D936" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M80 75 Q65 60,70 80" stroke="#4BA82E" stroke-width="2" stroke-linejoin="round"/>
+    
+    <!-- 右侧叶 -->
+    <path d="M100 75 C130 45,170 30,130 80 C115 90,105 90,100 75 Z" fill="url(#leafGradient)">
+      <animateTransform attributeName="transform" type="rotate" values="-2 100 75;2 100 75;-2 100 75" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M120 75 Q135 60,130 80" stroke="#4BA82E" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 渐变定义 -->
+  <defs>
+    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8CEB6C"/>
+      <stop offset="100%" stop-color="#3A8F1E"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Eyes -->
+  <ellipse cx="80" cy="140" rx="12" ry="18" fill="white" />
+  <ellipse cx="120" cy="140" rx="12" ry="18" fill="white" />
+  <ellipse cx="80" cy="140" rx="7" ry="12" fill="#0066CC" />
+  <ellipse cx="120" cy="140" rx="7" ry="12" fill="#0066CC" />
+
+  <!-- Mouth (cat-like) -->
+  <path d="M85 180 Q90 185, 95 180 Q100 175, 105 180 Q110 185, 115 180" stroke="black" stroke-width="4" fill="none" stroke-linecap="round" />
+</svg>

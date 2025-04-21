@@ -93,9 +93,8 @@ function MainLayout({ children }: { children: ReactNode }) {
                 padding: 0,
             }}>
                 <div className="my-logo">
-                    <h2
-                        className={"text-3xl text-green-700 font-bold pl-12 pr-5 "}
-                    >Smarter OJ</h2>
+                    <img src="/logo.svg" height={'48px'} width={'64px'} alt='Smarter OJ' />
+
                 </div>
                 <Menu
                     theme="light"
