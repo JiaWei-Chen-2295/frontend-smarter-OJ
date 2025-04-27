@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Flex, Table, Input, Tag, Space, Select, Tooltip, Card, Typography, Popover } from 'antd';
-import type { TableColumnsType, TableProps } from 'antd';
+import type { TableColumnsType, TableProps, TablePaginationConfig } from 'antd';
 import { QuestionControllerService } from '../../../../generated';
 import { SearchOutlined, StarOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -45,7 +50,12 @@ const columns: TableColumnsType<DataType> = [
                 <Popover
                     content={
                         <div className="max-w-md">
-                            <Typography.Paragraph>{record.content}</Typography.Paragraph>
+                            <ReactMarkdown 
+                                remarkPlugins={[remarkGfm, remarkMath]}
+                                rehypePlugins={[rehypeKatex]}
+                            >
+                                {record.content || ''}
+                            </ReactMarkdown>
                         </div>
                     }
                     title="题目内容"
@@ -128,16 +138,28 @@ function Questions() {
     const [questions, setQuestions] = useState<DataType[]>([]);
     const [searchText, setSearchText] = useState('');
     const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 10,
+        total: 0,
+        pages: 1
+    });
 
-    const fetchQuestions = async () => {
+    const fetchQuestions = async (current = 1, pageSize = 10) => {
         setLoading(true);
         try {
             const resp = await QuestionControllerService.listQuestionVoByPageUsingPost({
-                current: 1,
-                pageSize: 10
+                current,
+                pageSize
             });
-            if (resp.code === 0 && resp.data?.records) {
-                setQuestions(resp.data.records);
+            if (resp.code === 0 && resp.data) {
+                setQuestions(resp.data.records || []);
+                setPagination({
+                    current: Number(resp.data.current) || 1,
+                    pageSize: Number(resp.data.size) || 10,
+                    total: Number(resp.data.total) || 0,
+                    pages: Number(resp.data.pages) || 1
+                });
             }
         } catch (error) {
             console.error('获取题目列表失败:', error);
@@ -169,6 +191,10 @@ function Questions() {
         return matchesSearch && matchesDifficulty;
     });
 
+    const handleTableChange = (newPagination: TablePaginationConfig) => {
+        fetchQuestions(newPagination.current as number, newPagination.pageSize as number);
+    };
+
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
             <Flex gap="middle" vertical>
@@ -194,7 +220,7 @@ function Questions() {
                             <Option value="中等">中等</Option>
                             <Option value="困难">困难</Option>
                         </Select>
-                        <Button type="primary" onClick={fetchQuestions} loading={loading}>
+                        <Button type="primary" onClick={() => fetchQuestions()} loading={loading}>
                             刷新
                         </Button>
                         {hasSelected && (
@@ -210,12 +236,15 @@ function Questions() {
                         loading={loading}
                         rowKey="id"
                         pagination={{
-                            pageSize: 10,
+                            current: pagination.current,
+                            pageSize: pagination.pageSize,
+                            total: pagination.total,
                             showSizeChanger: true,
                             showQuickJumper: true,
                             showTotal: (total) => `共 ${total} 条`,
                             pageSizeOptions: ['10', '20', '50', '100']
                         }}
+                        onChange={handleTableChange}
                         className="bg-white rounded-lg"
                     />
                 </div>
