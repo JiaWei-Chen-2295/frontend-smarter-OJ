@@ -3,7 +3,9 @@ import type { JudgeInfo } from '../../../../../generated';
 
 interface CodeAnalysisProps {
     judgeInfo: JudgeInfo | null;
-    submissionResult: any;
+    submissionResult: {
+        status?: number;
+    };
 }
 
 const CodeAnalysis: React.FC<CodeAnalysisProps> = ({ judgeInfo, submissionResult }) => {

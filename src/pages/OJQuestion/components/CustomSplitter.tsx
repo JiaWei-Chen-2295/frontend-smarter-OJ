@@ -1,7 +1,8 @@
-import { Layout, Select, Button, Space, message, ConfigProvider, Modal } from "antd";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+// import { useModel } from '@umijs/max'; // 暂时注释掉未使用的导入
+import { Button, Select, Space, Spin, message as messageService, ConfigProvider, Modal, Layout } from "antd";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
-import { useState, useRef, useEffect, useCallback } from "react";
 import type { QuestionVO, JudgeInfo, QuestionSubmit } from "../../../../generated";
 import Veditor from "../../../components/Veditor";
 import { CodeEditor, CodeEditorRef } from "../../../components/CodeEditor";
@@ -12,10 +13,20 @@ import {
     InfoCircleOutlined, 
     PauseCircleOutlined, 
     PlayCircleOutlined,
+    CaretRightOutlined,
+    FullscreenOutlined,
+    LoadingOutlined,
+    RedoOutlined,
+    SettingOutlined,
+    CopyOutlined,
+    FullscreenExitOutlined,
+    SaveOutlined,
 } from "@ant-design/icons";
 import { QuestionSubmitControllerService } from "../../../../generated";
 import MojoCarrot from "../../../components/MojoCarrot";
 import JudgeResultCard from "./judge/JudgeResultCard";
+import AiAssistant, { ErrorType } from './judge/AiAssistant';
+import InlineCodeHint from './judge/InlineCodeHint';
 
 const { Sider, Content } = Layout;
 const { Option } = Select;
@@ -45,13 +56,14 @@ const SUPPORTED_LANGUAGES = [
 // 扩展QuestionSubmit类型，添加outputResult字段
 interface ExtendedQuestionSubmit extends QuestionSubmit {
     outputResult?: string | null;
+    parsedJudgeInfo?: JudgeInfo;
 }
 
 const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14 }) => {
     const [width, setWidth] = useState(600);
     const codeEditorRef = useRef<CodeEditorRef>(null);
     const [currentLanguage, setCurrentLanguage] = useState('java');
-    const [messageApi, contextHolder] = message.useMessage();
+    const [, contextHolder] = messageService.useMessage();
     
     // 计时相关状态
     const [solving, setSolving] = useState(false);
@@ -61,7 +73,6 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
 
     // 仅用于展示UI的状态
     const [showBubble] = useState(true);
-    const [showModal, setShowModal] = useState(false);
 
     // 记录最后一次提交的 Id 及相关状态
     const [, setLastSubmitId] = useState<string | null>(null);
@@ -75,6 +86,17 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
     
     // 预期答案 - 从测试用例中提取
     const [expectedOutputs] = useState<string[]>([]);
+
+    // AI助手相关状态
+    const [showAiAssistant, setShowAiAssistant] = useState(false);
+    const [anxietyLevel, setAnxietyLevel] = useState(20); // 初始焦虑值
+    const [submissionHistory, setSubmissionHistory] = useState<ErrorType[]>([]); // 提交历史
+    const [thinkingTime, setThinkingTime] = useState(0); // 思考时间（秒）
+    const [currentError, setCurrentError] = useState<ErrorType | undefined>(); // 当前错误
+    const [lastActivity, setLastActivity] = useState(Date.now()); // 最后活动时间
+
+    // 内联提示控制
+    const [showInlineHint, setShowInlineHint] = useState(false);
 
     // 格式化时间显示
     const formatTime = (seconds: number): string => {
@@ -133,11 +155,38 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
         };
     }, []);
 
+    // 更新思考时间和自动提示
+    useEffect(() => {
+        const timer = setInterval(() => {
+            // 只有在编辑器中有代码且在写代码时才计时
+            if (solving && !isPaused) {
+                // 检查是否超过一定时间没有活动，如果是则认为在思考
+                const now = Date.now();
+                if (now - lastActivity > 10000) { // 10秒无活动认为在思考
+                    setThinkingTime(prev => prev + 1);
+                    
+                    // 思考超过特定时间自动弹出提示 (30秒内联提示，60秒完整提示)
+                    if (thinkingTime === 29) {
+                        setShowInlineHint(true);
+                    } else if (thinkingTime === 59) {
+                        setShowInlineHint(false);
+                        setShowAiAssistant(true);
+                    }
+                }
+            }
+        }, 1000);
+        
+        return () => clearInterval(timer);
+    }, [solving, isPaused, lastActivity, thinkingTime]);
+
     const handleResize = (_: React.SyntheticEvent, data: ResizeData) => {
         setWidth(data.size.width);
     };
 
     const handleCodeChange = (value: string | undefined) => {
+        // 记录活动时间
+        setLastActivity(Date.now());
+        
         // 第一次输入时开始计时
         if (value && value !== "// 在这里编写你的代码" && !solving) {
             startTimer();
@@ -155,7 +204,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
 
     // 轮询判题结果
     const pollJudgeResult = useCallback(async (submitId: string) => {
-        if (!submitId) return;
+        if (!submitId) return null;
         
         setIsJudging(true);
         setJudgeProgress(0);
@@ -164,81 +213,87 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
         const maxRetries = 30; // 最多轮询30次，每次间隔1秒
         const intervalTime = 1000; // 1秒
         
-        const pollInterval = setInterval(async () => {
-            try {
-                // 更新进度条
-                setJudgeProgress(prev => Math.min(prev + (100 / maxRetries), 95));
-                
-                // 获取所有提交记录
-                const listResp = await QuestionSubmitControllerService.getAllQuestionSubmitByListUsingGet();
-                
-                if (listResp.code === 0 && listResp.data) {
-                    // 找到当前提交的记录
-                    const currentSubmission = listResp.data.find(item => String(item.id) === String(submitId));
+        return new Promise<ExtendedQuestionSubmit | null>((resolve) => {
+            const pollInterval = setInterval(async () => {
+                try {
+                    // 更新进度条
+                    setJudgeProgress(prev => Math.min(prev + (100 / maxRetries), 95));
                     
-                    if (currentSubmission) {
-                        // 更新提交结果
-                        setSubmissionResult(currentSubmission as ExtendedQuestionSubmit);
+                    // 获取所有提交记录
+                    const listResp = await QuestionSubmitControllerService.getAllQuestionSubmitByListUsingGet();
+                    
+                    if (listResp.code === 0 && listResp.data) {
+                        // 找到当前提交的记录
+                        const currentSubmission = listResp.data.find(item => String(item.id) === String(submitId));
                         
-                        // 检查输出结果和判题信息
-                        const extSubmission = currentSubmission as ExtendedQuestionSubmit;
-                        const hasOutputResult = !!(extSubmission.outputResult && extSubmission.outputResult.length > 0);
-                        
-                        // 解析judgeInfo
-                        if (currentSubmission.judgeInfo) {
-                            try {
-                                const parsedJudgeInfo = JSON.parse(currentSubmission.judgeInfo);
-                                setJudgeInfo(parsedJudgeInfo);
-                                
-                                // 判断是否完成判题
-                                if (parsedJudgeInfo?.memory) {
-                                    finishJudging(pollInterval);
-                                    return;
+                        if (currentSubmission) {
+                            // 更新提交结果
+                            const extSubmission = currentSubmission as ExtendedQuestionSubmit;
+                            
+                            // 解析judgeInfo
+                            if (currentSubmission.judgeInfo) {
+                                try {
+                                    const parsedJudgeInfo = JSON.parse(currentSubmission.judgeInfo);
+                                    setJudgeInfo(parsedJudgeInfo);
+                                    
+                                    // 存储解析后的judgeInfo
+                                    extSubmission.parsedJudgeInfo = parsedJudgeInfo;
+                                    
+                                    // 判断是否完成判题
+                                    if (parsedJudgeInfo?.memory) {
+                                        setSubmissionResult(extSubmission);
+                                        finishJudging(pollInterval, extSubmission);
+                                        return;
+                                    }
+                                } catch (error) {
+                                    console.error('解析judgeInfo失败:', error);
                                 }
-                            } catch (error) {
-                                console.error('解析judgeInfo失败:', error);
+                            }
+                            
+                            // 检查输出结果
+                            const hasOutputResult = !!(extSubmission.outputResult && extSubmission.outputResult.length > 0);
+                            
+                            // 只要有outputResult，就认为判题结束
+                            if (hasOutputResult) {
+                                setSubmissionResult(extSubmission);
+                                finishJudging(pollInterval, extSubmission);
+                                return;
                             }
                         }
-                        
-                        // 只要有outputResult，就认为判题结束
-                        if (hasOutputResult) {
-                            finishJudging(pollInterval);
-                            return;
-                        }
                     }
-                }
-                
-                // 检查是否超过最大重试次数
-                if (++retryCount >= maxRetries) {
+                    
+                    // 检查是否超过最大重试次数
+                    if (++retryCount >= maxRetries) {
+                        clearInterval(pollInterval);
+                        setIsJudging(false);
+                        setJudgeProgress(100);
+                        messageService.warning('判题时间较长，请稍后查看结果');
+                        resolve(null);
+                    }
+                } catch (error) {
+                    console.error('轮询判题结果出错:', error);
                     clearInterval(pollInterval);
                     setIsJudging(false);
-                    setJudgeProgress(100);
-                    message.warning('判题时间较长，请稍后查看结果');
+                    resolve(null);
                 }
-            } catch (error) {
-                console.error('轮询判题结果出错:', error);
-                clearInterval(pollInterval);
+            }, intervalTime);
+            
+            // 完成判题的辅助函数
+            function finishJudging(interval: ReturnType<typeof setInterval>, submission: ExtendedQuestionSubmit) {
+                setJudgeProgress(100);
                 setIsJudging(false);
+                setShowResultCard(true);
+                clearInterval(interval);
+                resolve(submission);
             }
-        }, intervalTime);
-        
-        // 完成判题的辅助函数
-        function finishJudging(interval: ReturnType<typeof setInterval>) {
-            setJudgeProgress(100);
-            setIsJudging(false);
-            setShowResultCard(true);
-            clearInterval(interval);
-        }
-        
-        // 组件卸载时清除定时器
-        return () => clearInterval(pollInterval);
+        });
     }, []);
 
     const handleSubmitCode = async () => {
         try {
             const code = codeEditorRef.current?.getValue();
             if (!code) {
-                messageApi.error('请先编写代码');
+                messageService.error('请先编写代码');
                 return;
             }
 
@@ -246,7 +301,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
             stopTimer();
 
             // 显示提交中的消息
-            const submitMsg = messageApi.loading('代码提交中...', 0);
+            const submitMsg = messageService.loading('代码提交中...', 0);
 
             const resp = await QuestionSubmitControllerService.doQuestionSubmitUsingPost({
                 code: code,
@@ -256,25 +311,97 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
 
             if (resp.code === 0) {
                 submitMsg(); // 关闭提交中的消息
-                messageApi.success('代码提交成功，正在判题...');
-                
+                messageService.success('代码提交成功，正在判题...');
+
                 const submitId = resp.data;
                 setLastSubmitId(submitId);
                 
                 // 开始轮询判题结果
-                pollJudgeResult(submitId);
-                
+                pollJudgeResult(submitId).then((result) => {
+                    // 根据判题结果判断错误类型
+                    if (result?.judgeInfo && (
+                        typeof result.judgeInfo === 'object' ? 
+                            result.judgeInfo.message === '答案错误' || result.judgeInfo.message === 'Wrong Answer' 
+                            : false) ||
+                        (!result?.judgeInfo && result?.status === 2)) {
+                        setCurrentError(ErrorType.WRONG_ANSWER);
+                        setSubmissionHistory(prev => [...prev, ErrorType.WRONG_ANSWER]);
+                    } else if (result?.judgeInfo && (
+                        typeof result.judgeInfo === 'object' ? 
+                            result.judgeInfo.message === '时间超限' || result.judgeInfo.message === 'Time Limit Exceeded'
+                            : false)) {
+                        setCurrentError(ErrorType.TIME_LIMIT_EXCEEDED);
+                        setSubmissionHistory(prev => [...prev, ErrorType.TIME_LIMIT_EXCEEDED]);
+                    } else if (result?.status === 2) { // 其他失败情况，假设为边界问题
+                        setCurrentError(ErrorType.BOUNDARY_ERROR);
+                        setSubmissionHistory(prev => [...prev, ErrorType.BOUNDARY_ERROR]);
+                    }
+                    
+                    // 更新焦虑值：连续错误会增加焦虑
+                    if (result?.status === 2 || 
+                        (result?.judgeInfo && typeof result.judgeInfo === 'object' && 
+                            (result.judgeInfo.message === '答案错误' || result.judgeInfo.message === '时间超限'))) {
+                        setAnxietyLevel(prev => Math.min(prev + 15, 100));
+                        
+                        // 显示内联提示，连续多次错误则直接显示AI助手
+                        if (submissionHistory.length >= 2) {
+                            setShowInlineHint(false);
+                            setShowAiAssistant(true);
+                        } else {
+                            setShowInlineHint(true);
+                        }
+                    } else if (result?.status === 1) {
+                        // 成功则降低焦虑，并关闭提示
+                        setAnxietyLevel(prev => Math.max(prev - 20, 0));
+                        setShowInlineHint(false);
+                    }
+                });
+
                 // 小窗口显示判题中状态
                 setJudgeInfo(null);
                 setSubmissionResult(null);
                 setShowResultCard(true);
             } else {
                 submitMsg(); // 关闭提交中的消息
-                messageApi.error(resp.message || '提交失败');
+                messageService.error(resp.message || '提交失败');
             }
         } catch (error) {
-            messageApi.error(`提交失败，请稍后重试${error}`);
+            // 处理错误，避免访问可能不存在的message属性
+            const errorMsg = typeof error === 'object' && error !== null && 'message' in error 
+                ? String((error as { message: string }).message) 
+                : String(error);
+            messageService.error(`提交失败，请稍后重试${errorMsg}`);
         }
+    };
+
+    // 模拟错误类型
+    const simulateError = (errorType: ErrorType) => {
+        setCurrentError(errorType);
+        setSubmissionHistory(prev => [...prev, errorType]);
+        
+        // 增加焦虑值
+        setAnxietyLevel(prev => Math.min(prev + 15, 100));
+        
+        // 打开AI助手
+        setShowAiAssistant(true);
+    };
+    
+    // 增加焦虑值
+    const increaseAnxiety = () => {
+        setAnxietyLevel(prev => Math.min(prev + 10, 100));
+    };
+    
+    // 减少焦虑值
+    const decreaseAnxiety = () => {
+        setAnxietyLevel(prev => Math.max(prev - 10, 0));
+    };
+    
+    // 重置状态
+    const resetStats = () => {
+        setAnxietyLevel(20);
+        setSubmissionHistory([]);
+        setThinkingTime(0);
+        setCurrentError(undefined);
     };
 
     return (
@@ -317,7 +444,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
                     cursor: 'pointer'
                 }}
-                onClick={() => setShowModal(true)}
+                onClick={() => setShowAiAssistant(true)}
             >
                 <MojoCarrot width={130} height={164} />
                 
@@ -339,7 +466,11 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                             fontSize: '14px',
                             fontWeight: 'bold',
                         }}>
-                            点击查看你的代码分析和建议！
+                            {submissionHistory.length > 0 
+                                ? '看起来你遇到了一些问题，点击查看提示！' 
+                                : thinkingTime > 300 
+                                ? '需要一些帮助吗？点击查看解题思路！'
+                                : '点击查看你的代码分析和建议！'}
                         </div>
                         <div style={{
                             position: 'absolute',
@@ -367,115 +498,22 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 expectedOutputs={expectedOutputs}
             />
 
-            {/* AI助手模态框 - 保留原来的模态框 */}
-            <Modal
-                title={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <MojoCarrot width={40} height={40} />
-                        <span>代码分析和建议</span>
-                    </div>
-                }
-                open={showModal}
-                onCancel={() => setShowModal(false)}
-                footer={null}
-                width={700}
-                style={{ 
-                    top: 20
-                }}
-                bodyStyle={{
-                    backgroundColor: '#141414',
-                    color: 'white',
-                    padding: '20px',
-                }}
-                className="dark-modal"
-            >
-                <div style={{ 
-                    backgroundColor: '#228B22', 
-                    padding: '15px', 
-                    borderRadius: '8px',
-                    marginBottom: '20px',
-                    display: 'flex',
-                    alignItems: 'center'
-                }}>
-                    <CheckCircleOutlined style={{ fontSize: '24px', marginRight: '12px' }} />
-                    <div>
-                        <div style={{ fontSize: '16px', fontWeight: 'bold' }}>恭喜！你的代码通过了所有测试用例</div>
-                        <div>执行用时: 5ms | 内存消耗: 38.2MB | 击败了95%的用户</div>
-                    </div>
-                </div>
-
-                {/* 解题用时卡片 */}
-                <div style={{ 
-                    backgroundColor: '#1e1e1e',
-                    border: '1px solid #303030',
-                    borderRadius: '8px',
-                    padding: '15px',
-                    marginBottom: '20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <div style={{ 
-                            backgroundColor: '#252525', 
-                            borderRadius: '50%',
-                            width: '40px',
-                            height: '40px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginRight: '12px'
-                        }}>
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="#228B22">
-                                <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <div style={{ fontSize: '14px', color: '#e0e0e0' }}>解题用时</div>
-                            <div style={{ fontSize: '20px', fontWeight: 'bold', fontFamily: 'monospace' }}>
-                                {formatTime(solvingTime)}
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{ 
-                        backgroundColor: '#228B22', 
-                        padding: '6px 12px', 
-                        borderRadius: '16px',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                    }}>
-                        击败了78%的用户
-                    </div>
-                </div>
-
-                <div style={{ marginBottom: '20px' }}>
-                    <h3 style={{ borderBottom: '1px solid #333', paddingBottom: '8px' }}>代码分析</h3>
-                    <p>你的解决方案采用了动态规划的思路，时间复杂度为O(n)，空间复杂度为O(1)，这是一个非常高效的实现。</p>
-                </div>
-
-                <div style={{ marginBottom: '20px' }}>
-                    <h3 style={{ borderBottom: '1px solid #333', paddingBottom: '8px' }}>优化建议</h3>
-                    <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                        <InfoCircleOutlined style={{ color: '#228B22', marginTop: '3px' }} />
-                        <div>
-                            <div style={{ fontWeight: 'bold' }}>考虑边界情况</div>
-                            <div>尝试考虑输入为空或只有一个元素的情况，增强代码的健壮性。</div>
-                        </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <InfoCircleOutlined style={{ color: '#228B22', marginTop: '3px' }} />
-                        <div>
-                            <div style={{ fontWeight: 'bold' }}>优化变量命名</div>
-                            <div>变量名可以更有描述性，例如将 'dp' 改为 'maxSum' 会让代码更易读。</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 style={{ borderBottom: '1px solid #333', paddingBottom: '8px' }}>其他可能的解法</h3>
-                    <p>除了动态规划，这个问题还可以用分治法或贪心算法解决。想尝试这些方法吗？</p>
-                </div>
-            </Modal>
+            {/* AI助手 */}
+            <AiAssistant
+                open={showAiAssistant}
+                onCancel={() => setShowAiAssistant(false)}
+                problemTitle={question?.title || '最大子数组和'}
+                problemType="dynamic_programming"
+                anxiety={anxietyLevel}
+                submissionCount={submissionHistory.length}
+                errorHistory={submissionHistory}
+                thinkingTime={thinkingTime}
+                currentError={currentError}
+                onSimulateError={simulateError}
+                onIncreaseAnxiety={increaseAnxiety}
+                onDecreaseAnxiety={decreaseAnxiety}
+                onResetStats={resetStats}
+            />
 
             <style>
                 {`
@@ -506,8 +544,8 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 <ResizableBox
                     width={width}
                     height={Infinity}
-                    minConstraints={[400, Infinity]}
-                    maxConstraints={[800, Infinity]}
+                    minConstraints={[300, Infinity]}
+                    maxConstraints={[1200, Infinity]}
                     onResize={handleResize}
                     handle={
                         <div className="w-1 h-full bg-[#303030] cursor-col-resize absolute right-0 top-0 transition-colors duration-300 hover:bg-[#228B22]" />
@@ -543,7 +581,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                         </div>
                     </Sider>
                 </ResizableBox>
-                <Content className="bg-[#141414] p-4 h-screen">
+                <Content className="bg-[#141414] p-4 h-screen flex-grow overflow-hidden">
                     <div className="h-full bg-[#1e1e1e] rounded-lg p-4">
                         <div className="mb-4">
                             <Space>
@@ -603,13 +641,22 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                             </Space>
                         </div>
                         <div className="h-[calc(100%-48px)]">
-                            <CodeEditor
-                                ref={codeEditorRef}
-                                language={currentLanguage}
-                                onChange={handleCodeChange}
-                                defaultValue="// 在这里编写你的代码"
-                                fontSize={fontSize}
-                            />
+                            <div style={{ position: 'relative', height: '100%' }}>
+                                <CodeEditor
+                                    ref={codeEditorRef}
+                                    language={currentLanguage}
+                                    onChange={handleCodeChange}
+                                    defaultValue="// 在这里编写你的代码"
+                                    fontSize={fontSize}
+                                />
+                                <InlineCodeHint 
+                                    visible={showInlineHint && !showAiAssistant}
+                                    errorType={currentError}
+                                    thinkingTime={thinkingTime}
+                                    onOpen={() => setShowAiAssistant(true)}
+                                    onClose={() => setShowInlineHint(false)}
+                                />
+                            </div>
                         </div>
                     </div>
                 </Content>
