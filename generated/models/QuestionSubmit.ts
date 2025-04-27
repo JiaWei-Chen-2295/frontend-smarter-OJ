@@ -9,6 +9,7 @@ export type QuestionSubmit = {
     isDelete?: number;
     judgeInfo?: string;
     language?: string;
+    outputResult?: string;
     questionId?: number;
     status?: number;
     updateTime?: string;

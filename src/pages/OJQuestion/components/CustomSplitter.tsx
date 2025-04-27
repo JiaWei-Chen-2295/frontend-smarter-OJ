@@ -83,7 +83,8 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
     const [submissionResult, setSubmissionResult] = useState<ExtendedQuestionSubmit | null>(null);
     const [judgeInfo, setJudgeInfo] = useState<JudgeInfo | null>(null);
     const [showResultCard, setShowResultCard] = useState(false);
-    
+    const [isRollingRequest, setIsRollingRequest] = useState(false); // 是否正在轮询请求
+
     // 预期答案 - 从测试用例中提取
     const [expectedOutputs] = useState<string[]>([]);
 
@@ -146,11 +147,14 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
         }
     }, []);
 
-    // 组件卸载时清理定时器
+    // 组件卸载时清理定时器以及停止请求
     useEffect(() => {
         return () => {
             if (timerRef.current) {
                 window.clearInterval(timerRef.current);
+            }
+            if (isRollingRequest) {
+                setIsRollingRequest(false);
             }
         };
     }, []);
@@ -214,18 +218,21 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
         const intervalTime = 1000; // 1秒
         
         return new Promise<ExtendedQuestionSubmit | null>((resolve) => {
+            setIsRollingRequest(true);
             const pollInterval = setInterval(async () => {
                 try {
+                    if (!isRollingRequest) return ;
+
                     // 更新进度条
                     setJudgeProgress(prev => Math.min(prev + (100 / maxRetries), 95));
                     
                     // 获取所有提交记录
-                    const listResp = await QuestionSubmitControllerService.getAllQuestionSubmitByListUsingGet();
+                    const qustionSubmitResp = await QuestionSubmitControllerService.getSubmitUsingGet(Number(submitId));
                     
-                    if (listResp.code === 0 && listResp.data) {
+                    if (qustionSubmitResp.code === 0 && qustionSubmitResp.data) {
                         // 找到当前提交的记录
-                        const currentSubmission = listResp.data.find(item => String(item.id) === String(submitId));
-                        
+                        setIsRollingRequest(false);
+                        const currentSubmission = qustionSubmitResp.data;
                         if (currentSubmission) {
                             // 更新提交结果
                             const extSubmission = currentSubmission as ExtendedQuestionSubmit;
@@ -233,7 +240,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                             // 解析judgeInfo
                             if (currentSubmission.judgeInfo) {
                                 try {
-                                    const parsedJudgeInfo = JSON.parse(currentSubmission.judgeInfo);
+                                    const parsedJudgeInfo = currentSubmission.judgeInfo;
                                     setJudgeInfo(parsedJudgeInfo);
                                     
                                     // 存储解析后的judgeInfo
@@ -537,6 +544,31 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 .dark-modal .ant-result-subtitle {
                     color: white;
                 }
+                
+                /* 自定义滚动条样式 */
+                .custom-scrollbar {
+                    scrollbar-width: thin;
+                    scrollbar-color: #228B22 #303030;
+                }
+                
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 8px;
+                    height: 8px;
+                }
+                
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #303030;
+                    border-radius: 4px;
+                }
+                
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background-color: #228B22;
+                    border-radius: 4px;
+                }
+                
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background-color: #1a6b1a;
+                }
                 `}
             </style>
 
@@ -553,7 +585,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 >
                     <Sider
                         width={width}
-                        className="bg-[#141414] border-r border-[#303030] overflow-auto h-screen"
+                        className="bg-[#141414] border-r border-[#303030] overflow-auto h-screen custom-scrollbar"
                     >
                         <div className="p-4">
                             <h1 className="text-xl font-bold text-white mb-4">{question?.title}</h1>

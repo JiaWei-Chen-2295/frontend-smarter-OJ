@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "openapi": "openapi --input http://localhost:8101/api//v2/api-docs --output ./generated --client axios"
+    "openapi": "openapi --input http://localhost:82/api/v2/api-docs --output ./generated --client axios"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",

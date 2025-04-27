@@ -5,6 +5,7 @@
 import type { BaseResponse_List_QuestionSubmit_ } from '../models/BaseResponse_List_QuestionSubmit_';
 import type { BaseResponse_long_ } from '../models/BaseResponse_long_';
 import type { BaseResponse_Page_QuestionSubmitVO_ } from '../models/BaseResponse_Page_QuestionSubmitVO_';
+import type { BaseResponse_QuestionSubmitVO_ } from '../models/BaseResponse_QuestionSubmitVO_';
 import type { QuestionSubmitAddRequest } from '../models/QuestionSubmitAddRequest';
 import type { QuestionSubmitQueryRequest } from '../models/QuestionSubmitQueryRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -62,6 +63,28 @@ export class QuestionSubmitControllerService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/question_submit/admin/list',
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
+    /**
+     * getSubmit
+     * @param submitId submitId
+     * @returns BaseResponse_QuestionSubmitVO_ OK
+     * @throws ApiError
+     */
+    public static getSubmitUsingGet(
+        submitId?: number,
+    ): CancelablePromise<BaseResponse_QuestionSubmitVO_> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/question_submit/getSubmitStatus',
+            query: {
+                'submitId': submitId,
+            },
             errors: {
                 401: `Unauthorized`,
                 403: `Forbidden`,

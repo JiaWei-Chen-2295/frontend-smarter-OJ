@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Flex, Table, Input, Tag, Space, Select, Tooltip, Card, Typography, Popover } from 'antd';
-import type { TableColumnsType, TableProps, TablePaginationConfig } from 'antd';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Button, Flex, Input, Tag, Space, Select, Tooltip, Typography, Popover, List, Spin } from 'antd';
 import { QuestionControllerService } from '../../../../generated';
-import { SearchOutlined, StarOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { SearchOutlined, StarOutlined, CheckCircleOutlined, ReloadOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,9 +11,7 @@ import 'katex/dist/katex.min.css';
 
 const { Search } = Input;
 const { Option } = Select;
-const { Title, Text } = Typography;
-
-type TableRowSelection<T extends object = object> = TableProps<T>['rowSelection'];
+const { Title } = Typography;
 
 interface DataType {
     acceptedNum?: number;
@@ -39,127 +36,111 @@ const getDifficulty = (tags: string[] | undefined): string => {
     return tags.find(tag => ['简单', '中等', '困难'].includes(tag)) || '';
 };
 
-const columns: TableColumnsType<DataType> = [
-    { 
-        title: '题目', 
-        dataIndex: 'title',
-        width: '60%',
-        render: (text: string, record) => {
-            const difficulty = getDifficulty(record.tags);
-            return (
-                <Popover
-                    content={
-                        <div className="max-w-md">
-                            <ReactMarkdown 
-                                remarkPlugins={[remarkGfm, remarkMath]}
-                                rehypePlugins={[rehypeKatex]}
-                            >
-                                {record.content || ''}
-                            </ReactMarkdown>
-                        </div>
-                    }
-                    title="题目内容"
-                    trigger="hover"
-                >
-                    <Card 
-                        className="hover:shadow-md transition-shadow duration-300 cursor-pointer"
-                        bodyStyle={{ padding: '8px' }}
+function QuestionItem({ question }: { question: DataType }) {
+    const difficulty = getDifficulty(question.tags);
+    return (
+        <Popover
+            content={
+                <div className="max-w-md">
+                    <ReactMarkdown 
+                        remarkPlugins={[remarkGfm, remarkMath]}
+                        rehypePlugins={[rehypeKatex]}
                     >
-                        <Space direction="vertical" size="small" className="w-full">
-                            <Space>
-                                <Link to={`/oj/${record.id}`} className="text-base font-medium text-blue-500 hover:text-blue-700">
-                                    {text}
-                                </Link>
-                                {difficulty && (
-                                    <Tag color={difficultyColors[difficulty as keyof typeof difficultyColors]}>
-                                        {difficulty}
-                                    </Tag>
-                                )}
-                            </Space>
-                            <Space wrap>
-                                {record.tags
-                                    ?.filter(tag => !['简单', '中等', '困难'].includes(tag))
-                                    .map((tag, index) => (
-                                        <Tag key={index} color="default" className="text-xs">
-                                            {tag}
-                                        </Tag>
-                                    ))}
-                            </Space>
-                        </Space>
-                    </Card>
-                </Popover>
-            );
-        }
-    },
-    { 
-        title: '通过率', 
-        key: 'acceptRate',
-        width: '20%',
-        sorter: (a, b) => {
-            const rateA = a.submitNum ? (a.acceptedNum || 0) / a.submitNum : 0;
-            const rateB = b.submitNum ? (b.acceptedNum || 0) / b.submitNum : 0;
-            return rateA - rateB;
-        },
-        render: (_, record) => {
-            if (!record.submitNum || record.submitNum === 0) return '暂无提交';
-            const rate = ((record.acceptedNum || 0) / record.submitNum * 100).toFixed(1);
-            const rateNum = parseFloat(rate);
-            return (
-                <Tooltip title={`通过: ${record.acceptedNum} / 提交: ${record.submitNum}`}>
+                        {question.content || ''}
+                    </ReactMarkdown>
+                </div>
+            }
+            title="题目内容"
+            trigger="hover"
+        >
+            <div className="py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <Space direction="vertical" size={0} className="w-full">
                     <Space>
-                        <CheckCircleOutlined className={rateNum >= 50 ? 'text-green-500' : rateNum >= 30 ? 'text-yellow-500' : 'text-red-500'} />
-                        <span className={rateNum >= 50 ? 'text-green-500' : rateNum >= 30 ? 'text-yellow-500' : 'text-red-500'}>
-                            {rate}%
+                        <Link to={`/oj/${question.id}`} className="text-base font-medium text-blue-500 hover:text-blue-700">
+                            {question.title}
+                        </Link>
+                        {difficulty && (
+                            <Tag 
+                                color={difficultyColors[difficulty as keyof typeof difficultyColors]}
+                                className="text-sm px-3 py-1 m-0"
+                            >
+                                {difficulty}
+                            </Tag>
+                        )}
+                    </Space>
+                    <Space wrap>
+                        {question.tags
+                            ?.filter(tag => !['简单', '中等', '困难'].includes(tag))
+                            .map((tag, index) => (
+                                <Tag 
+                                    key={index} 
+                                    color="default" 
+                                    className="text-sm px-3 py-1 m-0"
+                                >
+                                    {tag}
+                                </Tag>
+                            ))}
+                    </Space>
+                </Space>
+                <div className="flex justify-between mt-2 text-sm text-gray-500">
+                    <Space>
+                        <Tooltip title={`通过: ${question.acceptedNum || 0} / 提交: ${question.submitNum || 0}`}>
+                            <Space size={2}>
+                                <CheckCircleOutlined className={
+                                    !question.submitNum ? 'text-gray-400' : 
+                                    question.submitNum && (question.acceptedNum || 0) / question.submitNum >= 0.5 ? 'text-green-500' : 
+                                    (question.acceptedNum || 0) / question.submitNum >= 0.3 ? 'text-yellow-500' : 'text-red-500'
+                                } />
+                                <span>
+                                    {!question.submitNum ? '暂无提交' : 
+                                    `${((question.acceptedNum || 0) / question.submitNum * 100).toFixed(1)}%`}
+                                </span>
+                            </Space>
+                        </Tooltip>
+                    </Space>
+                    <Space>
+                        <StarOutlined className="text-pink-500" />
+                        <span className="text-pink-500">
+                            {question.favourNum || 0}
                         </span>
                     </Space>
-                </Tooltip>
-            );
-        }
-    },
-    { 
-        title: '点赞数', 
-        dataIndex: 'favourNum',
-        width: '20%',
-        sorter: (a, b) => (a.favourNum || 0) - (b.favourNum || 0),
-        render: (num: number) => (
-            <Space>
-                <StarOutlined className="text-pink-500" />
-                <span className="text-pink-500">
-                    {num || 0}
-                </span>
-            </Space>
-        )
-    },
-];
+                </div>
+            </div>
+        </Popover>
+    );
+}
 
 function Questions() {
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [loading, setLoading] = useState(false);
     const [questions, setQuestions] = useState<DataType[]>([]);
     const [searchText, setSearchText] = useState('');
     const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
-    const [pagination, setPagination] = useState({
-        current: 1,
-        pageSize: 10,
-        total: 0,
-        pages: 1
-    });
+    const [tagFilter, setTagFilter] = useState<string>('all');
+    const [current, setCurrent] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [tagExpanded, setTagExpanded] = useState(false);
 
-    const fetchQuestions = async (current = 1, pageSize = 10) => {
+    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    const fetchQuestions = async (pageNum = 1) => {
         setLoading(true);
         try {
             const resp = await QuestionControllerService.listQuestionVoByPageUsingPost({
-                current,
-                pageSize
+                current: pageNum,
+                pageSize: 10
             });
             if (resp.code === 0 && resp.data) {
-                setQuestions(resp.data.records || []);
-                setPagination({
-                    current: Number(resp.data.current) || 1,
-                    pageSize: Number(resp.data.size) || 10,
-                    total: Number(resp.data.total) || 0,
-                    pages: Number(resp.data.pages) || 1
-                });
+                if (pageNum === 1) {
+                    setQuestions(resp.data.records || []);
+                } else {
+                    setQuestions(prev => [...prev, ...(resp.data?.records || [])]);
+                }
+                
+                // 判断是否还有更多数据
+                const total = Number(resp.data.total) || 0;
+                const size = Number(resp.data.size) || 10;
+                const hasMore = pageNum * size < total;
+                setHasMore(hasMore);
             }
         } catch (error) {
             console.error('获取题目列表失败:', error);
@@ -168,44 +149,82 @@ function Questions() {
         }
     };
 
+    const loadMore = () => {
+        if (!loading && hasMore) {
+            const nextPage = current + 1;
+            setCurrent(nextPage);
+            fetchQuestions(nextPage);
+        }
+    };
+
     useEffect(() => {
-        fetchQuestions();
+        fetchQuestions(1);
     }, []);
 
-    const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-        console.log('selectedRowKeys changed: ', newSelectedRowKeys);
-        setSelectedRowKeys(newSelectedRowKeys);
-    };
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !loading && hasMore) {
+                    loadMore();
+                }
+            },
+            { threshold: 1.0 }
+        );
 
-    const rowSelection: TableRowSelection<DataType> = {
-        selectedRowKeys,
-        onChange: onSelectChange,
-    };
+        if (loadMoreRef.current) {
+            observer.observe(loadMoreRef.current);
+        }
 
-    const hasSelected = selectedRowKeys.length > 0;
+        return () => {
+            if (loadMoreRef.current) {
+                observer.unobserve(loadMoreRef.current);
+            }
+        };
+    }, [loading, hasMore]);
 
     const filteredQuestions = questions.filter(question => {
-        const matchesSearch = question.title?.toLowerCase().includes(searchText.toLowerCase());
+        const matchesSearch = !searchText || (question.title?.toLowerCase().includes(searchText.toLowerCase()) ?? false);
         const matchesDifficulty = difficultyFilter === 'all' || 
-            question.tags?.includes(difficultyFilter);
-        return matchesSearch && matchesDifficulty;
+            (question.tags?.includes(difficultyFilter) ?? false);
+        const matchesTag = tagFilter === 'all' || 
+            (question.tags?.includes(tagFilter) ?? false);
+        return matchesSearch && matchesDifficulty && matchesTag;
     });
 
-    const handleTableChange = (newPagination: TablePaginationConfig) => {
-        fetchQuestions(newPagination.current as number, newPagination.pageSize as number);
+    const handleRefresh = () => {
+        setCurrent(1);
+        setQuestions([]);
+        fetchQuestions(1);
     };
+
+    // 提取所有标签（除了难度标签）
+    const allTags = useMemo(() => {
+        const tagSet = new Set<string>();
+        questions.forEach(q => {
+            q.tags?.forEach(tag => {
+                if (!['简单', '中等', '困难'].includes(tag)) {
+                    tagSet.add(tag);
+                }
+            });
+        });
+        return Array.from(tagSet);
+    }, [questions]);
+
+    // 显示的标签数量
+    const displayTagCount = tagExpanded ? allTags.length : Math.min(10, allTags.length);
+    const hasMoreTags = allTags.length > 10;
 
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
             <Flex gap="middle" vertical>
                 <div className="bg-white p-6 rounded-lg shadow-sm">
                     <Title level={3} className="mb-6">题目列表</Title>
-                    <Flex align="center" gap="middle" className="w-full mb-6">
+                    <Flex align="center" gap="middle" className="w-full mb-4">
                         <Search
                             placeholder="搜索题目"
                             allowClear
                             enterButton={<SearchOutlined />}
-                            size="large"
+                            size="middle"
                             onChange={e => setSearchText(e.target.value)}
                             className="w-64"
                         />
@@ -213,40 +232,78 @@ function Questions() {
                             defaultValue="all"
                             style={{ width: 120 }}
                             onChange={setDifficultyFilter}
-                            size="large"
+                            size="middle"
                         >
                             <Option value="all">全部难度</Option>
                             <Option value="简单">简单</Option>
                             <Option value="中等">中等</Option>
                             <Option value="困难">困难</Option>
                         </Select>
-                        <Button type="primary" onClick={() => fetchQuestions()} loading={loading}>
+                        <Button 
+                            type="primary" 
+                            onClick={handleRefresh} 
+                            icon={<ReloadOutlined />} 
+                            loading={loading}
+                            size="middle"
+                        >
                             刷新
                         </Button>
-                        {hasSelected && (
-                            <Text type="secondary">
-                                已选择 {selectedRowKeys.length} 项
-                            </Text>
-                        )}
                     </Flex>
-                    <Table<DataType> 
-                        rowSelection={rowSelection} 
-                        columns={columns} 
+                    
+                    {/* 标签筛选区域 */}
+                    <div className="mb-4 pb-2 border-b border-gray-100">
+                        <div className="flex justify-between items-center text-sm mb-2 text-gray-500">
+                            <span>标签筛选:</span>
+                            {hasMoreTags && (
+                                <Button 
+                                    type="link" 
+                                    size="small" 
+                                    onClick={() => setTagExpanded(!tagExpanded)}
+                                    icon={tagExpanded ? <UpOutlined /> : <DownOutlined />}
+                                >
+                                    {tagExpanded ? '收起' : '展开'}
+                                </Button>
+                            )}
+                        </div>
+                        <div className={`${tagExpanded ? '' : 'h-10 overflow-hidden'} transition-all duration-300`}>
+                            <Space wrap size={[8, 6]}>
+                                <Tag 
+                                    className="cursor-pointer text-sm px-3 py-1 m-0"
+                                    color={tagFilter === 'all' ? 'blue' : 'default'}
+                                    onClick={() => setTagFilter('all')}
+                                >
+                                    全部
+                                </Tag>
+                                {allTags.slice(0, displayTagCount).map(tag => (
+                                    <Tag 
+                                        key={tag}
+                                        className="cursor-pointer text-sm px-3 py-1 m-0"
+                                        color={tagFilter === tag ? 'blue' : 'default'}
+                                        onClick={() => setTagFilter(tag)}
+                                    >
+                                        {tag}
+                                    </Tag>
+                                ))}
+                            </Space>
+                        </div>
+                    </div>
+                    
+                    <List
                         dataSource={filteredQuestions}
-                        loading={loading}
-                        rowKey="id"
-                        pagination={{
-                            current: pagination.current,
-                            pageSize: pagination.pageSize,
-                            total: pagination.total,
-                            showSizeChanger: true,
-                            showQuickJumper: true,
-                            showTotal: (total) => `共 ${total} 条`,
-                            pageSizeOptions: ['10', '20', '50', '100']
-                        }}
-                        onChange={handleTableChange}
-                        className="bg-white rounded-lg"
+                        renderItem={(item) => (
+                            <QuestionItem question={item} />
+                        )}
                     />
+                    {filteredQuestions.length === 0 && !loading && (
+                        <div className="py-10 text-center text-gray-500">
+                            暂无数据
+                        </div>
+                    )}
+                    <div ref={loadMoreRef} className="py-4 text-center">
+                        {loading && <Spin tip="加载中..." />}
+                        {!loading && hasMore && <div className="text-gray-400">上滑加载更多</div>}
+                        {!loading && !hasMore && filteredQuestions.length > 0 && <div className="text-gray-400">已经到底啦</div>}
+                    </div>
                 </div>
             </Flex>
         </div>
