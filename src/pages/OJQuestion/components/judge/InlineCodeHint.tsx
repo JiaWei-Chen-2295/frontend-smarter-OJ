@@ -99,4 +99,4 @@ const InlineCodeHint: React.FC<InlineCodeHintProps> = ({
   );
 };
 
-export default InlineCodeHint; 
+export default InlineCodeHint;

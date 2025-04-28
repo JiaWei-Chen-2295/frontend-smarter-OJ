@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-// import { useModel } from '@umijs/max'; // 暂时注释掉未使用的导入
-import { Button, Select, Space, Spin, message as messageService, ConfigProvider, Modal, Layout } from "antd";
+import { Button, Select, Space, message as messageService, ConfigProvider, Modal, Layout } from "antd";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
 import type { QuestionVO, JudgeInfo, QuestionSubmit } from "../../../../generated";
@@ -9,18 +8,11 @@ import { CodeEditor, CodeEditorRef } from "../../../components/CodeEditor";
 import { 
     FormatPainterOutlined, 
     SendOutlined, 
-    CheckCircleOutlined, 
-    InfoCircleOutlined, 
     PauseCircleOutlined, 
     PlayCircleOutlined,
-    CaretRightOutlined,
-    FullscreenOutlined,
-    LoadingOutlined,
-    RedoOutlined,
-    SettingOutlined,
-    CopyOutlined,
-    FullscreenExitOutlined,
-    SaveOutlined,
+    BulbOutlined,
+    QuestionCircleOutlined,
+    HistoryOutlined,
 } from "@ant-design/icons";
 import { QuestionSubmitControllerService } from "../../../../generated";
 import MojoCarrot from "../../../components/MojoCarrot";
@@ -54,7 +46,7 @@ const SUPPORTED_LANGUAGES = [
 ];
 
 // 扩展QuestionSubmit类型，添加outputResult字段
-interface ExtendedQuestionSubmit extends QuestionSubmit {
+interface ExtendedQuestionSubmit extends Omit<QuestionSubmit, 'outputResult'> {
     outputResult?: string | null;
     parsedJudgeInfo?: JudgeInfo;
 }
@@ -157,31 +149,30 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 setIsRollingRequest(false);
             }
         };
-    }, []);
+    }, [isRollingRequest]);
 
     // 更新思考时间和自动提示
     useEffect(() => {
         const timer = setInterval(() => {
-            // 只有在编辑器中有代码且在写代码时才计时
             if (solving && !isPaused) {
-                // 检查是否超过一定时间没有活动，如果是则认为在思考
                 const now = Date.now();
-                if (now - lastActivity > 10000) { // 10秒无活动认为在思考
-                    setThinkingTime(prev => prev + 1);
-                    
-                    // 思考超过特定时间自动弹出提示 (30秒内联提示，60秒完整提示)
-                    if (thinkingTime === 29) {
-                        setShowInlineHint(true);
-                    } else if (thinkingTime === 59) {
-                        setShowInlineHint(false);
-                        setShowAiAssistant(true);
-                    }
+                if (now - lastActivity > 10000) {
+                    setThinkingTime(prev => {
+                        const newTime = prev + 1;
+                        if (newTime === 30) {
+                            setShowInlineHint(true);
+                        } else if (newTime === 60) {
+                            setShowInlineHint(false);
+                            setShowAiAssistant(true);
+                        }
+                        return newTime;
+                    });
                 }
             }
         }, 1000);
-        
+
         return () => clearInterval(timer);
-    }, [solving, isPaused, lastActivity, thinkingTime]);
+    }, [solving, isPaused, lastActivity]);
 
     const handleResize = (_: React.SyntheticEvent, data: ResizeData) => {
         setWidth(data.size.width);
@@ -190,6 +181,8 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
     const handleCodeChange = (value: string | undefined) => {
         // 记录活动时间
         setLastActivity(Date.now());
+        setThinkingTime(0); // 重置思考时间
+        setShowInlineHint(false); // 当用户开始输入时隐藏提示
         
         // 第一次输入时开始计时
         if (value && value !== "// 在这里编写你的代码" && !solving) {
@@ -204,6 +197,34 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
 
     const handleFormatCode = () => {
         codeEditorRef.current?.formatCode();
+    };
+
+    // 模拟AI建议功能
+    const handleMockAiSuggestion = () => {
+        // 获取当前代码editor实例
+        const editor = codeEditorRef.current?.getEditor();
+        if (!editor) {
+            console.error('Editor not initialized');
+            return;
+        }
+        
+        // 获取当前光标所在行
+        const position = editor.getPosition();
+        if (!position) {
+            console.error('No cursor position');
+            return;
+        }
+
+        // 确保光标位置正确
+        editor.setPosition(position);
+        editor.focus();
+
+        // 模拟异步获取AI建议
+        setTimeout(() => {
+            // 测试用的单行建议
+            const firstLineSuggestion = "const dp = new Array(nums.length).fill(0);  // 创建dp数组";
+            codeEditorRef.current?.addAiSuggestion(position.lineNumber, firstLineSuggestion);
+        }, 100);
     };
 
     // 轮询判题结果
@@ -294,7 +315,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 resolve(submission);
             }
         });
-    }, []);
+    }, [isRollingRequest]);
 
     const handleSubmitCode = async () => {
         try {
@@ -326,20 +347,16 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 // 开始轮询判题结果
                 pollJudgeResult(submitId).then((result) => {
                     // 根据判题结果判断错误类型
-                    if (result?.judgeInfo && (
-                        typeof result.judgeInfo === 'object' ? 
-                            result.judgeInfo.message === '答案错误' || result.judgeInfo.message === 'Wrong Answer' 
-                            : false) ||
-                        (!result?.judgeInfo && result?.status === 2)) {
-                        setCurrentError(ErrorType.WRONG_ANSWER);
-                        setSubmissionHistory(prev => [...prev, ErrorType.WRONG_ANSWER]);
-                    } else if (result?.judgeInfo && (
-                        typeof result.judgeInfo === 'object' ? 
-                            result.judgeInfo.message === '时间超限' || result.judgeInfo.message === 'Time Limit Exceeded'
-                            : false)) {
-                        setCurrentError(ErrorType.TIME_LIMIT_EXCEEDED);
-                        setSubmissionHistory(prev => [...prev, ErrorType.TIME_LIMIT_EXCEEDED]);
-                    } else if (result?.status === 2) { // 其他失败情况，假设为边界问题
+                    if (result?.judgeInfo) {
+                        const message = result.judgeInfo.message;
+                        if (message === '答案错误' || message === 'Wrong Answer') {
+                            setCurrentError(ErrorType.WRONG_ANSWER);
+                            setSubmissionHistory(prev => [...prev, ErrorType.WRONG_ANSWER]);
+                        } else if (message === '时间超限' || message === 'Time Limit Exceeded') {
+                            setCurrentError(ErrorType.TIME_LIMIT_EXCEEDED);
+                            setSubmissionHistory(prev => [...prev, ErrorType.TIME_LIMIT_EXCEEDED]);
+                        }
+                    } else if (!result?.judgeInfo && result?.status === 2) { // 其他失败情况，假设为边界问题
                         setCurrentError(ErrorType.BOUNDARY_ERROR);
                         setSubmissionHistory(prev => [...prev, ErrorType.BOUNDARY_ERROR]);
                     }
@@ -649,6 +666,13 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                                 >
                                     提交代码
                                 </Button>
+                                {/* 测试AI建议按钮 */}
+                                <Button
+                                    onClick={handleMockAiSuggestion}
+                                    className="bg-[#9400D3] text-white hover:bg-[#7B00A9]"
+                                >
+                                    添加AI建议
+                                </Button>
 
                                 <div className="solve-qustion-time-counter bg-[#252525] rounded-lg px-4 py-2 ml-4 border border-[#404040] flex items-center">
                                     <div className="flex flex-col items-center">
@@ -697,4 +721,4 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
     );
 };
 
-export default CustomSplitter; 
+export default CustomSplitter;
