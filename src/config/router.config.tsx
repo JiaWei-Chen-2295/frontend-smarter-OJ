@@ -12,6 +12,7 @@ import QuestionManager from "../pages/admin/QuestionManager";
 import {NoAdmin} from "../pages/NoAdmin.tsx";
 import Lab from "../pages/index/Lab";
 import UserManager from "../pages/admin/UserManager";
+import UserSubmitManager from "../pages/admin/UserSubmitManager";
 import { ErrorBoundary } from "../router/ErrorBoundary";
 export const router = createBrowserRouter([
     {
@@ -74,6 +75,10 @@ export const router = createBrowserRouter([
             {
                 path: "user-manager",
                 element: <UserManager/>
+            },
+            {
+                path: "user-submit-manager",
+                element: <UserSubmitManager/>
             }
         ],
     },

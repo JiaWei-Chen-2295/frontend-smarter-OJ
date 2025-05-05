@@ -21,6 +21,11 @@ function AdminPageMain() {
             label: "用户管理",
             path: "/admin/user-manager",
         },
+        {
+            key: "4",
+            label: "用户提交管理",
+            path: "/admin/user-submit-manager",
+        },
         
     ]
     

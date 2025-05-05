@@ -14,7 +14,7 @@ import {
     QuestionCircleOutlined,
     HistoryOutlined,
 } from "@ant-design/icons";
-import { QuestionSubmitControllerService } from "../../../../generated";
+import { QuestionControllerService, QuestionSubmitControllerService } from "../../../../generated";
 import MojoCarrot from "../../../components/MojoCarrot";
 import JudgeResultCard from "./judge/JudgeResultCard";
 import AiAssistant, { ErrorType } from './judge/AiAssistant';
@@ -221,9 +221,19 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
 
         // 模拟异步获取AI建议
         setTimeout(() => {
-            // 测试用的单行建议
-            const firstLineSuggestion = "const dp = new Array(nums.length).fill(0);  // 创建dp数组";
-            codeEditorRef.current?.addAiSuggestion(position.lineNumber, firstLineSuggestion);
+            // 针对最大子数组和问题提供适当的建议
+            const suggestions = [
+                "// 更健壮的处理：考虑使用Scanner读取输入而不是命令行参数",
+                "if (nums.length == 0) return 0;  // 边界情况：空数组返回0",
+                "int maxCurrent = nums[0];  // maxCurrent表示以当前元素结尾的最大子数组和",
+                "maxGlobal = Math.max(maxGlobal, maxCurrent);  // 使用Math.max简化比较逻辑",
+                "// 时间复杂度：O(n)，空间复杂度：O(1)，已经是最优解法",
+                "// 可以考虑添加异常处理：try-catch捕获可能的NumberFormatException"
+            ];
+            
+            // 根据当前行选择合适的建议
+            const suggestionIndex = position.lineNumber % suggestions.length;
+            codeEditorRef.current?.addAiSuggestion(position.lineNumber, suggestions[suggestionIndex]);
         }, 100);
     };
 
@@ -248,8 +258,9 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                     setJudgeProgress(prev => Math.min(prev + (100 / maxRetries), 95));
                     
                     // 获取所有提交记录
-                    const qustionSubmitResp = await QuestionSubmitControllerService.getSubmitUsingGet(Number(submitId));
-                    
+    
+                    const qustionSubmitResp = await QuestionControllerService.getSubmitUsingGet(Number(submitId));
+
                     if (qustionSubmitResp.code === 0 && qustionSubmitResp.data) {
                         // 找到当前提交的记录
                         setIsRollingRequest(false);
@@ -331,11 +342,13 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
             // 显示提交中的消息
             const submitMsg = messageService.loading('代码提交中...', 0);
 
-            const resp = await QuestionSubmitControllerService.doQuestionSubmitUsingPost({
-                code: code,
-                language: currentLanguage,
-                questionId: question?.id,
-            });
+            const resp = await QuestionControllerService.doQuestionSubmitUsingPost(
+                {
+                    code: code,
+                    language: currentLanguage,
+                    questionId: question?.id,
+                }
+            );
 
             if (resp.code === 0) {
                 submitMsg(); // 关闭提交中的消息
