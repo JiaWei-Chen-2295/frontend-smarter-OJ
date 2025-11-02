@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ProTable, ProColumns, ActionType } from "@ant-design/pro-components";
-import { QuestionControllerService, QuestionSubmit } from "../../../../generated";
+import { QuestionControllerService, QuestionSubmit, QuestionSubmitQueryRequest } from "../../../../generated";
 import { Tag, Tooltip, Button, message } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 
@@ -92,28 +92,46 @@ function UserSubmitManager() {
       title: "提交ID", 
       dataIndex: "id", 
       width: 80,
-      search: false 
+      search: true,
+      sorter: true
     },
     { 
       title: "题目ID",  
       dataIndex: "questionId", 
-      width: 80
+      width: 80,
+      search: true,
+      sorter: true
     },
     { 
       title: "用户ID", 
       dataIndex: "userId", 
-      width: 80
+      width: 80,
+      search: true,
+      sorter: true
     },
     {
       title: "编程语言",
       dataIndex: "language",
       width: 100,
+      search: true,
+      sorter: true,
       render: (_, record) => formatLanguage(record.language),
+      valueEnum: {
+        java: { text: "Java" },
+        cpp: { text: "C++" },
+        python: { text: "Python" },
+        javascript: { text: "JavaScript" },
+        typescript: { text: "TypeScript" },
+        go: { text: "Go" },
+        rust: { text: "Rust" },
+      }
     },
     {
       title: "提交状态",
       dataIndex: "status",
       width: 100,
+      search: true,
+      sorter: true,
       valueEnum: {
         0: { text: "待判题", status: "default" },
         1: { text: "判题中", status: "processing" },
@@ -130,7 +148,7 @@ function UserSubmitManager() {
       title: "判题结果",
       dataIndex: "judgeInfo",
       width: 120,
-      search: false,
+      search: true,
       render: (_, record) => renderJudgeMessage(record.judgeInfo),
     },
     {
@@ -146,7 +164,8 @@ function UserSubmitManager() {
       dataIndex: "createTime",
       width: 180,
       valueType: "dateTime",
-      search: false,
+      search: true,
+      sorter: true,
     },
     {
       title: "操作",
@@ -175,17 +194,32 @@ function UserSubmitManager() {
         headerTitle="用户提交管理"
         actionRef={actionRef}
         rowKey="id"
-        search={false}
-        request={async () => {
+        search={{
+          labelWidth: 'auto',
+        }}
+        request={async (params, sorter, filter) => {
+          console.log('查询参数:', params, sorter, filter);
           try {
+            // 构建查询参数
+            const queryParams: QuestionSubmitQueryRequest = {
+              current: params.current,
+              pageSize: params.pageSize,
+              questionId: params.questionId,
+              userId: params.userId,
+              language: params.language,
+              status: params.status,
+              sortField: Object.keys(sorter)[0],
+              sortOrder: Object.values(sorter)[0] === 'ascend' ? 'asc' : 'desc',
+            };
+
             // 调用获取所有提交的接口
-            const resp = await QuestionControllerService.getAllQuestionSubmitByListUsingGet();
+            const resp = await QuestionControllerService.listQuestionSubmitByPageUsingPost(queryParams);
             
             if (resp.code === 0 && resp.data) {
               return {
-                data: resp.data || [],
+                data: resp.data.records || [],
                 success: true,
-                total: resp.data.length || 0,
+                total: resp.data.total || 0,
               };
             }
             return {

@@ -172,10 +172,12 @@ const JudgeResultCard: React.FC<JudgeResultCardProps> = ({
             style={{ 
                 top: 20
             }}
-            bodyStyle={{
-                backgroundColor: '#141414',
-                color: 'white',
-                padding: '20px',
+            styles={{
+                body: {
+                    backgroundColor: '#141414',
+                    color: 'white',
+                    padding: '20px',
+                },
             }}
             maskClosable={!isJudging}
             className="dark-modal"

@@ -53,7 +53,7 @@ function QuestionItem({ question }: { question: DataType }) {
             title="题目内容"
             trigger="hover"
         >
-            <div className="py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+            <div className="p-4 mb-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
                 <Space direction="vertical" size={0} className="w-full">
                     <Space>
                         <Link to={`/oj/${question.id}`} className="text-base font-medium text-blue-500 hover:text-blue-700">
@@ -121,6 +121,17 @@ function Questions() {
     const [tagExpanded, setTagExpanded] = useState(false);
 
     const loadMoreRef = useRef<HTMLDivElement>(null);
+    // Stable refs to prevent effect churn and race conditions
+    const loadingRef = useRef(loading);
+    const hasMoreRef = useRef(hasMore);
+
+    useEffect(() => {
+        loadingRef.current = loading;
+    }, [loading]);
+
+    useEffect(() => {
+        hasMoreRef.current = hasMore;
+    }, [hasMore]);
 
     const fetchQuestions = async (pageNum = 1) => {
         setLoading(true);
@@ -150,37 +161,43 @@ function Questions() {
     };
 
     const loadMore = () => {
-        if (!loading && hasMore) {
-            const nextPage = current + 1;
-            setCurrent(nextPage);
+        if (loadingRef.current || !hasMoreRef.current) return;
+        setCurrent((prev) => {
+            const nextPage = prev + 1;
             fetchQuestions(nextPage);
-        }
+            return nextPage;
+        });
     };
 
     useEffect(() => {
         fetchQuestions(1);
     }, []);
 
+    // Create observer once; use refs inside to avoid re-creating and loops
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting && !loading && hasMore) {
-                    loadMore();
+                if (entries[0]?.isIntersecting) {
+                    // Only load when not already loading and there is more
+                    if (!loadingRef.current && hasMoreRef.current) {
+                        loadMore();
+                    }
                 }
             },
-            { threshold: 1.0 }
+            {
+                root: null,
+                rootMargin: '200px 0px', // prefetch before fully reaching bottom
+                threshold: 0,
+            }
         );
 
-        if (loadMoreRef.current) {
-            observer.observe(loadMoreRef.current);
-        }
+        const el = loadMoreRef.current;
+        if (el) observer.observe(el);
 
         return () => {
-            if (loadMoreRef.current) {
-                observer.unobserve(loadMoreRef.current);
-            }
+            observer.disconnect();
         };
-    }, [loading, hasMore]);
+    }, []);
 
     const filteredQuestions = questions.filter(question => {
         const matchesSearch = !searchText || (question.title?.toLowerCase().includes(searchText.toLowerCase()) ?? false);
@@ -193,6 +210,7 @@ function Questions() {
 
     const handleRefresh = () => {
         setCurrent(1);
+        setHasMore(true);
         setQuestions([]);
         fetchQuestions(1);
     };
@@ -215,97 +233,95 @@ function Questions() {
     const hasMoreTags = allTags.length > 10;
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <Flex gap="middle" vertical>
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                    <Title level={3} className="mb-6">题目列表</Title>
-                    <Flex align="center" gap="middle" className="w-full mb-4">
-                        <Search
-                            placeholder="搜索题目"
-                            allowClear
-                            enterButton={<SearchOutlined />}
-                            size="middle"
-                            onChange={e => setSearchText(e.target.value)}
-                            className="w-64"
-                        />
-                        <Select
-                            defaultValue="all"
-                            style={{ width: 120 }}
-                            onChange={setDifficultyFilter}
-                            size="middle"
-                        >
-                            <Option value="all">全部难度</Option>
-                            <Option value="简单">简单</Option>
-                            <Option value="中等">中等</Option>
-                            <Option value="困难">困难</Option>
-                        </Select>
-                        <Button 
-                            type="primary" 
-                            onClick={handleRefresh} 
-                            icon={<ReloadOutlined />} 
-                            loading={loading}
-                            size="middle"
-                        >
-                            刷新
-                        </Button>
-                    </Flex>
-                    
-                    {/* 标签筛选区域 */}
-                    <div className="mb-4 pb-2 border-b border-gray-100">
-                        <div className="flex justify-between items-center text-sm mb-2 text-gray-500">
-                            <span>标签筛选:</span>
-                            {hasMoreTags && (
-                                <Button 
-                                    type="link" 
-                                    size="small" 
-                                    onClick={() => setTagExpanded(!tagExpanded)}
-                                    icon={tagExpanded ? <UpOutlined /> : <DownOutlined />}
-                                >
-                                    {tagExpanded ? '收起' : '展开'}
-                                </Button>
-                            )}
-                        </div>
-                        <div className={`${tagExpanded ? '' : 'h-10 overflow-hidden'} transition-all duration-300`}>
-                            <Space wrap size={[8, 6]}>
-                                <Tag 
-                                    className="cursor-pointer text-sm px-3 py-1 m-0"
-                                    color={tagFilter === 'all' ? 'blue' : 'default'}
-                                    onClick={() => setTagFilter('all')}
-                                >
-                                    全部
-                                </Tag>
-                                {allTags.slice(0, displayTagCount).map(tag => (
-                                    <Tag 
-                                        key={tag}
-                                        className="cursor-pointer text-sm px-3 py-1 m-0"
-                                        color={tagFilter === tag ? 'blue' : 'default'}
-                                        onClick={() => setTagFilter(tag)}
-                                    >
-                                        {tag}
-                                    </Tag>
-                                ))}
-                            </Space>
-                        </div>
-                    </div>
-                    
-                    <List
-                        dataSource={filteredQuestions}
-                        renderItem={(item) => (
-                            <QuestionItem question={item} />
-                        )}
-                    />
-                    {filteredQuestions.length === 0 && !loading && (
-                        <div className="py-10 text-center text-gray-500">
-                            暂无数据
-                        </div>
-                    )}
-                    <div ref={loadMoreRef} className="py-4 text-center">
-                        {loading && <Spin tip="加载中..." />}
-                        {!loading && hasMore && <div className="text-gray-400">上滑加载更多</div>}
-                        {!loading && !hasMore && filteredQuestions.length > 0 && <div className="text-gray-400">已经到底啦</div>}
-                    </div>
-                </div>
+        <div className="max-w-5xl mx-auto px-4 md:px-6">
+            <Title level={3} className="mb-4">题目列表</Title>
+            <Flex align="center" gap="middle" className="mb-4 flex-wrap">
+                <Search
+                    placeholder="搜索题目"
+                    allowClear
+                    enterButton={<SearchOutlined />}
+                    size="middle"
+                    onChange={e => setSearchText(e.target.value)}
+                    className="w-64"
+                />
+                <Select
+                    value={difficultyFilter}
+                    style={{ width: 120 }}
+                    onChange={setDifficultyFilter}
+                    size="middle"
+                >
+                    <Option value="all">全部难度</Option>
+                    <Option value="简单">简单</Option>
+                    <Option value="中等">中等</Option>
+                    <Option value="困难">困难</Option>
+                </Select>
+                <Button 
+                    type="primary" 
+                    onClick={handleRefresh} 
+                    icon={<ReloadOutlined />} 
+                    loading={loading}
+                    size="middle"
+                >
+                    刷新
+                </Button>
             </Flex>
+
+            {/* 标签筛选区域 */}
+            <div className="mb-2 pb-2 border-b border-gray-100">
+                <div className="flex justify-between items-center text-sm mb-2 text-gray-500">
+                    <span>标签筛选:</span>
+                    {hasMoreTags && (
+                        <Button 
+                            type="link" 
+                            size="small" 
+                            onClick={() => setTagExpanded(!tagExpanded)}
+                            icon={tagExpanded ? <UpOutlined /> : <DownOutlined />}
+                        >
+                            {tagExpanded ? '收起' : '展开'}
+                        </Button>
+                    )}
+                </div>
+                <div className={`${tagExpanded ? '' : 'h-10 overflow-hidden'} transition-all duration-300`}>
+                    <Space wrap size={[8, 6]}>
+                        <Tag 
+                            className="cursor-pointer text-sm px-3 py-1 m-0"
+                            color={tagFilter === 'all' ? 'blue' : 'default'}
+                            onClick={() => setTagFilter('all')}
+                        >
+                            全部
+                        </Tag>
+                        {allTags.slice(0, displayTagCount).map(tag => (
+                            <Tag 
+                                key={tag}
+                                className="cursor-pointer text-sm px-3 py-1 m-0"
+                                color={tagFilter === tag ? 'blue' : 'default'}
+                                onClick={() => setTagFilter(tag)}
+                            >
+                                {tag}
+                            </Tag>
+                        ))}
+                    </Space>
+                </div>
+            </div>
+
+            <List
+                split={false}
+                itemLayout="vertical"
+                dataSource={filteredQuestions}
+                renderItem={(item) => (
+                    <QuestionItem question={item} />
+                )}
+            />
+            {filteredQuestions.length === 0 && !loading && (
+                <div className="py-10 text-center text-gray-500">
+                    暂无数据
+                </div>
+            )}
+            <div ref={loadMoreRef} className="py-4 text-center">
+                {loading && <Spin tip="加载中..." />}
+                {!loading && hasMore && <div className="text-gray-400">上滑加载更多</div>}
+                {!loading && !hasMore && filteredQuestions.length > 0 && <div className="text-gray-400">已经到底啦</div>}
+            </div>
         </div>
     );
 }
