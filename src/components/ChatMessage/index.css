@@ -1,0 +1,228 @@
+.chat-message-item {
+  margin-bottom: 12px;
+  padding: 0 16px;
+}
+
+.message-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.message-avatar {
+  flex-shrink: 0;
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  padding: 0 8px;
+}
+
+.message-sender {
+  font-size: 12px;
+  color: #595959;
+}
+
+.message-time {
+  font-size: 11px;
+  color: #8c8c8c;
+}
+
+.message-bubble {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: 70%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.other-bubble {
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+  margin-left: 0;
+}
+
+.own-bubble {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-left: auto;
+  position: relative;
+}
+
+.own-message .message-wrapper {
+  flex-direction: row-reverse;
+}
+
+.own-message .message-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.message-text {
+  margin: 0;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.own-bubble .message-text {
+  color: white;
+}
+
+.message-time-own {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* 系统消息样式 */
+.system-message-item {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.system-message-content {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: #f0f0f0;
+  border: 1px solid #d9d9d9;
+}
+
+.system-message-text {
+  font-size: 12px;
+  color: #595959;
+}
+
+/* 不同类型系统消息的颜色 */
+.join-message .system-message-content {
+  background: #f6ffed;
+  border-color: #b7eb8f;
+}
+
+.join-message .system-message-text {
+  color: #389e0d;
+}
+
+.leave-message .system-message-content {
+  background: #fff2f0;
+  border-color: #ffccc7;
+}
+
+.leave-message .system-message-text {
+  color: #cf1322;
+}
+
+.error-message .system-message-content {
+  background: #fff2f0;
+  border-color: #ffccc7;
+}
+
+.error-message .system-message-text {
+  color: #cf1322;
+}
+
+.notification-message .system-message-content {
+  background: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.notification-message .system-message-text {
+  color: #0958d9;
+}
+
+.system-message .system-message-content {
+  background: #f9f0ff;
+  border-color: #d3adf7;
+}
+
+.system-message .system-message-text {
+  color: #531dab;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .chat-message-item {
+    padding: 0 12px;
+    margin-bottom: 10px;
+  }
+  
+  .message-bubble {
+    max-width: 80%;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .message-header {
+    padding: 0 4px;
+    margin-bottom: 2px;
+  }
+  
+  .message-sender {
+    font-size: 11px;
+  }
+  
+  .message-time {
+    font-size: 10px;
+  }
+  
+  .message-time-own {
+    font-size: 10px;
+  }
+  
+  .system-message-content {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+}
+
+/* 消息气泡箭头 */
+.other-bubble::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 8px;
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid #f5f5f5;
+}
+
+.own-bubble::before {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 8px;
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid #667eea;
+}
+
+/* 消息动画 */
+.chat-message-item {
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

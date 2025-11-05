@@ -1,6 +1,15 @@
-import {CrownOutlined, ExperimentOutlined, HomeOutlined, QuestionOutlined} from "@ant-design/icons";
+import {CrownOutlined, ExperimentOutlined, HomeOutlined, QuestionOutlined, TeamOutlined} from "@ant-design/icons";
+import type { ReactNode } from 'react';
 
-const NavBarItems: ConfigModel.NavBarItem[] = [
+interface NavBarItem {
+    key: string;
+    label: string;
+    path: string;
+    icon?: ReactNode;
+    children?: NavBarItem[];
+}
+
+const NavBarItems: NavBarItem[] = [
     {
         key: '1',
         label: '首页',
@@ -21,6 +30,12 @@ const NavBarItems: ConfigModel.NavBarItem[] = [
     },
     {
         key: '4',
+        label: '房间',
+        path: '/room',
+        icon: <TeamOutlined />,
+    },
+    {
+        key: '5',
         label: '管理员',
         path: '/admin',
         icon: <CrownOutlined />,

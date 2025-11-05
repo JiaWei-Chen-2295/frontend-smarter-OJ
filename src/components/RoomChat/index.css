@@ -1,0 +1,260 @@
+.room-chat-container {
+  height: 600px;
+  background: #f5f5f5;
+}
+
+.chat-panel,
+.users-panel {
+  height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.chat-panel .ant-card-body,
+.users-panel .ant-card-body {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fafafa;
+}
+
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+  position: relative;
+  scrollbar-width: thin;
+}
+
+.messages-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.messages-list {
+  padding: 8px 0;
+  min-height: 100%;
+}
+
+.chat-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-content {
+  text-align: center;
+  padding: 40px;
+}
+
+.empty-messages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.message-input-container {
+  background: #fff;
+}
+
+.message-input {
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 16px;
+  gap: 8px;
+}
+
+.message-input .ant-input {
+  flex: 1;
+  border-radius: 8px;
+}
+
+.message-input .ant-btn {
+  border-radius: 8px;
+  height: auto;
+  align-self: flex-end;
+}
+
+.users-panel .ant-card-body {
+  background: #fafafa;
+}
+
+/* 连接状态标签 */
+.ant-tag {
+  border-radius: 4px;
+  font-size: 11px;
+  margin: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .room-chat-container {
+    height: auto;
+  }
+  
+  .room-chat-container .ant-row {
+    flex-direction: column;
+  }
+  
+  .chat-panel .ant-card-body {
+    height: 500px;
+  }
+  
+  .users-panel {
+    margin-top: 16px;
+  }
+  
+  .users-panel .ant-card-body {
+    height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .room-chat-container {
+    margin: 0 -16px;
+  }
+  
+  .chat-panel,
+  .users-panel {
+    border-radius: 0;
+    margin: 0 -8px;
+  }
+  
+  .chat-header {
+    padding: 8px 12px;
+  }
+  
+  .message-input {
+    padding: 8px 12px;
+  }
+  
+  .chat-panel .ant-card-body {
+    height: 400px;
+  }
+  
+  .users-panel .ant-card-body {
+    height: 250px;
+  }
+}
+
+@media (max-width: 576px) {
+  .chat-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .message-input {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .message-input .ant-btn {
+    align-self: stretch;
+  }
+}
+
+/* 加载动画 */
+.chat-placeholder .ant-spin-dot {
+  font-size: 20px;
+}
+
+.chat-placeholder .ant-spin-dot-item {
+  background-color: #667eea;
+}
+
+/* 卡片样式增强 */
+.chat-panel .ant-card-head,
+.users-panel .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 分割线样式 */
+.ant-divider-horizontal {
+  margin: 0;
+  border-color: #f0f0f0;
+}
+
+/* 按钮样式 */
+.message-input .ant-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.message-input .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.message-input .ant-btn-primary:disabled {
+  background: #f5f5f5;
+  box-shadow: none;
+}
+
+/* TextArea 样式 */
+.message-input .ant-input {
+  border: 1px solid #d9d9d9;
+  transition: all 0.3s ease;
+}
+
+.message-input .ant-input:focus,
+.message-input .ant-input-focused {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+/* 滚动条优化 */
+.messages-container {
+  scroll-behavior: smooth;
+}
+
+/* Tag 动画 */
+.ant-tag {
+  transition: all 0.3s ease;
+}
+
+/* 空状态优化 */
+.empty-messages,
+.placeholder-content {
+  color: #8c8c8c;
+}
+
+.placeholder-content .ant-btn-link {
+  padding: 0;
+  color: #667eea;
+}
+
+.placeholder-content .ant-btn-link:hover {
+  color: #5a6fd8;
+}

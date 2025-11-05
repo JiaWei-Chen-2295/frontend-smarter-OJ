@@ -14,6 +14,11 @@ import Lab from "../pages/index/Lab";
 import UserManager from "../pages/admin/UserManager";
 import UserSubmitManager from "../pages/admin/UserSubmitManager";
 import { ErrorBoundary } from "../router/ErrorBoundary";
+import RoomList from "../pages/room/RoomList";
+import CreateRoom from "../pages/room/CreateRoom";
+import RoomDetail from "../pages/room/RoomDetail";
+import MyRooms from "../pages/room/MyRooms";
+import RoomChatPage from "../pages/room/RoomChat";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -40,6 +45,18 @@ export const router = createBrowserRouter([
             {
                 path: "lab",
                 element: <Lab />
+            },
+            {
+                path: "room",
+                element: <RoomList/>
+            },
+            {
+                path: "room/create",
+                element: <CreateRoom/>
+            },
+            {
+                path: "room/my",
+                element: <MyRooms/>
             }
         ]
     },
@@ -50,6 +67,26 @@ export const router = createBrowserRouter([
                 <OJQuestion/>
             </AuthRouter></>
         ,
+        errorElement: <ErrorBoundary />,
+    },
+    {
+        path: "/room/:roomId",
+        element:
+            <>
+                <AuthRouter>
+                    <RoomDetail/>
+                </AuthRouter>
+            </>,
+        errorElement: <ErrorBoundary />,
+    },
+    {
+        path: "/room/:roomId/chat",
+        element:
+            <>
+                <AuthRouter>
+                    <RoomChatPage/>
+                </AuthRouter>
+            </>,
         errorElement: <ErrorBoundary />,
     }, {
         path: "/admin",

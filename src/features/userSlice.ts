@@ -2,7 +2,7 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {UserControllerService} from "../../generated";
 
 interface UserState {
-    currentUser: UserState | null;
+    currentUser: OJModel.User | null;
     status: UserStateStatus;
 }
 

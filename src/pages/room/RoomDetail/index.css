@@ -1,0 +1,230 @@
+.room-detail-container {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  background: #f5f5f5;
+}
+
+.room-detail-header {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.room-info-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: none;
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.room-title-section {
+  flex: 1;
+}
+
+.room-title {
+  margin: 0;
+  color: #262626;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.room-actions {
+  flex-shrink: 0;
+  margin-left: 24px;
+}
+
+.room-members-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: none;
+}
+
+.room-members-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.room-members-card .ant-list-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.room-members-card .ant-list-item:last-child {
+  border-bottom: none;
+}
+
+.room-members-card .ant-list-item-meta-title {
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.room-members-card .ant-list-item-meta-description {
+  margin-bottom: 0;
+}
+
+/* Descriptions 样式增强 */
+.ant-descriptions-item-label {
+  font-weight: 600;
+  color: #595959;
+  width: 100px;
+}
+
+.ant-descriptions-item-content {
+  color: #262626;
+}
+
+/* Badge 样式 */
+.ant-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* 按钮样式 */
+.ant-btn-primary {
+  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* Modal 样式 */
+.ant-modal-header {
+  border-radius: 8px 8px 0 0;
+}
+
+.ant-modal-content {
+  border-radius: 8px;
+}
+
+/* Form 样式 */
+.ant-form-item-label > label {
+  font-weight: 600;
+  color: #262626;
+}
+
+.ant-input,
+.ant-input-password,
+.ant-select-selector,
+.ant-input:hover,
+.ant-input-password:hover,
+.ant-select-selector:hover {
+  border-radius: 6px;
+}
+
+.ant-input:focus,
+.ant-input-password:focus,
+.ant-select-focused .ant-select-selector {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+/* Tag 样式 */
+.ant-tag {
+  border-radius: 4px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Avatar 样式 */
+.ant-avatar {
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* List 样式 */
+.ant-list-empty-text {
+  color: #8c8c8c;
+  font-style: italic;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .room-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .room-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .room-actions .ant-space {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .room-detail-container {
+    padding: 16px;
+  }
+  
+  .room-title {
+    font-size: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .room-actions .ant-space {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .room-actions .ant-space .ant-space-item {
+    width: 100%;
+  }
+  
+  .room-actions .ant-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .ant-descriptions {
+    column-count: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .room-info-card,
+  .room-members-card {
+    margin: 0 -8px;
+    border-radius: 8px;
+  }
+  
+  .room-title {
+    font-size: 18px;
+  }
+  
+  .ant-descriptions-item-label {
+    width: 80px;
+    font-size: 13px;
+  }
+  
+  .ant-descriptions-item-content {
+    font-size: 13px;
+  }
+}

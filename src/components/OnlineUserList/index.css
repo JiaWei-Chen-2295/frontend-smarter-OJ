@@ -1,0 +1,188 @@
+.online-user-list {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.online-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.user-list-container {
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.user-list-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.user-list-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.user-list-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.user-list-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.user-list-item {
+  padding: 8px 16px !important;
+  border-bottom: 1px solid #f5f5f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.user-list-item:hover {
+  background-color: #f9f9f9;
+}
+
+.user-list-item:last-child {
+  border-bottom: none;
+}
+
+.current-user {
+  background-color: #e6f7ff !important;
+  border-left: 3px solid #1890ff;
+}
+
+.current-user:hover {
+  background-color: #d4edda !important;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.user-avatar-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.leader-crown {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  font-size: 10px;
+  color: #faad14;
+  background: white;
+  border-radius: 50%;
+  padding: 1px;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.user-name {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+.current-user-tag {
+  font-size: 11px;
+  color: #1890ff;
+  flex-shrink: 0;
+}
+
+.join-time {
+  font-size: 11px;
+  color: #8c8c8c;
+  line-height: 1;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+}
+
+.online-indicator {
+  color: #52c41a;
+  font-size: 12px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Badge 样式调整 */
+.online-header .ant-badge-count {
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+}
+
+/* 空状态样式 */
+.ant-empty-description {
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+/* List 样式调整 */
+.user-list-container .ant-list-item {
+  border-bottom: none;
+  padding: 0;
+}
+
+.user-list-container .ant-spin-container {
+  padding: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .online-header {
+    padding: 10px 12px;
+  }
+  
+  .user-list-item {
+    padding: 6px 12px !important;
+  }
+  
+  .user-name {
+    font-size: 12px;
+    max-width: 100px;
+  }
+  
+  .join-time {
+    font-size: 10px;
+  }
+  
+  .current-user-tag {
+    font-size: 10px;
+  }
+}

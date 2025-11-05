@@ -1,0 +1,173 @@
+.room-list-container {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  background: #f5f5f5;
+}
+
+.room-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding: 0 4px;
+}
+
+.room-list-title h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.room-list-title p {
+  margin: 8px 0 0 0;
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+.room-list-filters {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.room-list-content {
+  margin-bottom: 24px;
+}
+
+.room-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.room-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.room-card-header {
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 12px;
+}
+
+.room-status {
+  display: flex;
+  gap: 8px;
+}
+
+.room-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.room-name {
+  font-weight: 600;
+  color: #262626;
+  font-size: 16px;
+}
+
+.room-description {
+  margin-top: 8px;
+}
+
+.room-desc-text {
+  margin: 0 0 12px 0;
+  color: #595959;
+  font-size: 13px;
+  line-height: 1.4;
+  height: 34px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.room-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.room-leader {
+  font-size: 12px;
+  color: #595959;
+  font-weight: 500;
+}
+
+.room-time {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 0;
+  color: #8c8c8c;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin: 0;
+}
+
+.room-list-pagination {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .room-list-container {
+    padding: 16px;
+  }
+  
+  .room-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .room-list-title h2 {
+    font-size: 24px;
+  }
+  
+  .room-list-filters .ant-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .room-list-filters .ant-col {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .room-card .ant-card-actions {
+    padding: 8px 16px;
+  }
+  
+  .room-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .room-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

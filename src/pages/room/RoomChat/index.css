@@ -1,0 +1,246 @@
+.room-chat-page-container {
+  min-height: calc(100vh - 64px);
+  background: #f5f5f5;
+  padding: 24px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+}
+
+.error-card,
+.permission-card {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-top: 100px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.room-chat-header {
+  margin-bottom: 24px;
+}
+
+.room-info-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: none;
+}
+
+.room-info-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.back-button {
+  border-radius: 8px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.room-basic-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-title-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.room-title-section h4 {
+  color: #262626;
+  display: flex;
+  align-items: center;
+}
+
+.room-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.room-status.public {
+  background: #f6ffed;
+  color: #389e0d;
+  border: 1px solid #b7eb8f;
+}
+
+.room-status.private {
+  background: #fff7e6;
+  color: #d48806;
+  border: 1px solid #ffd591;
+}
+
+.room-capacity {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #e6f7ff;
+  color: #0958d9;
+  border: 1px solid #91d5ff;
+}
+
+.room-capacity.full {
+  background: #fff2f0;
+  color: #cf1322;
+  border: 1px solid #ffccc7;
+}
+
+.room-description {
+  display: block;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.room-chat-main {
+  background: transparent;
+}
+
+/* Result 样式优化 */
+.error-card .ant-result,
+.permission-card .ant-result {
+  padding: 40px 20px;
+}
+
+.error-card .ant-result-title,
+.permission-card .ant-result-title {
+  color: #262626;
+}
+
+.error-card .ant-result-subtitle,
+.permission-card .ant-result-subtitle {
+  color: #595959;
+}
+
+/* 按钮样式 */
+.ant-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .room-chat-page-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .room-chat-page-container {
+    padding: 12px;
+  }
+  
+  .room-info-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .back-button {
+    align-self: flex-start;
+  }
+  
+  .room-basic-info {
+    width: 100%;
+  }
+  
+  .room-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .room-title-section h4 {
+    font-size: 18px;
+  }
+  
+  .error-card,
+  .permission-card {
+    margin-top: 50px;
+    margin-left: -4px;
+    margin-right: -4px;
+  }
+}
+
+@media (max-width: 576px) {
+  .room-chat-page-container {
+    padding: 8px;
+  }
+  
+  .room-chat-header {
+    margin-bottom: 16px;
+  }
+  
+  .room-info-card {
+    border-radius: 8px;
+  }
+  
+  .room-info-content {
+    gap: 8px;
+  }
+  
+  .room-title-section h4 {
+    font-size: 16px;
+  }
+  
+  .room-description {
+    font-size: 12px;
+  }
+}
+
+/* 动画效果 */
+.room-chat-page-container {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 卡片阴影优化 */
+.room-info-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Loading 样式 */
+.loading-container .ant-spin-dot {
+  font-size: 20px;
+}
+
+.loading-container .ant-spin-dot-item {
+  background-color: #667eea;
+}
