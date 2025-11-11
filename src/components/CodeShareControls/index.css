@@ -1,0 +1,330 @@
+.code-share-controls {
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 8px 8px 0 0;
+}
+
+.controls-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 16px;
+}
+
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.controls-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.language-selector {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.status-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.viewer-count {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.share-button {
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(82, 196, 26, 0.3);
+}
+
+.share-button:hover {
+  background: linear-gradient(135deg, #449a10 0%, #2f7a0c 100%);
+  box-shadow: 0 4px 8px rgba(82, 196, 26, 0.4);
+}
+
+.stop-button {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.status-description {
+  padding: 0 16px 8px 16px;
+  border-top: 1px solid #f5f5f5;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.feature-tips {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05) 0%, rgba(114, 46, 209, 0.05) 100%);
+  border-top: 1px solid #f0f0f0;
+}
+
+.feature-tips span {
+  color: #8c8c8c;
+}
+
+/* Select 样式 */
+.language-selector .ant-select {
+  border-radius: 4px;
+}
+
+.language-selector .ant-select-selector {
+  border-color: #d9d9d9;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.language-selector .ant-select-selector:hover {
+  border-color: #667eea;
+}
+
+.language-selector .ant-select-focused .ant-select-selector {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+/* Tag 样式增强 */
+.ant-tag {
+  border-radius: 4px;
+  border: none;
+  font-weight: 500;
+}
+
+.ant-tag-processing {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.1) 0%, rgba(114, 46, 209, 0.1) 100%);
+  color: #1890ff;
+  border: 1px solid rgba(24, 144, 255, 0.3);
+}
+
+.ant-tag-default {
+  background: rgba(0, 0, 0, 0.04);
+  color: #8c8c8c;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ant-tag-blue {
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.1) 0%, rgba(64, 169, 255, 0.1) 100%);
+  color: #1890ff;
+  border: 1px solid rgba(24, 144, 255, 0.3);
+}
+
+/* 按钮样式 */
+.ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ant-btn-dangerous {
+  background: rgba(255, 77, 79, 0.1);
+  border-color: rgba(255, 77, 79, 0.3);
+  color: #ff4d4f;
+}
+
+.ant-btn-dangerous:hover {
+  background: rgba(255, 77, 79, 0.15);
+  border-color: rgba(255, 77, 79, 0.4);
+  color: #ff4d4f;
+}
+
+/* 图标样式 */
+.anticon {
+  display: flex;
+  align-items: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .controls-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .controls-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .controls-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .code-share-controls {
+    border-radius: 4px 4px 0 0;
+  }
+
+  .controls-section {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .controls-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .language-selector {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+
+  .language-selector .ant-select {
+    width: 100px;
+  }
+
+  .status-info {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+
+  .controls-right {
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .status-description,
+  .feature-tips {
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .controls-section {
+    padding: 6px 8px;
+  }
+
+  .share-button,
+  .stop-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .language-selector {
+    font-size: 12px;
+  }
+
+  .language-selector .ant-select {
+    width: 90px;
+  }
+
+  .status-tag,
+  .viewer-count {
+    font-size: 10px;
+  }
+
+  .ant-btn {
+    font-size: 12px;
+    height: 32px;
+  }
+}
+
+/* 加载动画 */
+.code-share-controls .ant-btn-loading {
+  pointer-events: none;
+}
+
+.code-share-controls .ant-btn-loading .anticon {
+  animation: antRotate 1s infinite linear;
+}
+
+@keyframes antRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 权限提示样式 */
+.permission-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: rgba(250, 173, 20, 0.1);
+  border: 1px solid rgba(250, 173, 20, 0.3);
+  border-radius: 4px;
+  font-size: 11px;
+  color: #d48806;
+}
+
+/* Tooltip 内容样式 */
+.code-share-tooltip .ant-tooltip-inner {
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.code-share-tooltip .ant-tooltip-arrow-content {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+/* Popconfirm 样式 */
+.ant-popconfirm-title {
+  font-weight: 500;
+  color: #262626;
+}
+
+.ant-popconfirm-description {
+  color: #595959;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* 空状态样式 */
+.code-share-controls.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.code-share-controls.disabled .feature-tips {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* 高亮效果 */
+.controls-section.active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+/* 分享者特殊样式 */
+.code-share-controls.sharing .controls-section {
+  border-left: 4px solid #52c41a;
+}
+
+/* 观看者特殊样式 */  
+.code-share-controls.viewing .controls-section {
+  border-left: 4px solid #1890ff;
+}

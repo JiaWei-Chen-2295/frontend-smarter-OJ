@@ -1,0 +1,326 @@
+.room-code-collaboration {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: visible; /* 改为 visible 避免裁切 */
+  border: 1px solid #e8e8e8;
+  height: auto;
+}
+
+.collaboration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.sharing-indicator {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.sharing-dot {
+  width: 8px;
+  height: 8px;
+  background: #52c41a;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(82, 196, 26, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
+  }
+}
+
+.code-editor-wrapper {
+  position: relative;
+  background: #1e1e1e;
+  overflow: hidden;
+  height: 450px;
+  width: 100%;
+  min-height: 400px;
+}
+
+/* Card 样式增强 */
+.room-code-collaboration .ant-card-head {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px;
+}
+
+.room-code-collaboration .ant-card-head-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.room-code-collaboration .ant-card-body {
+  background: #fff;
+}
+
+/* 协作状态指示 */
+.room-code-collaboration.sharing {
+  border-color: #52c41a;
+  box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.1), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.room-code-collaboration.viewing {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Divider 样式 */
+.room-code-collaboration .ant-divider {
+  border-color: #f0f0f0;
+  margin: 0;
+}
+
+/* 编辑器容器样式增强 */
+.code-editor-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  z-index: 10;
+}
+
+/* 协作用户状态样式 */
+.remote-user-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
+  display: flex;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.remote-user-cursor {
+  position: absolute;
+  width: 2px;
+  background: var(--user-color);
+  z-index: 15;
+  pointer-events: none;
+  animation: cursorBlink 1s infinite;
+}
+
+.remote-user-cursor::after {
+  content: attr(data-user);
+  position: absolute;
+  top: -18px;
+  left: 0;
+  background: var(--user-color);
+  color: white;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.remote-user-selection {
+  position: absolute;
+  background: var(--user-color);
+  opacity: 0.2;
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .room-code-collaboration {
+    margin: 0 -8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .room-code-collaboration {
+    border-radius: 8px;
+    margin: 0 -4px;
+  }
+  
+  .collaboration-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .sharing-indicator {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+  
+  .code-editor-wrapper {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 576px) {
+  .room-code-collaboration {
+    border-radius: 4px;
+    margin: 0;
+  }
+  
+  .room-code-collaboration .ant-card-head {
+    padding: 8px 12px;
+  }
+  
+  .room-code-collaboration .ant-card-head-title {
+    font-size: 14px;
+  }
+  
+  .code-editor-wrapper {
+    min-height: 250px;
+  }
+  
+  .collaboration-header {
+    font-size: 14px;
+  }
+  
+  .sharing-indicator span {
+    font-size: 11px;
+  }
+}
+
+/* 空状态样式 */
+.code-collaboration-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #8c8c8c;
+  background: #fafafa;
+}
+
+.code-collaboration-empty .empty-icon {
+  font-size: 48px;
+  color: #d9d9d9;
+  margin-bottom: 16px;
+}
+
+.code-collaboration-empty .empty-text {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.code-collaboration-empty .empty-description {
+  font-size: 12px;
+  color: #bfbfbf;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 加载状态 */
+.code-collaboration-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: #fafafa;
+}
+
+.code-collaboration-loading .ant-spin-dot {
+  font-size: 20px;
+}
+
+.code-collaboration-loading .ant-spin-dot-item {
+  background-color: #667eea;
+}
+
+/* 暗色主题适配 */
+.room-code-collaboration[data-theme="dark"] {
+  background: #1f1f1f;
+  border-color: #434343;
+}
+
+.room-code-collaboration[data-theme="dark"] .ant-card-head {
+  background: rgba(102, 126, 234, 0.1);
+  border-bottom-color: #434343;
+}
+
+.room-code-collaboration[data-theme="dark"] .ant-card-head-title {
+  color: #f0f0f0;
+}
+
+.room-code-collaboration[data-theme="dark"] .code-editor-wrapper::before {
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+}
+
+/* 协作提示浮层 */
+.collaboration-tip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  text-align: center;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  animation: tipFadeInOut 3s ease-in-out;
+}
+
+@keyframes tipFadeInOut {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 1; }
+}
+
+/* 性能优化样式 */
+.code-editor-wrapper .monaco-editor {
+  will-change: transform;
+}
+
+.remote-user-cursor,
+.remote-user-selection {
+  will-change: transform, opacity;
+}
+
+/* 可访问性增强 */
+.room-code-collaboration:focus-within {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.collaboration-header *:focus {
+  outline: 1px solid #667eea;
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+/* 打印样式 */
+@media print {
+  .room-code-collaboration {
+    break-inside: avoid;
+    border: 1px solid #000;
+  }
+  
+  .collaboration-header,
+  .sharing-indicator {
+    display: none;
+  }
+  
+  .code-editor-wrapper {
+    height: auto !important;
+    min-height: 300px;
+  }
+}

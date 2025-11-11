@@ -1,21 +1,74 @@
 .room-chat-container {
-  height: 600px;
+  height: 750px;
   background: #f5f5f5;
 }
 
-.chat-panel,
-.users-panel {
+.main-panel {
   height: 100%;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
-.chat-panel .ant-card-body,
+.main-panel .ant-card-body {
+  height: 750px;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-tabs .ant-tabs-content-holder {
+  flex: 1;
+  overflow: hidden;
+}
+
+.room-tabs .ant-tabs-tabpane {
+  height: 100%;
+}
+
+/* Row 和 Col 高度控制 */
+.room-tabs .ant-tabs-tabpane .ant-row {
+  height: 100%;
+}
+
+.room-tabs .ant-tabs-tabpane .ant-col {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-panel {
+  height: 100%;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.users-panel {
+  height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
 .users-panel .ant-card-body {
   display: flex;
   flex-direction: column;
-  height: 600px;
+  height: 100%;
 }
 
 .chat-header {
@@ -35,9 +88,11 @@
 .messages-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #fff;
   position: relative;
   scrollbar-width: thin;
+  min-height: 0; /* 关键：允许 flex 容器正确收缩 */
 }
 
 .messages-container::-webkit-scrollbar {
@@ -60,6 +115,8 @@
 .messages-list {
   padding: 8px 0;
   min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-placeholder {
@@ -84,6 +141,7 @@
 
 .message-input-container {
   background: #fff;
+  flex-shrink: 0; /* 防止输入框被压缩 */
 }
 
 .message-input {
@@ -115,38 +173,118 @@
   margin: 0;
 }
 
+/* Tabs 样式增强 */
+.room-tabs .ant-tabs-tab {
+  padding: 12px 16px;
+  font-weight: 500;
+  border-radius: 8px 8px 0 0;
+  margin-right: 8px;
+}
+
+.room-tabs .ant-tabs-tab-active {
+  background: rgba(102, 126, 234, 0.05);
+  border-bottom-color: transparent;
+}
+
+.room-tabs .ant-tabs-ink-bar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 3px;
+  border-radius: 2px;
+}
+
+.room-tabs .ant-tabs-nav {
+  margin-bottom: 0;
+  background: #fafafa;
+  padding: 8px 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.room-tabs .ant-tabs-content {
+  height: 100%;
+  background: #fff;
+}
+
+.tab-label .ant-tag {
+  margin-left: 6px;
+  font-size: 10px;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .room-chat-container {
     height: auto;
   }
   
-  .room-chat-container .ant-row {
+  .main-panel .ant-card-body {
+    height: auto;
+    min-height: 500px;
+  }
+  
+  .room-tabs .ant-tabs-content {
+    min-height: 600px; /* 增加高度 */
+  }
+  
+  .room-tabs .ant-tabs-tabpane .ant-row {
     flex-direction: column;
+    height: auto !important;
+    min-height: 600px; /* 确保有足够空间 */
   }
   
-  .chat-panel .ant-card-body {
-    height: 500px;
+  .room-tabs .ant-tabs-tabpane .chat-panel {
+    min-height: 400px;
+    height: 400px;
+    max-height: 500px;
+    margin-bottom: 16px;
   }
   
-  .users-panel {
-    margin-top: 16px;
-  }
-  
-  .users-panel .ant-card-body {
-    height: 300px;
+  .room-tabs .ant-tabs-tabpane .users-panel {
+    height: 250px;
   }
 }
 
 @media (max-width: 768px) {
   .room-chat-container {
     margin: 0 -16px;
+    height: auto;
   }
   
-  .chat-panel,
-  .users-panel {
-    border-radius: 0;
+  .main-panel {
+    border-radius: 8px;
     margin: 0 -8px;
+  }
+  
+  .main-panel .ant-card-body {
+    height: auto;
+    min-height: 400px;
+  }
+  
+  .room-tabs .ant-tabs-nav {
+    padding: 4px 8px 0;
+  }
+  
+  .room-tabs .ant-tabs-tab {
+    padding: 8px 12px;
+    font-size: 14px;
+    margin-right: 4px;
+  }
+  
+  .room-tabs .ant-tabs-content {
+    min-height: 350px;
+  }
+  
+  .chat-panel {
+    border-radius: 4px;
+    min-height: 350px;
+    height: 350px;
+    max-height: 450px;
+    margin-bottom: 12px;
+  }
+  
+  .users-panel {
+    border-radius: 4px;
+    height: 200px;
   }
   
   .chat-header {
@@ -157,30 +295,67 @@
     padding: 8px 12px;
   }
   
-  .chat-panel .ant-card-body {
-    height: 400px;
+  .tab-label {
+    font-size: 13px;
   }
   
-  .users-panel .ant-card-body {
-    height: 250px;
+  .tab-label span {
+    display: none;
   }
 }
 
 @media (max-width: 576px) {
+  .room-chat-container {
+    margin: 0 -8px;
+  }
+  
+  .main-panel {
+    border-radius: 4px;
+    margin: 0;
+  }
+  
+  .room-tabs .ant-tabs-nav {
+    padding: 2px 4px 0;
+  }
+  
+  .room-tabs .ant-tabs-tab {
+    padding: 6px 8px;
+    font-size: 12px;
+    min-width: 60px;
+  }
+  
+  .chat-panel {
+    min-height: 300px;
+    height: 300px;
+    max-height: 400px;
+    margin-bottom: 8px;
+  }
+  
+  .users-panel {
+    height: 150px;
+  }
+  
   .chat-title {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+    font-size: 14px;
   }
   
   .message-input {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
+    padding: 6px 8px;
   }
   
   .message-input .ant-btn {
     align-self: stretch;
+    height: 36px;
+  }
+  
+  .tab-label .anticon {
+    font-size: 14px;
   }
 }
 

@@ -88,7 +88,8 @@ export const router = createBrowserRouter([
                 </AuthRouter>
             </>,
         errorElement: <ErrorBoundary />,
-    }, {
+    },
+    {
         path: "/admin",
         meta: {
             title: "管理员",

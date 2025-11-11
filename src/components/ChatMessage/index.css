@@ -85,6 +85,16 @@
   margin-top: 4px;
 }
 
+/* 消息状态指示器 */
+.message-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 2px;
+  padding-right: 4px;
+  min-height: 16px;
+}
+
 /* 系统消息样式 */
 .system-message-item {
   text-align: center;

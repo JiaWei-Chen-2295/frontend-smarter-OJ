@@ -1,0 +1,295 @@
+.custom-cursor-overlay {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  pointer-events: none !important;
+  z-index: 999 !important;
+  overflow: hidden !important;
+}
+
+/* 自定义光标样式 */
+.custom-cursor {
+  position: absolute !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  transition: all 0.2s ease-out;
+}
+
+.custom-cursor.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.custom-cursor.inactive {
+  opacity: 0.6;
+  transform: scale(0.9);
+}
+
+/* 光标线条 */
+.cursor-line {
+  position: absolute !important;
+  left: 0 !important;
+  top: 2px !important;
+  width: 2px !important;
+  height: 18px !important;
+  background: var(--cursor-color) !important;
+  border-radius: 1px !important;
+  animation: customCursorBlink 1.5s infinite;
+  box-shadow: 0 0 4px var(--cursor-color) !important;
+}
+
+/* 用户信息标签 */
+.cursor-label {
+  position: absolute !important;
+  left: 6px !important;
+  top: -32px !important;
+  background: var(--cursor-color) !important;
+  color: white !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  min-width: 80px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.cursor-user-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.cursor-user-name {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  max-width: 60px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.cursor-position {
+  font-size: 9px !important;
+  opacity: 0.9 !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace !important;
+}
+
+/* 脉冲效果 */
+.cursor-pulse {
+  position: absolute !important;
+  left: -6px !important;
+  top: -4px !important;
+  width: 14px !important;
+  height: 26px !important;
+  background: var(--cursor-color) !important;
+  opacity: 0.3 !important;
+  border-radius: 50% !important;
+  animation: cursorPulse 2s infinite;
+  pointer-events: none !important;
+}
+
+/* 光标闪烁动画 */
+@keyframes customCursorBlink {
+  0%, 50% { 
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  51%, 100% { 
+    opacity: 0.7;
+    transform: scaleY(0.95);
+  }
+}
+
+/* 脉冲动画 */
+@keyframes cursorPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* 鼠标悬停效果 */
+.custom-cursor:hover .cursor-label {
+  background: var(--cursor-color) !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.custom-cursor:hover .cursor-line {
+  width: 3px !important;
+  box-shadow: 0 0 8px var(--cursor-color) !important;
+}
+
+/* 活跃状态特效 */
+.custom-cursor.active .cursor-line {
+  animation: customCursorBlink 1s infinite, cursorGlow 2s infinite;
+}
+
+@keyframes cursorGlow {
+  0%, 100% {
+    box-shadow: 0 0 4px var(--cursor-color);
+  }
+  50% {
+    box-shadow: 0 0 12px var(--cursor-color), 0 0 20px var(--cursor-color);
+  }
+}
+
+/* 标签箭头指示 */
+.cursor-label::after {
+  content: '';
+  position: absolute !important;
+  bottom: -6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 6px solid transparent !important;
+  border-right: 6px solid transparent !important;
+  border-top: 6px solid var(--cursor-color) !important;
+}
+
+/* 调试信息 */
+.cursor-debug-info {
+  position: absolute !important;
+  top: 4px !important;
+  right: 4px !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  color: white !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-size: 10px !important;
+  font-family: monospace !important;
+  pointer-events: none !important;
+  z-index: 1001 !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .cursor-label {
+    font-size: 10px !important;
+    padding: 3px 6px !important;
+    min-width: 60px !important;
+  }
+  
+  .cursor-user-name {
+    font-size: 9px !important;
+    max-width: 40px !important;
+  }
+  
+  .cursor-position {
+    font-size: 8px !important;
+  }
+  
+  .cursor-label .ant-avatar {
+    width: 14px !important;
+    height: 14px !important;
+    font-size: 10px !important;
+  }
+}
+
+/* 多用户颜色预设 */
+.custom-cursor[data-color="0"] {
+  --cursor-color: #ff4d4f;
+}
+
+.custom-cursor[data-color="1"] {
+  --cursor-color: #52c41a;
+}
+
+.custom-cursor[data-color="2"] {
+  --cursor-color: #1890ff;
+}
+
+.custom-cursor[data-color="3"] {
+  --cursor-color: #722ed1;
+}
+
+.custom-cursor[data-color="4"] {
+  --cursor-color: #fa8c16;
+}
+
+.custom-cursor[data-color="5"] {
+  --cursor-color: #13c2c2;
+}
+
+.custom-cursor[data-color="6"] {
+  --cursor-color: #eb2f96;
+}
+
+.custom-cursor[data-color="7"] {
+  --cursor-color: #fadb14;
+}
+
+/* 进入和离开动画 */
+.custom-cursor {
+  animation: cursorFadeIn 0.3s ease-out;
+}
+
+@keyframes cursorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 光标消失动画 */
+.custom-cursor.leaving {
+  animation: cursorFadeOut 0.3s ease-in forwards;
+}
+
+@keyframes cursorFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.8);
+  }
+}
+
+/* 确保在失焦状态下也可见 */
+.custom-cursor-overlay {
+  visibility: visible !important;
+  display: block !important;
+  opacity: 1 !important;
+}
+
+/* 窗口失焦时的样式调整 */
+body:not(.window-focused) .custom-cursor {
+  opacity: 0.9 !important;
+}
+
+body:not(.window-focused) .cursor-label {
+  background: color-mix(in srgb, var(--cursor-color) 90%, #000000 10%) !important;
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .cursor-line {
+    width: 3px !important;
+    border: 1px solid #000 !important;
+  }
+  
+  .cursor-label {
+    border: 2px solid #000 !important;
+  }
+}

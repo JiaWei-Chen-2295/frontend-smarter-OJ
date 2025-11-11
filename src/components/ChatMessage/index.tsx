@@ -1,14 +1,17 @@
 import React from 'react';
-import { Avatar, Space, Typography, Tag, Tooltip } from 'antd';
+import { Avatar, Space, Typography, Tooltip } from 'antd';
 import { 
   UserOutlined, 
   RobotOutlined, 
   ExclamationCircleOutlined,
   InfoCircleOutlined,
   LoginOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  CheckOutlined,
+  LoadingOutlined,
+  CheckCircleFilled
 } from '@ant-design/icons';
-import { WebSocketMessage, MessageType } from '../../services/websocket';
+import { WebSocketMessage, MessageType, MessageStatus } from '../../services/websocket';
 import './index.css';
 
 const { Text } = Typography;
@@ -91,6 +94,34 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     );
   }
 
+  // 获取消息状态显示
+  const getStatusIcon = () => {
+    if (!isOwnMessage || !message.status) return null;
+    
+    switch (message.status) {
+      case MessageStatus.SENDING:
+        return (
+          <Tooltip title="发送中">
+            <LoadingOutlined style={{ fontSize: '12px', color: '#8c8c8c', marginLeft: '4px' }} />
+          </Tooltip>
+        );
+      case MessageStatus.SENT:
+        return (
+          <Tooltip title="已发送">
+            <CheckOutlined style={{ fontSize: '12px', color: '#8c8c8c', marginLeft: '4px' }} />
+          </Tooltip>
+        );
+      case MessageStatus.DELIVERED:
+        return (
+          <Tooltip title="发送成功">
+            <CheckCircleFilled style={{ fontSize: '12px', color: '#52c41a', marginLeft: '4px' }} />
+          </Tooltip>
+        );
+      default:
+        return null;
+    }
+  };
+
   // 普通聊天消息渲染
   return (
     <div className={`chat-message-item ${isOwnMessage ? 'own-message' : 'other-message'}`}>
@@ -127,6 +158,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
               </div>
             )}
           </div>
+          
+          {/* 显示发送状态 */}
+          {isOwnMessage && (
+            <div className="message-status">
+              {getStatusIcon()}
+            </div>
+          )}
         </div>
 
         {isOwnMessage && (

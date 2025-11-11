@@ -1,0 +1,387 @@
+.code-diff-editor {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  position: relative;
+}
+
+/* GitHub风格的状态栏 */
+.github-diff-status-bar {
+  background: #f6f8fa;
+  border: 1px solid #d1d9e0;
+  border-bottom: 1px solid #e1e4e8;
+  padding: 8px 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.diff-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.diff-indicator {
+  font-weight: 600;
+  color: #24292f;
+  font-size: 13px;
+}
+
+/* GitHub风格的差异标记 */
+.github-diff-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'SFMono-Regular', 'Consolas', monospace;
+  animation: githubBadgeSlideIn 0.3s ease-out;
+}
+
+.github-diff-badge.diff-added {
+  background: rgba(22, 163, 74, 0.1);
+  color: #0969da;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+.github-diff-badge.diff-modified {
+  background: rgba(251, 189, 8, 0.1);
+  color: #9a6700;
+  border: 1px solid rgba(251, 189, 8, 0.2);
+}
+
+.github-diff-badge.diff-deleted {
+  background: rgba(248, 81, 73, 0.1);
+  color: #cf222e;
+  border: 1px solid rgba(248, 81, 73, 0.2);
+}
+
+.diff-preview {
+  font-size: 10px;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+@keyframes githubBadgeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 传统diff badge样式（保留兼容） */
+.diff-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  animation: diffBadgeFadeIn 0.3s ease-out;
+}
+
+.diff-badge.diff-added {
+  background: rgba(82, 196, 26, 0.15);
+  color: #389e0d;
+  border: 1px solid rgba(82, 196, 26, 0.3);
+}
+
+.diff-badge.diff-modified {
+  background: rgba(250, 173, 20, 0.15);
+  color: #d48806;
+  border: 1px solid rgba(250, 173, 20, 0.3);
+}
+
+.diff-badge.diff-deleted {
+  background: rgba(255, 77, 79, 0.15);
+  color: #cf1322;
+  border: 1px solid rgba(255, 77, 79, 0.3);
+}
+
+@keyframes diffBadgeFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.diff-editor-container {
+  position: relative;
+  background: #1e1e1e;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+.diff-debug-info {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: monospace;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* GitHub风格的差异样式 */
+
+/* 新增行样式（绿色） */
+.monaco-editor .github-diff-added-line {
+  background: rgba(22, 163, 74, 0.15) !important;
+  border-left: 3px solid #16a34a !important;
+  animation: githubDiffSlideIn 0.4s ease-out, githubDiffFadeOut 0.6s ease-in 10s forwards;
+}
+
+.monaco-editor .github-diff-margin-added {
+  background: #16a34a !important;
+  width: 4px !important;
+  position: relative !important;
+}
+
+.monaco-editor .github-diff-margin-added::before {
+  content: '+' !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+/* 修改行样式 */
+.monaco-editor .code-diff-modified {
+  background: rgba(250, 173, 20, 0.25) !important;
+  border-left: 4px solid #fa8c16 !important;
+  animation: diffLineSlideIn 0.5s ease-out, diffLineFadeOut 0.6s ease-in 10s forwards;
+  box-shadow: inset 0 0 0 1px rgba(250, 173, 20, 0.3) !important;
+}
+
+.monaco-editor .code-diff-content-modified {
+  background: rgba(250, 173, 20, 0.2) !important;
+  border-radius: 3px !important;
+  padding: 0 2px !important;
+  position: relative !important;
+}
+
+.monaco-editor .code-diff-change-label {
+  background: #fa8c16 !important;
+  color: white !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  margin-left: 8px !important;
+  box-shadow: 0 2px 4px rgba(250, 173, 20, 0.4) !important;
+  animation: labelPulse 2s infinite;
+}
+
+@keyframes labelPulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.monaco-editor .code-diff-margin-modified {
+  background: #fa8c16 !important;
+  width: 6px !important;
+  border-radius: 0 3px 3px 0 !important;
+}
+
+.monaco-editor .code-diff-margin-modified::before {
+  content: '~' !important;
+  color: white !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  line-height: 20px !important;
+  font-size: 14px !important;
+}
+
+/* 删除行样式（红色） - GitHub风格 */
+.monaco-editor .github-diff-deleted-line {
+  display: block !important;
+  width: 100% !important;
+  margin: 2px 0 !important;
+}
+
+.monaco-editor .github-diff-deleted-content {
+  background: rgba(248, 81, 73, 0.15) !important;
+  color: #d1242f !important;
+  padding: 2px 8px !important;
+  border-left: 3px solid #f85149 !important;
+  border-radius: 0 4px 4px 0 !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  display: inline-block !important;
+  width: calc(100% - 12px) !important;
+  margin: 2px 0 !important;
+  position: relative !important;
+  animation: githubDiffSlideIn 0.4s ease-out, githubDiffFadeOut 0.6s ease-in 10s forwards;
+}
+
+.monaco-editor .github-diff-deleted-content::before {
+  content: '🗑️' !important;
+  position: absolute !important;
+  left: -20px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 10px !important;
+}
+
+/* GitHub风格的差异动画 */
+@keyframes githubDiffSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 24px;
+  }
+}
+
+@keyframes githubDiffFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 24px;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+    max-height: 0;
+  }
+}
+
+/* 传统动画（备用） */
+@keyframes diffLineSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes diffLineFadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+
+/* 脉冲效果 */
+.monaco-editor .code-diff-added,
+.monaco-editor .code-diff-modified,
+.monaco-editor .code-diff-deleted {
+  position: relative;
+}
+
+.monaco-editor .code-diff-added::after,
+.monaco-editor .code-diff-modified::after,
+.monaco-editor .code-diff-deleted::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  opacity: 0.3;
+  animation: diffPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes diffPulse {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+/* 高对比度模式适配 */
+@media (prefers-contrast: high) {
+  .monaco-editor .code-diff-added {
+    border-left-width: 6px !important;
+    background: rgba(82, 196, 26, 0.4) !important;
+  }
+  
+  .monaco-editor .code-diff-modified {
+    border-left-width: 6px !important;
+    background: rgba(250, 173, 20, 0.4) !important;
+  }
+  
+  .monaco-editor .code-diff-deleted {
+    border-left-width: 6px !important;
+    background: rgba(255, 77, 79, 0.4) !important;
+  }
+}
+
+/* 暗色主题适配 */
+.code-diff-editor[data-theme="vs-dark"] {
+  border-color: #3c3c3c;
+}
+
+.code-diff-editor[data-theme="vs-dark"] .diff-status-bar {
+  background: rgba(24, 144, 255, 0.1);
+  border-bottom-color: rgba(24, 144, 255, 0.2);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .diff-status-bar {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  
+  .diff-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+  
+  .diff-debug-info {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+}
+
+/* 动画性能优化 */
+.monaco-editor .code-diff-added,
+.monaco-editor .code-diff-modified,
+.monaco-editor .code-diff-deleted {
+  will-change: transform, opacity;
+}
+
+/* 无障碍访问 */
+.monaco-editor .code-diff-added,
+.monaco-editor .code-diff-modified,
+.monaco-editor .code-diff-deleted {
+  outline: 2px solid transparent;
+}
+
+.monaco-editor .code-diff-added:focus-within,
+.monaco-editor .code-diff-modified:focus-within,
+.monaco-editor .code-diff-deleted:focus-within {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
