@@ -1,6 +1,6 @@
 .room-chat-page-container {
   min-height: calc(100vh - 64px);
-  background: #f5f5f5;
+  background: #fafafa;
   padding: 24px;
 }
 
@@ -128,18 +128,18 @@
 }
 
 /* 按钮样式 */
-.ant-btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.room-chat-page-container .ant-btn-primary {
+  background: #228B22;
   border: none;
   border-radius: 6px;
   font-weight: 500;
 }
 
-.ant-btn-primary:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+.room-chat-page-container .ant-btn-primary:hover {
+  background: #2ea043;
 }
 
-.ant-btn {
+.room-chat-page-container .ant-btn {
   border-radius: 6px;
   font-weight: 500;
 }
@@ -242,5 +242,5 @@
 }
 
 .loading-container .ant-spin-dot-item {
-  background-color: #667eea;
+  background-color: #228B22;
 }

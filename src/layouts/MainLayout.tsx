@@ -15,13 +15,14 @@ const { Header, Content, Footer } = Layout;
 function MainLayout({ children }: { children: ReactNode }) {
 
     const {
-        token: { colorBgContainer, borderRadiusLG },
+        token: { colorBgContainer },
     } = theme.useToken();
 
     const [currentKey, setCurrentKey] = useState<string>('');
 
     const navigate = useNavigate();
     const location = useLocation();
+    const hideMenu = location.pathname === '/profile';
     // @ts-expect-error useSelector
     const currentUser = useSelector<RootState, OJModel.User>(state => state.User?.currentUser)
 
@@ -41,13 +42,12 @@ function MainLayout({ children }: { children: ReactNode }) {
     const items: MenuProps['items'] = [
         {
             key: '1',
-            label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                    个人中心
-                </a>
-            ),
+            label: '个人主页',
             icon: <UserOutlined />,
             disabled: currentUser === null,
+            onClick: () => {
+                navigate('/profile')
+            },
         },
         {
             key: '2',
@@ -85,35 +85,40 @@ function MainLayout({ children }: { children: ReactNode }) {
             <Header style={{
                 position: 'sticky',
                 top: 0,
-                zIndex: 1,
+                zIndex: 1000,
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 background: colorBgContainer,
-                padding: 0,
+                padding: '0 24px',
+                height: 64,
+                lineHeight: '64px',
             }}>
                 <div className="my-logo">
                     <img src="/logo.svg" height={'48px'} width={'64px'} alt='Smarter OJ' />
 
                 </div>
-                <Menu
-                    theme="light"
-                    mode="horizontal"
-                    defaultSelectedKeys={['1']}
-                    selectedKeys={[currentKey]}
-                    items={NavBarItems.filter(item => {
-                        const findRoute = router.routes.find(route => item.path === route.path);
-                        // @ts-expect-error meta
-                        return !(findRoute?.meta?.requiresAuth && currentUser?.userRole !== 'admin');
-                    })}
-                    onClick={(info) => {
-                        const path = getPathByKey(info.key);
-                        if (path) {
-                            navigate(path)
-                        }
-                    }}
-                    style={{ flex: 1, minWidth: 0 }}
-                />
+                {!hideMenu && (
+                    <Menu
+                        theme="light"
+                        mode="horizontal"
+                        defaultSelectedKeys={['1']}
+                        selectedKeys={[currentKey]}
+                        items={NavBarItems.filter(item => {
+                            const findRoute = router.routes.find(route => item.path === route.path);
+                            // @ts-expect-error meta
+                            return !(findRoute?.meta?.requiresAuth && currentUser?.userRole !== 'admin');
+                        })}
+                        onClick={(info) => {
+                            const path = getPathByKey(info.key);
+                            if (path) {
+                                navigate(path)
+                            }
+                        }}
+                        style={{ flex: 1, minWidth: 0 }}
+                    />
+                )}
+                {hideMenu && <div style={{ flex: 1 }} />}
 
                 <Dropdown
                     menu={{ items }}
@@ -156,27 +161,33 @@ function MainLayout({ children }: { children: ReactNode }) {
 
 
             </Header>
-            <Content className={"p-6"}>
+            <Content style={{ padding: '24px' }}>
                 <div
                     style={{
                         background: colorBgContainer,
-                        minHeight: '100vh',
-                        paddingTop: 48,
-                        paddingLeft: 48,
-                        paddingRight: 48,
-                        borderRadius: borderRadiusLG,
+                        minHeight: 'calc(100vh - 112px)',
+                        padding: '32px',
+                        borderRadius: 8,
+                        maxWidth: 1280,
+                        margin: '0 auto',
                     }}
                 >
                     {children}
                 </div>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>
-                Smarter OJ ©{new Date().getFullYear()} Created by JavierChen
-                <Divider type={"vertical"} />
-                <span className={'flex items-center justify-center gap-1.5'}>
-                    <SourceCode theme="outline" size="16" fill="#000000" />
-                    <p>开源代码许可</p>
-                </span>
+            <Footer style={{ 
+                textAlign: 'center',
+                padding: '24px 0',
+                background: colorBgContainer,
+                borderTop: '1px solid #f0f0f0',
+            }}>
+                <Space split={<Divider type="vertical" />} size="middle">
+                    <span>Smarter OJ ©{new Date().getFullYear()} Created by JavierChen</span>
+                    <Space size="small">
+                        <SourceCode theme="outline" size="16" fill="#000000" />
+                        <span>开源代码许可</span>
+                    </Space>
+                </Space>
             </Footer>
         </Layout>
     );

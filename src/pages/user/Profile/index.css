@@ -1,0 +1,39 @@
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 80vh;
+  padding: 24px;
+}
+
+.back-btn {
+  align-self: flex-start;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 8px;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.upload-btn {
+  margin-top: 8px;
+}
+
+.profile-form {
+  margin-top: 24px;
+}
+
+.profile-form .ant-form-item-label > label {
+  font-weight: 500;
+}

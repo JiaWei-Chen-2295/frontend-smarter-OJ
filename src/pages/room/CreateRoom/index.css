@@ -1,7 +1,7 @@
 .create-room-container {
   padding: 24px;
   min-height: calc(100vh - 64px);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #fafafa;
 }
 
 .create-room-header {
@@ -19,10 +19,11 @@
 .create-room-title {
   text-align: center;
   margin-bottom: 32px;
-  padding: 24px 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 32px 0;
+  background: linear-gradient(135deg, #228B22 0%, #2ea043 100%);
   margin: -24px -24px 32px -24px;
   color: white;
+  box-shadow: 0 4px 12px rgba(34, 139, 34, 0.2);
 }
 
 .create-room-title .title-icon {
@@ -86,7 +87,7 @@
 .ant-input:hover,
 .ant-input-number:hover,
 .ant-input-password:hover {
-  border-color: #667eea;
+  border-color: #228B22;
 }
 
 .ant-input-affix-wrapper:focus,
@@ -95,34 +96,36 @@
 .ant-input-password:focus,
 .ant-input-affix-wrapper-focused,
 .ant-input-number-focused {
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #228B22;
+  box-shadow: 0 0 0 2px rgba(34, 139, 34, 0.1);
 }
 
-.ant-btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.create-room-container .ant-btn-primary {
+  background: #228B22;
   border: none;
   border-radius: 8px;
   font-weight: 600;
-  height: 48px;
-  padding: 0 32px;
-  font-size: 16px;
-}
-
-.ant-btn-primary:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-}
-
-.ant-btn-default {
-  border-radius: 8px;
-  height: 48px;
+  height: 40px;
   padding: 0 24px;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(34, 139, 34, 0.2);
+}
+
+.create-room-container .ant-btn-primary:hover {
+  background: #2ea043;
+  box-shadow: 0 4px 8px rgba(34, 139, 34, 0.3);
+}
+
+.create-room-container .ant-btn-default {
+  border-radius: 8px;
+  height: 40px;
+  padding: 0 16px;
   font-weight: 500;
 }
 
 /* Switch样式 */
 .ant-switch-checked {
-  background-color: #667eea;
+  background-color: #228B22;
 }
 
 /* Alert样式 */

@@ -19,6 +19,7 @@ import CreateRoom from "../pages/room/CreateRoom";
 import RoomDetail from "../pages/room/RoomDetail";
 import MyRooms from "../pages/room/MyRooms";
 import RoomChatPage from "../pages/room/RoomChat";
+import Profile from "../pages/user/Profile";
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
             {
                 path: "room/my",
                 element: <MyRooms/>
+            },
+            {
+                path: "profile",
+                element: <Profile/>
             }
         ]
     },

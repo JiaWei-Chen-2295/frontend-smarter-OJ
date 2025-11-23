@@ -1,7 +1,7 @@
 .my-rooms-container {
   padding: 24px;
   min-height: calc(100vh - 64px);
-  background: #f5f5f5;
+  background: #fafafa;
 }
 
 .my-rooms-header {
@@ -52,7 +52,7 @@
 }
 
 .my-rooms-tabs .ant-tabs-ink-bar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #228B22;
   height: 3px;
 }
 
@@ -72,16 +72,17 @@
 .my-room-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border-color: #667eea;
+  border-color: #228B22;
 }
 
 .room-card-header {
-  height: 60px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 80px;
+  background: linear-gradient(135deg, #228B22 0%, #2ea043 100%);
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
-  padding: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(34, 139, 34, 0.15);
 }
 
 .room-status {
@@ -155,24 +156,25 @@
 }
 
 /* Button 样式 */
-.ant-btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.my-rooms-container .ant-btn-primary {
+  background: #228B22;
   border: none;
   border-radius: 8px;
   font-weight: 500;
 }
 
-.ant-btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+.my-rooms-container .ant-btn-primary:hover:not(:disabled) {
+  background: #2ea043;
+  box-shadow: 0 2px 8px rgba(34, 139, 34, 0.25);
 }
 
-.ant-btn-primary:disabled {
+.my-rooms-container .ant-btn-primary:disabled {
   background: #f5f5f5;
   color: #bfbfbf;
   cursor: not-allowed;
 }
 
-.ant-btn {
+.my-rooms-container .ant-btn {
   border-radius: 6px;
   font-weight: 500;
 }
@@ -193,7 +195,7 @@
 }
 
 .my-room-card .ant-card-actions > li:hover > span {
-  color: #667eea;
+  color: #228B22;
 }
 
 .my-room-card .ant-card-actions .ant-btn-dangerous:hover > span {
@@ -213,8 +215,9 @@
 }
 
 .ant-tag-gold {
-  background: linear-gradient(135deg, #faad14 0%, #fa8c16 100%);
+  background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
   color: #fff;
+  border: 1px solid #ffd700;
 }
 
 /* Badge 样式 */

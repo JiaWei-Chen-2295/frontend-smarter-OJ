@@ -1,19 +1,14 @@
 import './App.css'
 import {RouterProvider} from "react-router-dom";
 import {router} from "./config/router.config.tsx";
-import {Button, Checkbox, Form, FormProps, Input, message, Modal, QRCode} from "antd";
-import {Card, CardBody, Tab, Tabs} from "@heroui/react";
+import {Button, Checkbox, Form, FormProps, Input, message, Modal, QRCode, Tabs, ConfigProvider} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {setCurrentUser, UserStateStatus} from "./features/userSlice.ts";
 import {useEffect, useState} from "react";
 import {RootState} from "./context/store.ts";
 import {UserControllerService} from "../generated";
-import {HeroUIProvider} from "@heroui/system";
-import { ErrorBoundary } from './router/ErrorBoundary.tsx';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ConfigProvider } from "antd";
 import zhCN from "antd/locale/zh_CN";
-import OJQuestion from "./pages/OJQuestion";
+import {themeConfig} from "./config/theme.config.ts";
 
 function App() {
     const [messageApi, contextHolder] = message.useMessage()
@@ -63,13 +58,11 @@ function App() {
         console.log('Failed:', errorInfo);
     };
 
-    const tabs = [
+    const tabItems = [
         {
-            id: "1",
+            key: "1",
             label: "账号密码登录",
-            content:<div
-                className={'flex items-center justify-center '}
-            >
+            children: <div className={'flex items-center justify-center py-4'}>
                 <Form
                     name="basic"
                     labelCol={{ span: 6 }}
@@ -109,45 +102,35 @@ function App() {
             </div>
         },
         {
-            id: "2",
+            key: "2",
             label: "扫码登录",
-            content:
-                <div className={'flex items-center justify-center h-1/4'}>
-                    <QRCode value={'/'} title={'扫码登录'} />
+            children: <div className={'flex items-center justify-center h-48'}>
+                    <QRCode value={'/'} />
                 </div>
         },
     ];
 
 
     return (
-    <>
-        { contextHolder }
-        <HeroUIProvider>
+        <ConfigProvider theme={themeConfig} locale={zhCN}>
+            { contextHolder }
             <RouterProvider router={router}></RouterProvider>
        
-            <Modal title="请先登录" open={isModalOpen} onCancel={handleClose} centered={true} footer={null}
-                // 添加固定尺寸配置
-                   width={600}  // 设置固定宽度
-                   style={{
-                       height: '400px',  // 设置固定高度
-                       overflow: 'hidden' // 防止内容溢出
-                   }}
+            <Modal 
+                title="请先登录" 
+                open={isModalOpen} 
+                onCancel={handleClose} 
+                centered={true} 
+                footer={null}
+                width={600}
             >
-                <div className={'flex flex-col items-center justify-center h-1/2 w-full'}>
-                    <Tabs aria-label="Dynamic tabs" items={tabs}
-                    >
-                        {(item) => (
-                            <Tab key={item.id} title={item.label}>
-                                <Card>
-                                    <CardBody>{item.content}</CardBody>
-                                </Card>
-                            </Tab>
-                        )}
-                    </Tabs>
-                </div>
+                <Tabs 
+                    defaultActiveKey="1" 
+                    items={tabItems}
+                    centered
+                />
             </Modal>
-        </HeroUIProvider>
-    </>
+        </ConfigProvider>
   )
 }
 

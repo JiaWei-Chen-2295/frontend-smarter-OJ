@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Button, Flex, Input, Tag, Space, Select, Tooltip, Typography, Popover, List, Spin } from 'antd';
 import { QuestionControllerService } from '../../../../generated';
 import { SearchOutlined, StarOutlined, CheckCircleOutlined, ReloadOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
@@ -53,8 +53,8 @@ function QuestionItem({ question }: { question: DataType }) {
             title="题目内容"
             trigger="hover"
         >
-            <div className="p-4 mb-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                <Space direction="vertical" size={0} className="w-full">
+            <div style={{ padding: 16, marginBottom: 16, border: '1px solid #f0f0f0', borderRadius: 8 }} className="hover:bg-gray-50 transition-colors cursor-pointer">
+                <Space direction="vertical" size={8} className="w-full">
                     <Space>
                         <Link to={`/oj/${question.id}`} className="text-base font-medium text-blue-500 hover:text-blue-700">
                             {question.title}
@@ -82,7 +82,7 @@ function QuestionItem({ question }: { question: DataType }) {
                             ))}
                     </Space>
                 </Space>
-                <div className="flex justify-between mt-2 text-sm text-gray-500">
+                <div className="flex justify-between" style={{ marginTop: 12, fontSize: 13, color: '#8c8c8c' }}>
                     <Space>
                         <Tooltip title={`通过: ${question.acceptedNum || 0} / 提交: ${question.submitNum || 0}`}>
                             <Space size={2}>
@@ -233,22 +233,22 @@ function Questions() {
     const hasMoreTags = allTags.length > 10;
 
     return (
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
-            <Title level={3} className="mb-4">题目列表</Title>
-            <Flex align="center" gap="middle" className="mb-4 flex-wrap">
+        <div className="max-w-6xl mx-auto px-6">
+            <Title level={3} style={{ marginBottom: 24, fontSize: 20, fontWeight: 600 }}>题目列表</Title>
+            <Flex align="center" gap="middle" style={{ marginBottom: 24 }} className="flex-wrap">
                 <Search
                     placeholder="搜索题目"
                     allowClear
                     enterButton={<SearchOutlined />}
-                    size="middle"
+                    size="large"
                     onChange={e => setSearchText(e.target.value)}
-                    className="w-64"
+                    style={{ width: 320 }}
                 />
                 <Select
                     value={difficultyFilter}
-                    style={{ width: 120 }}
+                    style={{ width: 140 }}
                     onChange={setDifficultyFilter}
-                    size="middle"
+                    size="large"
                 >
                     <Option value="all">全部难度</Option>
                     <Option value="简单">简单</Option>
@@ -260,29 +260,30 @@ function Questions() {
                     onClick={handleRefresh} 
                     icon={<ReloadOutlined />} 
                     loading={loading}
-                    size="middle"
+                    size="large"
                 >
                     刷新
                 </Button>
             </Flex>
 
             {/* 标签筛选区域 */}
-            <div className="mb-2 pb-2 border-b border-gray-100">
-                <div className="flex justify-between items-center text-sm mb-2 text-gray-500">
-                    <span>标签筛选:</span>
+            <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid #f0f0f0' }}>
+                <div className="flex justify-between items-center mb-3">
+                    <span style={{ fontSize: 14, color: '#8c8c8c' }}>标签筛选:</span>
                     {hasMoreTags && (
                         <Button 
                             type="link" 
-                            size="small" 
+                            size="middle" 
                             onClick={() => setTagExpanded(!tagExpanded)}
                             icon={tagExpanded ? <UpOutlined /> : <DownOutlined />}
+                            style={{ padding: '4px 8px' }}
                         >
                             {tagExpanded ? '收起' : '展开'}
                         </Button>
                     )}
                 </div>
                 <div className={`${tagExpanded ? '' : 'h-10 overflow-hidden'} transition-all duration-300`}>
-                    <Space wrap size={[8, 6]}>
+                    <Space wrap size={[12, 8]}>
                         <Tag 
                             className="cursor-pointer text-sm px-3 py-1 m-0"
                             color={tagFilter === 'all' ? 'blue' : 'default'}
@@ -317,10 +318,10 @@ function Questions() {
                     暂无数据
                 </div>
             )}
-            <div ref={loadMoreRef} className="py-4 text-center">
-                {loading && <Spin tip="加载中..." />}
-                {!loading && hasMore && <div className="text-gray-400">上滑加载更多</div>}
-                {!loading && !hasMore && filteredQuestions.length > 0 && <div className="text-gray-400">已经到底啦</div>}
+            <div ref={loadMoreRef} style={{ padding: '24px 0', textAlign: 'center' }}>
+                {loading && <Spin size="large" tip="加载中..." />}
+                {!loading && hasMore && <div style={{ color: '#bfbfbf', fontSize: 14 }}>上滑加载更多</div>}
+                {!loading && !hasMore && filteredQuestions.length > 0 && <div style={{ color: '#bfbfbf', fontSize: 14 }}>已经到底啦</div>}
             </div>
         </div>
     );

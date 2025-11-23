@@ -56,16 +56,16 @@
 }
 
 .share-button {
-  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  background: #228B22;
   border: none;
   border-radius: 6px;
   font-weight: 500;
-  box-shadow: 0 2px 4px rgba(82, 196, 26, 0.3);
+  box-shadow: 0 2px 4px rgba(34, 139, 34, 0.3);
 }
 
 .share-button:hover {
-  background: linear-gradient(135deg, #449a10 0%, #2f7a0c 100%);
-  box-shadow: 0 4px 8px rgba(82, 196, 26, 0.4);
+  background: #2ea043;
+  box-shadow: 0 4px 8px rgba(34, 139, 34, 0.4);
 }
 
 .stop-button {
@@ -82,7 +82,7 @@
 
 .feature-tips {
   padding: 8px 16px;
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.05) 0%, rgba(114, 46, 209, 0.05) 100%);
+  background: rgba(34, 139, 34, 0.05);
   border-top: 1px solid #f0f0f0;
 }
 
@@ -102,12 +102,12 @@
 }
 
 .language-selector .ant-select-selector:hover {
-  border-color: #667eea;
+  border-color: #228B22;
 }
 
 .language-selector .ant-select-focused .ant-select-selector {
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #228B22;
+  box-shadow: 0 0 0 2px rgba(34, 139, 34, 0.2);
 }
 
 /* Tag 样式增强 */
@@ -118,9 +118,9 @@
 }
 
 .ant-tag-processing {
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.1) 0%, rgba(114, 46, 209, 0.1) 100%);
-  color: #1890ff;
-  border: 1px solid rgba(24, 144, 255, 0.3);
+  background: rgba(34, 139, 34, 0.1);
+  color: #228B22;
+  border: 1px solid rgba(34, 139, 34, 0.3);
 }
 
 .ant-tag-default {
@@ -130,13 +130,13 @@
 }
 
 .ant-tag-blue {
-  background: linear-gradient(135deg, rgba(24, 144, 255, 0.1) 0%, rgba(64, 169, 255, 0.1) 100%);
-  color: #1890ff;
-  border: 1px solid rgba(24, 144, 255, 0.3);
+  background: rgba(34, 139, 34, 0.1);
+  color: #228B22;
+  border: 1px solid rgba(34, 139, 34, 0.3);
 }
 
 /* 按钮样式 */
-.ant-btn {
+.code-share-controls .ant-btn {
   border-radius: 6px;
   font-weight: 500;
   display: flex;
@@ -246,9 +246,8 @@
     font-size: 10px;
   }
 
-  .ant-btn {
+  .code-share-controls .ant-btn {
     font-size: 12px;
-    height: 32px;
   }
 }
 
@@ -315,8 +314,8 @@
 
 /* 高亮效果 */
 .controls-section.active {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: rgba(34, 139, 34, 0.05);
+  border: 1px solid rgba(34, 139, 34, 0.2);
 }
 
 /* 分享者特殊样式 */

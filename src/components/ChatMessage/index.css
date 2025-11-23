@@ -52,7 +52,7 @@
 }
 
 .own-bubble {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #228B22;
   color: white;
   margin-left: auto;
   position: relative;
@@ -218,7 +218,7 @@
   height: 0;
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
-  border-left: 6px solid #667eea;
+  border-left: 6px solid #228B22;
 }
 
 /* 消息动画 */

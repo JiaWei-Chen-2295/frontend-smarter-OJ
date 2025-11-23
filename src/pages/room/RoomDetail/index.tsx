@@ -261,25 +261,26 @@ const RoomDetail: React.FC = () => {
 
   return (
     <div className="room-detail-container">
-      <div className="room-detail-header">
+      <div className="room-detail-header" style={{ marginBottom: 24 }}>
         <Button
           icon={<ArrowLeftOutlined />}
           onClick={handleBack}
-          style={{ marginBottom: 16 }}
         >
           返回房间列表
         </Button>
       </div>
 
-      <Row gutter={[24, 24]}>
+      <Row gutter={[32, 32]}>
         {/* 房间信息 */}
         <Col xs={24} lg={16}>
           <Card className="room-info-card">
             <div className="room-header">
               <div className="room-title-section">
-                <Title level={2} className="room-title">
-                  {room.name}
-                  <Space style={{ marginLeft: 16 }}>
+                <Space direction="vertical" size={8}>
+                  <Title level={2} style={{ margin: 0 }}>
+                    {room.name}
+                  </Title>
+                  <Space size={8}>
                     {room.status === 1 ? (
                       <Tag color="orange" icon={<LockOutlined />}>私密</Tag>
                     ) : (
@@ -288,16 +289,15 @@ const RoomDetail: React.FC = () => {
                     <Badge
                       count={`${room.currentNum || 0}/${room.mateNum || 0}`}
                       style={{ 
-                        backgroundColor: isFull() ? '#ff4d4f' : '#52c41a',
+                        backgroundColor: isFull() ? '#ff4d4f' : '#228B22',
                         fontSize: 12
                       }}
                     />
                   </Space>
-                </Title>
+                </Space>
               </div>
               
-              <div className="room-actions">
-                {/* 成员可以进入聊天室 */}
+              <Space className="room-actions" size={12} wrap>
                 {isMember() && (
                   <Button
                     type="primary"
@@ -310,7 +310,7 @@ const RoomDetail: React.FC = () => {
                 )}
                 
                 {isLeader() && (
-                  <Space wrap>
+                  <>
                     <Button
                       icon={<EditOutlined />}
                       onClick={() => setEditModalVisible(true)}
@@ -335,7 +335,7 @@ const RoomDetail: React.FC = () => {
                         解散房间
                       </Button>
                     </Popconfirm>
-                  </Space>
+                  </>
                 )}
                 
                 {isMember() && !isLeader() && (
@@ -362,33 +362,33 @@ const RoomDetail: React.FC = () => {
                     {isFull() ? '房间已满' : '加入房间'}
                   </Button>
                 )}
-              </div>
+              </Space>
             </div>
 
-            <Descriptions column={2} style={{ marginTop: 24 }}>
+            <Descriptions column={2} style={{ marginTop: 40 }} bordered size="middle">
               <Descriptions.Item label="房间描述" span={2}>
                 {room.description || '暂无描述'}
               </Descriptions.Item>
               <Descriptions.Item label="队长">
-                <Space>
+                <Space size={8}>
                   <Avatar
                     src={room.userVO?.userAvatar}
                     icon={<UserOutlined />}
-                    size="small"
+                    size={32}
                   />
-                  {room.userVO?.userName || '未知'}
+                  <Text strong>{room.userVO?.userName || '未知'}</Text>
                 </Space>
               </Descriptions.Item>
               <Descriptions.Item label="创建时间">
-                <Space>
-                  <CalendarOutlined />
-                  {room.createTime ? new Date(room.createTime).toLocaleString() : '未知'}
+                <Space size={8}>
+                  <CalendarOutlined style={{ color: '#8c8c8c' }} />
+                  <Text>{room.createTime ? new Date(room.createTime).toLocaleString() : '未知'}</Text>
                 </Space>
               </Descriptions.Item>
               <Descriptions.Item label="房间人数">
-                <Space>
-                  <TeamOutlined />
-                  {room.currentNum || 0} / {room.mateNum || 0}
+                <Space size={8}>
+                  <TeamOutlined style={{ color: '#8c8c8c' }} />
+                  <Text strong>{room.currentNum || 0} / {room.mateNum || 0}</Text>
                 </Space>
               </Descriptions.Item>
               <Descriptions.Item label="房间状态">
@@ -406,9 +406,9 @@ const RoomDetail: React.FC = () => {
         <Col xs={24} lg={8}>
           <Card 
             title={
-              <Space>
+              <Space size={8}>
                 <TeamOutlined />
-                房间成员 ({room.members?.length || 0})
+                <span>房间成员 ({room.members?.length || 0})</span>
               </Space>
             }
             className="room-members-card"
@@ -427,15 +427,16 @@ const RoomDetail: React.FC = () => {
                         <Avatar
                           src={member.userVO?.userAvatar}
                           icon={<UserOutlined />}
+                          size={40}
                         />
                       </Badge>
                     }
                     title={
-                      <Space>
-                        {member.userVO?.userName || '未知用户'}
+                      <Space size={8}>
+                        <Text strong>{member.userVO?.userName || '未知用户'}</Text>
                         {member.isLeader && (
                           <Tooltip title="队长">
-                            <CrownOutlined style={{ color: '#faad14' }} />
+                            <CrownOutlined style={{ color: '#faad14', fontSize: 16 }} />
                           </Tooltip>
                         )}
                       </Space>
@@ -526,9 +527,9 @@ const RoomDetail: React.FC = () => {
         }}
         destroyOnClose
       >
-        <p style={{ marginBottom: 16, color: '#8c8c8c' }}>
-          选择要转让队长身份的成员，转让后您将失去队长权限
-        </p>
+        <div style={{ marginBottom: 24, padding: '12px 16px', background: '#fff7e6', borderRadius: 6, border: '1px solid #ffd591' }}>
+          <Text type="warning">选择要转让队长身份的成员，转让后您将失去队长权限</Text>
+        </div>
         <Form form={transferForm} layout="vertical">
           <Form.Item
             name="newLeaderUserId"
@@ -564,10 +565,10 @@ const RoomDetail: React.FC = () => {
         }}
         destroyOnClose
       >
-        <div style={{ marginBottom: 16 }}>
-          <p><strong>房间名称：</strong>{room.name}</p>
-          <p><strong>房间描述：</strong>{room.description || '暂无描述'}</p>
-        </div>
+        <Space direction="vertical" size={12} style={{ width: '100%', marginBottom: 24 }}>
+          <div><Text strong>房间名称：</Text><Text>{room.name}</Text></div>
+          <div><Text strong>房间描述：</Text><Text>{room.description || '暂无描述'}</Text></div>
+        </Space>
         <Form form={joinForm} layout="vertical">
           <Form.Item
             name="password"

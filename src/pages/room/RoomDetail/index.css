@@ -1,7 +1,9 @@
 .room-detail-container {
-  padding: 24px;
+  padding: 32px 24px;
   min-height: calc(100vh - 64px);
-  background: #f5f5f5;
+  background: #fafafa;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .room-detail-header {
@@ -11,16 +13,25 @@
 
 .room-info-card {
   border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+}
+
+.room-info-card .ant-card-body {
+  padding: 32px;
+}
+
+.room-info-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: none;
+  transition: box-shadow 0.3s ease;
 }
 
 .room-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -41,19 +52,40 @@
   margin-left: 24px;
 }
 
+.room-actions .ant-btn-lg {
+  height: 40px;
+  padding: 6px 24px;
+  font-size: 16px;
+}
+
+.room-actions .ant-btn {
+  height: 32px;
+  padding: 4px 15px;
+}
+
 .room-members-card {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
 }
 
 .room-members-card .ant-card-head {
-  border-bottom: 1px solid #f0f0f0;
+  padding: 20px 24px;
 }
 
+.room-members-card .ant-card-body {
+  padding: 24px;
+}
+
+.room-members-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+
 .room-members-card .ant-list-item {
-  padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 20px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .room-members-card .ant-list-item:last-child {
@@ -71,13 +103,13 @@
 }
 
 /* Descriptions 样式增强 */
-.ant-descriptions-item-label {
+.room-detail-container .ant-descriptions-item-label {
   font-weight: 600;
   color: #595959;
-  width: 100px;
+  min-width: 100px;
 }
 
-.ant-descriptions-item-content {
+.room-detail-container .ant-descriptions-item-content {
   color: #262626;
 }
 
@@ -89,29 +121,34 @@
 }
 
 /* 按钮样式 */
-.ant-btn-primary {
+.room-detail-container .ant-btn-primary {
   border-radius: 6px;
   font-weight: 500;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #228B22;
 }
 
-.ant-btn-primary:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+.room-detail-container .ant-btn-primary:hover {
+  background: #2ea043;
 }
 
-.ant-btn {
+.room-detail-container .ant-btn {
   border-radius: 6px;
   font-weight: 500;
 }
 
 /* Modal 样式 */
-.ant-modal-header {
+.room-detail-container .ant-modal-header {
   border-radius: 8px 8px 0 0;
+  padding: 20px 24px;
 }
 
-.ant-modal-content {
+.room-detail-container .ant-modal-content {
   border-radius: 8px;
+}
+
+.room-detail-container .ant-modal-body {
+  padding: 24px;
 }
 
 /* Form 样式 */
@@ -132,8 +169,8 @@
 .ant-input:focus,
 .ant-input-password:focus,
 .ant-select-focused .ant-select-selector {
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: #228B22;
+  box-shadow: 0 0 0 2px rgba(34, 139, 34, 0.1);
 }
 
 /* Tag 样式 */
