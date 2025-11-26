@@ -4,6 +4,7 @@ import {createBrowserRouter} from "react-router-dom";
 import OJIndex from "../pages/index";
 import OJQuestion from "../pages/OJQuestion";
 import Questions from "../pages/index/Questions";
+import QuestionList from "../pages/OJQuestion/QuestionList";
 import OJMain from "../pages/index/Main";
 import AdminPageMain from "../pages/admin";
 import AuthRouter from "../router/AuthRouter";
@@ -72,6 +73,14 @@ export const router = createBrowserRouter([
                 <OJQuestion/>
             </AuthRouter></>
         ,
+        errorElement: <ErrorBoundary />,
+    },
+    {
+        path: "/questions",
+        element:
+            <><AuthRouter>
+                <QuestionList/>
+            </AuthRouter></>,
         errorElement: <ErrorBoundary />,
     },
     {
