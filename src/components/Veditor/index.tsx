@@ -8,9 +8,12 @@ import 'katex/dist/katex.min.css';
 interface VeditorProps {
     value: string;
     className?: string;
+    enableAnchor?: boolean;
 }
 
-const Veditor: React.FC<VeditorProps> = ({ value, className = '' }) => {
+const Veditor: React.FC<VeditorProps> = ({ value, className = '', enableAnchor = false }) => {
+    let headingIndex = 0;
+    
     return (
         <div className={`markdown-body ${className}`}>
             <ReactMarkdown
@@ -33,9 +36,18 @@ const Veditor: React.FC<VeditorProps> = ({ value, className = '' }) => {
                         );
                     },
                     // 自定义标题样式
-                    h1: ({ children }) => <h1 className="text-2xl font-bold text-white mb-4">{children}</h1>,
-                    h2: ({ children }) => <h2 className="text-xl font-bold text-white mb-3">{children}</h2>,
-                    h3: ({ children }) => <h3 className="text-lg font-bold text-white mb-2">{children}</h3>,
+                    h1: ({ children }) => {
+                        const id = enableAnchor ? `heading-${headingIndex++}` : undefined;
+                        return <h1 id={id} className="text-2xl font-bold text-white mb-4">{children}</h1>;
+                    },
+                    h2: ({ children }) => {
+                        const id = enableAnchor ? `heading-${headingIndex++}` : undefined;
+                        return <h2 id={id} className="text-xl font-bold text-white mb-3">{children}</h2>;
+                    },
+                    h3: ({ children }) => {
+                        const id = enableAnchor ? `heading-${headingIndex++}` : undefined;
+                        return <h3 id={id} className="text-lg font-bold text-white mb-2">{children}</h3>;
+                    },
                     // 自定义段落样式
                     p: ({ children }) => <p className="text-gray-300 mb-4">{children}</p>,
                     // 自定义列表样式

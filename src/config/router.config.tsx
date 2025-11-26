@@ -12,6 +12,8 @@ import Dashboard from "../pages/admin/Dashboard";
 import QuestionManager from "../pages/admin/QuestionManager";
 import {NoAdmin} from "../pages/NoAdmin.tsx";
 import Lab from "../pages/index/Lab";
+import Posts from "../pages/index/Posts";
+import PostDetail from "../pages/post/PostDetail";
 import UserManager from "../pages/admin/UserManager";
 import UserSubmitManager from "../pages/admin/UserSubmitManager";
 import { ErrorBoundary } from "../router/ErrorBoundary";
@@ -47,6 +49,14 @@ export const router = createBrowserRouter([
             {
                 path: "lab",
                 element: <Lab />
+            },
+            {
+                path: "posts",
+                element: <Posts />
+            },
+            {
+                path: "post/:postId",
+                element: <PostDetail />
             },
             {
                 path: "room",
