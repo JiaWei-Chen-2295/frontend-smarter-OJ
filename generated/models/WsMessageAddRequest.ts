@@ -2,7 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type PostFavourAddRequest = {
-    postId?: number;
+export type WsMessageAddRequest = {
+    content?: string;
+    messageId?: number;
+    roomId?: number;
+    userId?: number;
 };
 

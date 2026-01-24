@@ -23,6 +23,12 @@ import RoomDetail from "../pages/room/RoomDetail";
 import MyRooms from "../pages/room/MyRooms";
 import RoomChatPage from "../pages/room/RoomChat";
 import Profile from "../pages/user/Profile";
+
+// 题单模块
+import QuestionSets from "../pages/index/QuestionSets";
+import QuestionSetDetail from "../pages/index/QuestionSets/QuestionSetDetail";
+import QuestionSetEdit from "../pages/index/QuestionSets/QuestionSetEdit";
+
 export const router = createBrowserRouter([
     {
         path: "/",
@@ -57,6 +63,18 @@ export const router = createBrowserRouter([
             {
                 path: "post/:postId",
                 element: <PostDetail />
+            },
+            {
+                path: "question-sets",
+                element: <QuestionSets />
+            },
+            {
+                path: "question-set/:id",
+                element: <QuestionSetDetail />
+            },
+            {
+                path: "question-set/edit/:id",
+                element: <QuestionSetEdit />
             },
             {
                 path: "room",

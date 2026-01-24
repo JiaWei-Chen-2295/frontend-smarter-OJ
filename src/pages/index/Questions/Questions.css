@@ -315,3 +315,46 @@
     max-height: none;
   }
 }
+
+/* 题目行容器 - 包含题目卡片和收藏按钮 */
+.qs-question-container {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--qs-border);
+  transition: all 0.2s ease;
+}
+
+.qs-question-container:hover {
+  background: var(--qs-panel-2);
+}
+
+.qs-question-container > a {
+  min-height: 72px;
+  flex: 1;
+}
+
+.qs-collect-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border-left: 1px solid var(--qs-border);
+  background: var(--qs-panel);
+  transition: background 0.2s ease;
+}
+
+.qs-question-container:hover .qs-collect-action {
+  background: var(--qs-panel-2);
+}
+
+.qs-collect-action button {
+  border-radius: 4px;
+  font-weight: 500;
+  color: #595959;
+}
+
+.qs-collect-action button:hover {
+  background: rgba(34, 139, 34, 0.1) !important;
+  color: #228B22 !important;
+  border-color: #228B22 !important;
+}

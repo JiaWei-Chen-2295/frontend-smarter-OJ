@@ -86,7 +86,7 @@ export class PostControllerService {
      * @throws ApiError
      */
     public static getPostVoByIdUsingGet(
-        id?: string | number,
+        id?: number,
     ): CancelablePromise<BaseResponse_PostVO_> {
         return __request(OpenAPI, {
             method: 'GET',

@@ -1,0 +1,280 @@
+.qs-edit-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.qs-edit-error {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f5f5;
+  gap: 20px;
+}
+
+.qs-edit-error button {
+  padding: 10px 24px;
+  background: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.qs-edit-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20px;
+}
+
+.qs-edit-header {
+  max-width: 1200px;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.qs-edit-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+}
+
+.edit-form-container {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.form-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #262626;
+  margin: 0 0 24px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* 表单样式定制 */
+.qs-edit-content .ant-form-item-label > label {
+  font-weight: 500;
+  color: #262626;
+  font-size: 14px;
+}
+
+.qs-edit-content .ant-input,
+.qs-edit-content .ant-input-affix-wrapper {
+  border-radius: 8px;
+}
+
+.qs-edit-content .ant-input:hover,
+.qs-edit-content .ant-input:focus,
+.qs-edit-content .ant-input-affix-wrapper:hover,
+.qs-edit-content .ant-input-affix-wrapper:focus {
+  border-color: #1890ff;
+}
+
+.qs-edit-content .ant-input-textarea {
+  border-radius: 8px;
+}
+
+/* 标签输入样式 */
+.qs-tags-input {
+  display: flex;
+  gap: 8px;
+  background: white;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 4px;
+}
+
+.qs-tags-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.qs-tags-input button {
+  padding: 4px 12px;
+  border: none;
+  background: #1890ff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.qs-tags-input button:hover {
+  background: #40a9ff;
+}
+
+.qs-tags-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 表单操作按钮 */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.form-actions .ant-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 8px 20px;
+  min-width: 100px;
+}
+
+/* 侧边栏提示卡片 */
+.edit-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 20px;
+  align-self: flex-start;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.tips-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.tips-card h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  margin: 0 0 12px 0;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.tips-card ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.tips-card li {
+  color: #595959;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 4px;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px dashed #f0f0f0;
+  font-size: 13px;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row span {
+  color: #8c8c8c;
+}
+
+.info-row strong {
+  color: #262626;
+  font-weight: 600;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .qs-edit-content {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-tips {
+    order: -1;
+    position: static;
+    max-height: none;
+  }
+
+  .qs-edit-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .edit-form-container {
+    padding: 20px;
+  }
+
+  .form-title {
+    font-size: 20px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .ant-btn {
+    width: 100%;
+  }
+
+  .edit-tips {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .tips-card {
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .qs-edit-container {
+    padding: 12px;
+  }
+
+  .edit-form-container {
+    padding: 16px;
+  }
+
+  .edit-tips {
+    flex-direction: column;
+  }
+}

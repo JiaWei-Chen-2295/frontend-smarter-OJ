@@ -2,7 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type PostFavourAddRequest = {
-    postId?: number;
+export type QuestionSetAddRequest = {
+    description?: string;
+    tags?: Array<string>;
+    title?: string;
 };
 

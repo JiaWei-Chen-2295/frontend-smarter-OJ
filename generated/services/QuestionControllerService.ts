@@ -34,7 +34,7 @@ export class QuestionControllerService {
     ): CancelablePromise<BaseResponse_Page_QuestionSubmitVO_ | any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/question',
+            url: '/api/question/submit/admin/page',
             body: questionSubmitQueryRequest,
             errors: {
                 401: `Unauthorized`,

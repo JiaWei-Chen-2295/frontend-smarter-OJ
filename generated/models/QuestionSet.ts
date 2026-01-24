@@ -2,18 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type Question = {
-    acceptedNum?: number;
-    answer?: string;
-    content?: string;
+export type QuestionSet = {
     createTime?: string;
+    description?: string;
     favourNum?: number;
     id?: number;
     isDelete?: number;
-    judgeCase?: string;
-    judgeConfig?: string;
-    questionSetId?: number;
-    submitNum?: number;
+    questionNum?: number;
     tags?: string;
     title?: string;
     updateTime?: string;
