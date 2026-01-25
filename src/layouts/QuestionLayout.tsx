@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
-import { 
-    PlayCircleOutlined, 
-    SaveOutlined, 
+import {
+    PlayCircleOutlined,
+    SaveOutlined,
     HistoryOutlined,
     SettingOutlined,
     LogoutOutlined,
@@ -9,13 +9,17 @@ import {
     FileTextOutlined,
     QuestionCircleOutlined,
     FontSizeOutlined,
-    HomeOutlined
+    HomeOutlined,
+    UserOutlined
 } from "@ant-design/icons";
-import { Layout, Button, Dropdown, Space, Avatar, Tooltip, Divider, Drawer, Form, InputNumber, Typography, MenuProps } from "antd";
-import { Link } from "react-router-dom";
+import { Layout, Button, Dropdown, Space, Avatar, Tooltip, Divider, Drawer, Form, InputNumber, Typography, MenuProps, message } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../context/store";
+import { logoutUser } from "../features/userSlice";
+import { UserControllerService } from "../../generated";
 
 const { Header } = Layout;
-
 const { Text } = Typography;
 
 interface QuestionLayoutProps {
@@ -26,6 +30,35 @@ interface QuestionLayoutProps {
 
 function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionLayoutProps) {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    // 从 Redux 获取当前用户
+    const currentUser = useSelector((state: RootState) => state.User.currentUser);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            const res = await UserControllerService.userLogoutUsingPost();
+            if (res.code === 0) {
+                dispatch(logoutUser());
+                message.success('退出成功');
+                navigate('/');
+            } else {
+                message.error('退出失败：' + res.message);
+            }
+        } catch (e: any) {
+            message.error('退出异常：' + e.message);
+        }
+    };
+
+    const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+        if (key === 'logout') {
+            handleLogout();
+        } else if (key === 'profile') {
+            navigate('/profile');
+        } else if (key === 'admin') {
+            navigate('/admin/dashboard');
+        }
+    };
 
     const handleFontSizeChange = (value: number | null) => {
         if (value && onFontSizeChange) {
@@ -36,13 +69,19 @@ function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionL
     const userMenuItems: MenuProps['items'] = [
         {
             key: 'profile',
+            icon: <UserOutlined />,
             label: (
                 <div>
-                    <div className="font-semibold">当前登录</div>
-                    <div className="text-xs text-gray-400">zoey@example.com</div>
+                    <div className="font-semibold">{currentUser?.userName || '未登录'}</div>
+                    <div className="text-xs text-gray-400">{currentUser?.userProfile || (currentUser?.userRole === 'admin' ? '系统管理员' : '普通用户')}</div>
                 </div>
             ),
         },
+        currentUser?.userRole === 'admin' ? {
+            key: 'admin',
+            icon: <SettingOutlined />,
+            label: '管理后台',
+        } : null,
         {
             type: 'divider',
         },
@@ -55,7 +94,7 @@ function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionL
     ];
 
     return (
-        <div className="min-h-screen bg-[#1a1a1a]">
+        <div className="h-screen overflow-hidden bg-[#1a1a1a]">
             <Header className="bg-[#141414] border-b border-[#228B22]/20 px-6 flex items-center justify-between" style={{ position: 'sticky', top: 0, zIndex: 1000, height: 64, lineHeight: '64px' }}>
                 <Link to="/" className="flex items-center gap-2">
                     <HomeOutlined className="text-[#228B22] text-2xl" />
@@ -150,17 +189,18 @@ function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionL
                         />
                     </Tooltip>
 
-                    <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                    <Dropdown menu={{ items: userMenuItems, onClick: handleMenuClick }} placement="bottomRight">
                         <Avatar
                             size={40}
-                            src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+                            src={currentUser?.userAvatar || "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png"}
                             className="cursor-pointer border-2 border-[#228B22]/50 hover:scale-105 transition-transform"
                             style={{ marginLeft: 8 }}
                         />
                     </Dropdown>
+
                 </Space>
             </Header>
-            <main className="h-[calc(100vh-4rem)]">
+            <main className="h-[calc(100vh-4rem)] overflow-hidden">
                 {children}
             </main>
 
@@ -173,7 +213,7 @@ function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionL
                 className="bg-[#1a1a1a] text-white [&_.ant-drawer-header]:bg-[#1a1a1a] [&_.ant-drawer-header]:border-[#303030] [&_.ant-drawer-title]:text-white [&_.ant-drawer-close]:text-white hover:[&_.ant-drawer-close]:text-[#228B22] [&_.ant-drawer-body]:bg-[#1a1a1a]"
             >
                 <Form className="text-white">
-                    <Form.Item 
+                    <Form.Item
                         label="编辑器设置"
                         className="[&_.ant-form-item-label]:text-white"
                     >

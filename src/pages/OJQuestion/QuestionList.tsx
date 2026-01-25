@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Input, Tag, Space } from 'antd';
 import { Link } from 'react-router-dom';
-import { QuestionControllerService } from '../../../generated';
-import type { QuestionVO } from '../../../generated';
+import { questionApi } from '../../api';
+import type { QuestionVO } from '../../../generated_new/question';
 import './QuestionList.css';
 
-interface QuestionListProps {}
+interface LocalQuestionVO extends Omit<QuestionVO, 'tags'> {
+  tags?: string[];
+}
+
+interface QuestionListProps { }
 
 const QuestionList: React.FC<QuestionListProps> = () => {
-  const [questions, setQuestions] = useState<QuestionVO[]>([]);
+  const [questions, setQuestions] = useState<LocalQuestionVO[]>([]);
   const [searchText, setSearchText] = useState('');
   const [activeCategory, setActiveCategory] = useState('全部题目');
   const [activeTab, setActiveTab] = useState('题库');
@@ -21,12 +25,17 @@ const QuestionList: React.FC<QuestionListProps> = () => {
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      const resp = await QuestionControllerService.listQuestionVoByPageUsingPost({
+      const resp = await questionApi.listQuestionVOByPage({
         current: 1,
         pageSize: 50
       });
-      if (resp.code === 0 && resp.data) {
-        setQuestions(resp.data.records || []);
+      if (resp.data.code === 0 && resp.data.data) {
+        const records = resp.data.data.records || [];
+        const mappedRecords: LocalQuestionVO[] = records.map(q => ({
+          ...q,
+          tags: typeof q.tags === 'string' ? JSON.parse(q.tags) : []
+        }));
+        setQuestions(mappedRecords);
       }
     } catch (error) {
       console.error('获取题目列表失败:', error);
@@ -49,11 +58,11 @@ const QuestionList: React.FC<QuestionListProps> = () => {
     return map[difficulty] || 'diff-easy';
   };
 
-  const filteredQuestions = questions.filter(q => 
+  const filteredQuestions = questions.filter(q =>
     !searchText || q.title?.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const getAcceptRate = (q: QuestionVO): string => {
+  const getAcceptRate = (q: LocalQuestionVO): string => {
     if (!q.submitNum || q.submitNum === 0) return '0%';
     return `${((q.acceptedNum || 0) / q.submitNum * 100).toFixed(1)}%`;
   };
@@ -106,7 +115,7 @@ const QuestionList: React.FC<QuestionListProps> = () => {
         <div className="topbar panel">
           <div className="tabs">
             {['学习', '题库', '竞赛', '讨论', '求职', '商城'].map(tab => (
-              <div 
+              <div
                 key={tab}
                 className={`tab ${activeTab === tab ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab)}
@@ -116,30 +125,30 @@ const QuestionList: React.FC<QuestionListProps> = () => {
             ))}
           </div>
           <div className="search-box">
-            <span style={{color:'#7f90ab'}}>🔍</span>
+            <span style={{ color: '#7f90ab' }}>🔍</span>
             <input type="text" placeholder="搜索" />
-            <span style={{color:'#7f90ab'}}>⏻</span>
-            <span style={{color:'#7f90ab'}}>⚙</span>
+            <span style={{ color: '#7f90ab' }}>⏻</span>
+            <span style={{ color: '#7f90ab' }}>⚙</span>
           </div>
         </div>
 
         <div className="hero-row">
-          <div className="hero-card" style={{background: 'linear-gradient(135deg, #0c2738, #12304a)'}}>
+          <div className="hero-card" style={{ background: 'linear-gradient(135deg, #0c2738, #12304a)' }}>
             <div className="flag">NEW</div>
             <div className="title">算法探险 · 解锁一场史诗级的冒险</div>
             <div className="desc">提升解题实力，收集宝箱奖励，迈向算法达人。每日签到即可领积分。</div>
             <span className="pill ghost">立即体验</span>
             <div className="accent-squares"></div>
           </div>
-          <div className="hero-card" style={{background: 'linear-gradient(135deg, #0f1022, #1b1f36)'}}>
-            <div className="flag" style={{background:'#6bd2ff', color:'#0b0e14'}}>专题</div>
+          <div className="hero-card" style={{ background: 'linear-gradient(135deg, #0f1022, #1b1f36)' }}>
+            <div className="flag" style={{ background: '#6bd2ff', color: '#0b0e14' }}>专题</div>
             <div className="title">7 周算法特训</div>
             <div className="desc">提升竞争力｜精讲提升能力｜冲刺求职面试。每日一练，建立节奏。</div>
             <span className="pill ghost">开练</span>
             <div className="accent-squares"></div>
           </div>
-          <div className="hero-card" style={{background: 'linear-gradient(135deg, #271330, #3b1b3f)'}}>
-            <div className="flag" style={{background:'#ff9aca', color:'#231020'}}>Java</div>
+          <div className="hero-card" style={{ background: 'linear-gradient(135deg, #271330, #3b1b3f)' }}>
+            <div className="flag" style={{ background: '#ff9aca', color: '#231020' }}>Java</div>
             <div className="title">从 BUG 入手：Java 基础修炼</div>
             <div className="desc">实战视角快速掌握基础语法与调试技巧，专为校招和转岗场景设计。</div>
             <span className="pill ghost">加入学习</span>
@@ -149,12 +158,12 @@ const QuestionList: React.FC<QuestionListProps> = () => {
 
         <div className="panel filter-panel">
           <div className="stat"><span className="badge-dot"></span><strong>数量</strong> {questions.length}</div>
-          <div className="stat"><span className="badge-dot" style={{background:'#6bd2ff', boxShadow:'0 0 0 4px rgba(107,210,255,0.12)'}}></span><strong>字符串</strong> 904</div>
-          <div className="stat"><span className="badge-dot" style={{background:'#ff8c8c', boxShadow:'0 0 0 4px rgba(255,140,140,0.12)'}}></span><strong>哈希表</strong> 825</div>
-          <div className="stat"><span className="badge-dot" style={{background:'#7ce7b7', boxShadow:'0 0 0 4px rgba(124,231,183,0.12)'}}></span><strong>动态规划</strong> 700</div>
+          <div className="stat"><span className="badge-dot" style={{ background: '#6bd2ff', boxShadow: '0 0 0 4px rgba(107,210,255,0.12)' }}></span><strong>字符串</strong> 904</div>
+          <div className="stat"><span className="badge-dot" style={{ background: '#ff8c8c', boxShadow: '0 0 0 4px rgba(255,140,140,0.12)' }}></span><strong>哈希表</strong> 825</div>
+          <div className="stat"><span className="badge-dot" style={{ background: '#7ce7b7', boxShadow: '0 0 0 4px rgba(124,231,183,0.12)' }}></span><strong>动态规划</strong> 700</div>
           <div className="chips">
             {['全部题目', '算法', '数据库', 'Shell', '多线程', 'JavaScript', 'pandas'].map(cat => (
-              <div 
+              <div
                 key={cat}
                 className={`chip ${activeCategory === cat ? 'active' : ''}`}
                 onClick={() => setActiveCategory(cat)}
@@ -168,9 +177,9 @@ const QuestionList: React.FC<QuestionListProps> = () => {
         <div className="question-panel">
           <div className="question-toolbar">
             <div className="toolbar-search">
-              <span style={{color:'#7d8ba7'}}>🔍</span>
-              <input 
-                type="text" 
+              <span style={{ color: '#7d8ba7' }}>🔍</span>
+              <input
+                type="text"
                 placeholder="搜索题目"
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
@@ -180,7 +189,7 @@ const QuestionList: React.FC<QuestionListProps> = () => {
               <button className="ghost-btn">↑↓</button>
               <button className="filter-btn">⚙ 筛选</button>
             </div>
-            <div className="stat" style={{marginLeft:'auto'}}>
+            <div className="stat" style={{ marginLeft: 'auto' }}>
               {questions.filter(q => q.acceptedNum && q.acceptedNum > 0).length}/{questions.length} 已解答
             </div>
           </div>
@@ -189,8 +198,8 @@ const QuestionList: React.FC<QuestionListProps> = () => {
             {filteredQuestions.map((question, index) => {
               const difficulty = getDifficulty(question.tags);
               return (
-                <Link 
-                  key={question.id || index} 
+                <Link
+                  key={question.id || index}
                   to={`/oj/${question.id}`}
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
@@ -244,12 +253,12 @@ const QuestionList: React.FC<QuestionListProps> = () => {
         </div>
 
         <div className="trending panel">
-          <div className="stat" style={{justifyContent: 'space-between', width: '100%'}}>
+          <div className="stat" style={{ justifyContent: 'space-between', width: '100%' }}>
             <strong>热门企业题库</strong>
-            <span style={{color: 'var(--muted)'}}>⇅</span>
+            <span style={{ color: 'var(--muted)' }}>⇅</span>
           </div>
           <div className="trend-input">
-            <span style={{color:'#7f90ab'}}>🔍</span>
+            <span style={{ color: '#7f90ab' }}>🔍</span>
             <input type="text" placeholder="输入企业名称" />
           </div>
           <div className="trend-tags">

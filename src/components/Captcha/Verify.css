@@ -1,0 +1,7 @@
+/* Alibaba Captcha styles are mostly managed by the SDK. 
+   Add any overrides here if necessary. */
+#captcha-element {
+    display: inline-block;
+    width: 100%;
+    max-width: 300px;
+}

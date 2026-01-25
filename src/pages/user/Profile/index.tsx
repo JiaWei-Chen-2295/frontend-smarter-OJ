@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Avatar, message, Upload, Spin, Tag, Modal } from 'antd';
+import { Form, Input, Button, Card, Avatar, message, Upload, Spin, Tag, Modal, Tabs, List, Space } from 'antd';
 import { UserOutlined, UploadOutlined, ArrowLeftOutlined, HeartOutlined, HeartFilled, StarOutlined, StarFilled, PlusOutlined, ClockCircleOutlined, EditOutlined } from '@ant-design/icons';
+
 import { useNavigate } from 'react-router-dom';
-import { UserControllerService } from '../../../../generated';
-import type { UserUpdateMyRequest } from '../../../../generated/models/UserUpdateMyRequest';
-import type { LoginUserVO } from '../../../../generated/models/LoginUserVO';
-import type { PostVO } from '../../../../generated/models/PostVO';
+import { userApi, questionApi } from '../../../api';
+import type { UserUpdateMyRequest } from '../../../../generated_new/user';
+import type { LoginUserVO } from '../../../../generated_new/user';
+import type { PostVO } from '../../../../generated_new/post';
+import type { QuestionSubmitVO } from '../../../../generated_new/question';
 import { FileControllerService } from '../../../../generated/services/FileControllerService';
 import { createPost, thumbPost, favourPost, getMyPosts } from '../../../services/postService';
 import MarkDownNewEditor from '../../../components/MarkDownNewEditor';
+
 import './index.css';
 
 const Profile = () => {
@@ -24,6 +27,8 @@ const Profile = () => {
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [submissions, setSubmissions] = useState<QuestionSubmitVO[]>([]);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,15 +36,22 @@ const Profile = () => {
     fetchPosts();
   }, []);
 
+  useEffect(() => {
+    if (userInfo?.id) {
+      fetchSubmissions(userInfo.id);
+    }
+  }, [userInfo?.id]);
+
+
   const loadUserInfo = async () => {
     try {
-      const res = await UserControllerService.getLoginUserUsingGet();
-      if (res.code === 0 && res.data) {
-        setUserInfo(res.data);
-        setAvatarUrl(res.data.userAvatar || '');
+      const res = await userApi.getLoginUser();
+      if (res.data.code === 0 && res.data.data) {
+        setUserInfo(res.data.data);
+        setAvatarUrl(res.data.data.userAvatar || '');
         form.setFieldsValue({
-          userName: res.data.userName,
-          userProfile: res.data.userProfile,
+          userName: res.data.data.userName,
+          userProfile: res.data.data.userProfile,
         });
       }
     } catch (error) {
@@ -76,6 +88,26 @@ const Profile = () => {
     }
   };
 
+  const fetchSubmissions = async (userId: number) => {
+    setSubmissionsLoading(true);
+    try {
+      const resp = await questionApi.listQuestionSubmitByPage({
+        userId: userId,
+        current: 1,
+        pageSize: 20,
+        sortField: 'createTime',
+        sortOrder: 'desc'
+      });
+      if (resp.data.code === 0 && resp.data.data) {
+        setSubmissions(resp.data.data.records || []);
+      }
+    } catch (error) {
+      console.error('获取提交记录失败', error);
+    } finally {
+      setSubmissionsLoading(false);
+    }
+  };
+
   const onFinish = async (values: any) => {
     setLoading(true);
     try {
@@ -84,13 +116,13 @@ const Profile = () => {
         userProfile: values.userProfile,
         userAvatar: avatarUrl,
       };
-      const res = await UserControllerService.updateMyUserUsingPost(request);
-      if (res.code === 0) {
+      const res = await userApi.updateMyUser(request);
+      if (res.data.code === 0) {
         message.success('更新成功');
         await loadUserInfo();
         setEditMode(false);
       } else {
-        message.error(res.message || '更新失败');
+        message.error(res.data.message || '更新失败');
       }
     } catch (error) {
       message.error('更新失败');
@@ -160,9 +192,9 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
-      <Button 
-        type="text" 
-        icon={<ArrowLeftOutlined />} 
+      <Button
+        type="text"
+        icon={<ArrowLeftOutlined />}
         onClick={() => navigate(-1)}
         className="back-btn"
       >
@@ -201,9 +233,9 @@ const Profile = () => {
                     <span className="meta-value">{posts.length}</span>
                   </div>
                 </div>
-                <Button 
-                  type="primary" 
-                  icon={<EditOutlined />} 
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
                   onClick={() => setEditMode(true)}
                   block
                 >
@@ -243,77 +275,135 @@ const Profile = () => {
         </div>
 
         <div className="profile-content">
-          <div className="posts-header">
-            <h2>我的帖子</h2>
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />} 
-              onClick={() => setIsModalOpen(true)}
-            >
-              发布帖子
-            </Button>
-          </div>
-
-          <div className="posts-list">
-            {postsLoading ? (
-              <div className="posts-loading">
-                <Spin size="large" />
-              </div>
-            ) : posts.length === 0 ? (
-              <div className="posts-empty">
-                <div className="posts-empty-icon">📝</div>
-                <div className="posts-empty-text">暂无帖子，快来发布第一篇吧！</div>
-              </div>
-            ) : (
-              posts.map((post, index) => (
-                <div 
-                  key={post.id} 
-                  className="post-item"
-                  onClick={() => navigate(`/post/${post.id}`)}
-                >
-                  <h3 className="post-item-title">{post.title}</h3>
-                  <div className="post-item-content">{post.content}</div>
-                  
-                  {post.tagList && post.tagList.length > 0 && (
-                    <div className="post-item-tags">
-                      {post.tagList.map(tag => (
-                        <Tag key={tag} color="blue">{tag}</Tag>
-                      ))}
+          <Tabs
+            defaultActiveKey="posts"
+            items={[
+              {
+                key: 'posts',
+                label: '我的帖子',
+                children: (
+                  <div>
+                    <div className="posts-header" style={{ marginTop: 0 }}>
+                      <h2>我的帖子</h2>
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => setIsModalOpen(true)}
+                      >
+                        发布帖子
+                      </Button>
                     </div>
-                  )}
 
-                  <div className="post-item-footer">
-                    <span className="post-item-time">
-                      <ClockCircleOutlined /> {new Date(post.createTime || '').toLocaleDateString()}
-                    </span>
-                    <div className="post-item-actions" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        className={`action-icon ${post.hasThumb ? 'active' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleThumb(index);
-                        }}
-                      >
-                        {post.hasThumb ? <HeartFilled /> : <HeartOutlined />}
-                        <span>{post.thumbNum || 0}</span>
-                      </button>
-                      <button
-                        className={`action-icon ${post.hasFavour ? 'active' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleFavour(index);
-                        }}
-                      >
-                        {post.hasFavour ? <StarFilled /> : <StarOutlined />}
-                        <span>{post.favourNum || 0}</span>
-                      </button>
+                    <div className="posts-list">
+                      {postsLoading ? (
+                        <div className="posts-loading">
+                          <Spin size="large" />
+                        </div>
+                      ) : posts.length === 0 ? (
+                        <div className="posts-empty">
+                          <div className="posts-empty-icon">📝</div>
+                          <div className="posts-empty-text">暂无帖子，快来发布第一篇吧！</div>
+                        </div>
+                      ) : (
+                        posts.map((post, index) => (
+                          <div
+                            key={post.id}
+                            className="post-item"
+                            onClick={() => navigate(`/post/${post.id}`)}
+                          >
+                            <h3 className="post-item-title">{post.title}</h3>
+                            <div className="post-item-content">{post.content}</div>
+
+                            {post.tagList && post.tagList.length > 0 && (
+                              <div className="post-item-tags">
+                                {post.tagList.map(tag => (
+                                  <Tag key={tag} color="blue">{tag}</Tag>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="post-item-footer">
+                              <span className="post-item-time">
+                                <ClockCircleOutlined /> {new Date(post.createTime || '').toLocaleDateString()}
+                              </span>
+                              <div className="post-item-actions" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  className={`action-icon ${post.hasThumb ? 'active' : ''}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleThumb(index);
+                                  }}
+                                >
+                                  {post.hasThumb ? <HeartFilled /> : <HeartOutlined />}
+                                  <span>{post.thumbNum || 0}</span>
+                                </button>
+                                <button
+                                  className={`action-icon ${post.hasFavour ? 'active' : ''}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleFavour(index);
+                                  }}
+                                >
+                                  {post.hasFavour ? <StarFilled /> : <StarOutlined />}
+                                  <span>{post.favourNum || 0}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                ),
+              },
+              {
+                key: 'submissions',
+                label: '提交记录',
+                children: (
+                  <div className="submissions-list">
+                    <List
+                      loading={submissionsLoading}
+                      dataSource={submissions}
+                      renderItem={(item) => (
+                        <Card
+                          size="small"
+                          style={{ marginBottom: 12, backgroundColor: '#252525', border: '1px solid #303030' }}
+                          className="submission-card"
+                          onClick={() => navigate(`/oj/${item.questionId}`)}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Space direction="vertical">
+                              <div style={{ fontSize: 16, fontWeight: 'bold', color: '#fff' }}>
+                                #{item.questionId} {item.questionVO?.title}
+                              </div>
+                              <div style={{ fontSize: 12, color: '#999' }}>
+                                {(item as any).createTime ? new Date((item as any).createTime).toLocaleString() : '未知时间'}
+                              </div>
+                            </Space>
+                            <div style={{ textAlign: 'right' }}>
+                              <Tag color={
+                                item.status === 2 ? 'success' :
+                                  item.status === 3 ? 'error' : 'processing'
+                              }>
+                                {item.status === 2 ? '成功' :
+                                  item.status === 3 ? '失败' : '判题中'}
+                              </Tag>
+                              <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+                                {item.language}
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      )}
+                      locale={{ emptyText: '暂无提交记录' }}
+                    />
+                  </div>
+                ),
+              },
+            ]}
+          />
         </div>
+
       </div>
 
       <Modal

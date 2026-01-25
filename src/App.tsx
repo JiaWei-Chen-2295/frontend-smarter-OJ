@@ -1,14 +1,15 @@
 import './App.css'
-import {RouterProvider} from "react-router-dom";
-import {router} from "./config/router.config.tsx";
-import {Button, Checkbox, Form, FormProps, Input, message, Modal, QRCode, Tabs, ConfigProvider} from "antd";
-import {useDispatch, useSelector} from "react-redux";
-import {setCurrentUser, UserStateStatus} from "./features/userSlice.ts";
-import {useEffect, useState} from "react";
-import {RootState} from "./context/store.ts";
-import {UserControllerService} from "../generated";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./config/router.config.tsx";
+import { Button, Checkbox, Form, FormProps, Input, message, Modal, Tabs, ConfigProvider } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentUser, UserStateStatus } from "./features/userSlice.ts";
+import { useEffect, useState } from "react";
+import { RootState } from "./context/store.ts";
+import { UserControllerService } from "../generated";
 import zhCN from "antd/locale/zh_CN";
-import {themeConfig} from "./config/theme.config.ts";
+import { themeConfig } from "./config/theme.config.ts";
+import PhoneLogin from "./components/PhoneLogin.tsx";
 
 function App() {
     const [messageApi, contextHolder] = message.useMessage()
@@ -44,10 +45,10 @@ function App() {
 
     const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
         const resp = await UserControllerService.userLoginUsingPost({
-                userAccount: values.username,
-                userPassword: values.password
-            })
-        dispatch(setCurrentUser({...resp.data}));
+            userAccount: values.username,
+            userPassword: values.password
+        })
+        dispatch(setCurrentUser({ ...resp.data }));
         if (resp.code === 0) {
             handleClose()
         }
@@ -78,7 +79,7 @@ function App() {
                         name="username"
                         rules={[{ required: true, message: '请填入用户名!' }]}
                     >
-                        <Input autoComplete={'username'}/>
+                        <Input autoComplete={'username'} />
                     </Form.Item>
 
                     <Form.Item<FieldType>
@@ -86,7 +87,7 @@ function App() {
                         name="password"
                         rules={[{ required: true, message: '必须输入密码!' }]}
                     >
-                        <Input.Password autoComplete={'current-password'}/>
+                        <Input.Password autoComplete={'current-password'} />
                     </Form.Item>
 
                     <Form.Item<FieldType> name="remember" valuePropName="checked" label={null}>
@@ -103,35 +104,33 @@ function App() {
         },
         {
             key: "2",
-            label: "扫码登录",
-            children: <div className={'flex items-center justify-center h-48'}>
-                    <QRCode value={'/'} />
-                </div>
+            label: "手机号登录",
+            children: <PhoneLogin onSuccess={handleClose} />
         },
     ];
 
 
     return (
         <ConfigProvider theme={themeConfig} locale={zhCN}>
-            { contextHolder }
+            {contextHolder}
             <RouterProvider router={router}></RouterProvider>
-       
-            <Modal 
-                title="请先登录" 
-                open={isModalOpen} 
-                onCancel={handleClose} 
-                centered={true} 
+
+            <Modal
+                title="请先登录"
+                open={isModalOpen}
+                onCancel={handleClose}
+                centered={true}
                 footer={null}
                 width={600}
             >
-                <Tabs 
-                    defaultActiveKey="1" 
+                <Tabs
+                    defaultActiveKey="1"
                     items={tabItems}
                     centered
                 />
             </Modal>
         </ConfigProvider>
-  )
+    )
 }
 
 export default App

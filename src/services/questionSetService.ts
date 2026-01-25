@@ -1,47 +1,51 @@
-import { QuestionSetControllerService } from '../../generated/services/QuestionSetControllerService';
-import type { QuestionSetAddRequest } from '../../generated/models/QuestionSetAddRequest';
-import type { QuestionSetEditRequest } from '../../generated/models/QuestionSetEditRequest';
-import type { QuestionSetQueryRequest } from '../../generated/models/QuestionSetQueryRequest';
-import type { QuestionSetItemAddRequest } from '../../generated/models/QuestionSetItemAddRequest';
-import type { QuestionSetItemRemoveRequest } from '../../generated/models/QuestionSetItemRemoveRequest';
-import type { DeleteRequest } from '../../generated/models/DeleteRequest';
+import { questionSetApi } from '../api';
+import type { QuestionSetAddRequest, QuestionSetEditRequest, QuestionSetQueryRequest, QuestionSetItemAddRequest, QuestionSetItemRemoveRequest, DeleteRequest } from '../../generated_new/question';
 
 // 创建题单
 export const createQuestionSet = async (params: QuestionSetAddRequest) => {
-  return await QuestionSetControllerService.addQuestionSetUsingPost(params);
+  const res = await questionSetApi.addQuestionSet(params);
+  return res.data;
 };
 
 // 删除题单
-export const deleteQuestionSet = async (id: number) => {
-  return await QuestionSetControllerService.deleteQuestionSetUsingPost({ id });
+export const deleteQuestionSet = async (id: string) => {
+  const res = await questionSetApi.deleteQuestionSet({ id });
+  return res.data;
 };
 
 // 编辑题单
 export const editQuestionSet = async (params: QuestionSetEditRequest) => {
-  return await QuestionSetControllerService.editQuestionSetUsingPost(params);
+  const res = await questionSetApi.editQuestionSet(params);
+  return res.data;
 };
 
 // 获取我的题单列表
 export const getMyQuestionSets = async (params: QuestionSetQueryRequest) => {
-  return await QuestionSetControllerService.listMyQuestionSetVoByPageUsingPost(params);
+  const res = await questionSetApi.listMyQuestionSetVOByPage(params);
+  return res.data;
 };
 
 // 获取所有题单列表（公开）
 export const getAllQuestionSets = async (params: QuestionSetQueryRequest) => {
-  return await QuestionSetControllerService.listQuestionSetVoByPageUsingPost(params);
+  const res = await questionSetApi.listQuestionSetVOByPage(params);
+  return res.data;
 };
 
 // 获取题单详情
-export const getQuestionSetDetail = async (id: string | number) => {
-  return await QuestionSetControllerService.getQuestionSetVoByIdUsingGet(id);
+export const getQuestionSetDetail = async (id: string) => {
+  // @ts-ignore
+  const res = await questionSetApi.getQuestionSetVOById(id);
+  return res.data;
 };
 
 // 向题单添加题目
 export const addQuestionToSet = async (params: QuestionSetItemAddRequest) => {
-  return await QuestionSetControllerService.addQuestionToSetUsingPost(params);
+  const res = await questionSetApi.addQuestionToSet(params);
+  return res.data;
 };
 
 // 从题单移除题目
 export const removeQuestionFromSet = async (params: QuestionSetItemRemoveRequest) => {
-  return await QuestionSetControllerService.removeQuestionFromSetUsingPost(params);
+  const res = await questionSetApi.removeQuestionFromSet(params);
+  return res.data;
 };

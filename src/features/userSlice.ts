@@ -1,5 +1,5 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {UserControllerService} from "../../generated";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { userApi } from "../api";
 
 interface UserState {
     currentUser: OJModel.User | null;
@@ -8,16 +8,15 @@ interface UserState {
 
 // 通过请求获得当前用户登录态
 export const getCurrentUser = createAsyncThunk('/user/get/login', async () => {
-    const resp = await UserControllerService.getLoginUserUsingGet()
-    const currentUser: OJModel.User = {
-        ...resp.data,
-    }
+    const resp = await userApi.getLoginUser();
 
-    if (resp.data === null) {
-        return null
+    if (resp.data.code === 0 && resp.data.data) {
+        const currentUser: OJModel.User = {
+            ...resp.data.data,
+        };
+        return currentUser;
     }
-
-    return currentUser
+    return null;
 })
 
 export const userSlice = createSlice(
@@ -43,7 +42,7 @@ export const userSlice = createSlice(
                 .addCase(getCurrentUser.fulfilled, (state, action) => {
                     state.status = 'ok'
                     state.currentUser = action.payload
-            })
+                })
                 .addCase(getCurrentUser.rejected, (state) => {
                     state.status = 'ok'
                 })
@@ -52,6 +51,6 @@ export const userSlice = createSlice(
     }
 )
 
-export const { setCurrentUser, logoutUser} = userSlice.actions
+export const { setCurrentUser, logoutUser } = userSlice.actions
 export default userSlice.reducer
 export type UserStateStatus = 'loading' | 'ok';

@@ -88,26 +88,28 @@ function UserSubmitManager() {
 
   // 定义 ProTable 列
   const columns: ProColumns<QuestionSubmit>[] = [
-    { 
-      title: "提交ID", 
-      dataIndex: "id", 
+    {
+      title: "提交ID",
+      dataIndex: "id",
       width: 80,
       search: true,
       sorter: true
     },
-    { 
-      title: "题目ID",  
-      dataIndex: "questionId", 
+    {
+      title: "题目ID",
+      dataIndex: "questionId",
       width: 80,
       search: true,
-      sorter: true
+      sorter: true,
+      render: (text) => <Button type="link" onClick={() => (window.location.href = `/oj/${text}`)}>{text}</Button>
     },
-    { 
-      title: "用户ID", 
-      dataIndex: "userId", 
+    {
+      title: "用户ID",
+      dataIndex: "userId",
       width: 80,
       search: true,
-      sorter: true
+      sorter: true,
+      render: (text) => <Button type="link" onClick={() => (window.location.href = `/profile?userId=${text}`)}>{text}</Button>
     },
     {
       title: "编程语言",
@@ -214,7 +216,7 @@ function UserSubmitManager() {
 
             // 调用获取所有提交的接口
             const resp = await QuestionControllerService.listQuestionSubmitByPageUsingPost(queryParams);
-            
+
             if (resp.code === 0 && resp.data) {
               return {
                 data: resp.data.records || [],

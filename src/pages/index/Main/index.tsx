@@ -6,7 +6,9 @@ import { RootState } from "../../../context/store.ts";
 import MarkDownNewEditor from "../../../components/MarkDownNewEditor.tsx";
 import { HeartOutlined, HeartFilled, StarOutlined, StarFilled, PlusOutlined, UserOutlined, ClockCircleOutlined, RightOutlined, FireOutlined, TrophyOutlined, BookOutlined, CodeOutlined } from '@ant-design/icons';
 import { createPost, thumbPost, favourPost, getMyPosts } from '../../../services/postService';
-import type { PostVO } from '../../../../generated/models/PostVO';
+import { getAllQuestionSets } from '../../../services/questionSetService';
+import type { PostVO } from '../../../../generated_new/post';
+import type { QuestionSetVO } from '../../../../generated_new/question';
 import { Fire, Target, ChartLine, Code, BookOpen } from '@icon-park/react';
 import '../Posts/Posts.css';
 import './Main.css';
@@ -26,7 +28,7 @@ const StudyPlanCard = ({ title, progress, total, icon, color }: { title: string;
 );
 
 const FeaturedBanner = ({ title, desc, tag, color }: { title: string; desc: string; tag: string; color: string }) => (
-    <div className="featured-banner" onClick={() => {}}>
+    <div className="featured-banner" onClick={() => { }}>
         <div className="featured-banner-content">
             <div className="featured-banner-tag">{tag}</div>
             <h3 className="featured-banner-title">{title}</h3>
@@ -96,6 +98,7 @@ function OJMain() {
     const currentUser = useSelector<RootState, OJModel.User | null>(state => state?.User?.currentUser);
     const [loading, setLoading] = useState(false);
     const [posts, setPosts] = useState<PostVO[]>([]);
+    const [studyPlans, setStudyPlans] = useState<QuestionSetVO[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -118,7 +121,21 @@ function OJMain() {
         }
     };
 
-    useEffect(() => { fetchPosts(); }, []);
+    const fetchStudyPlans = async () => {
+        try {
+            const resp = await getAllQuestionSets({ current: 1, pageSize: 3, sortField: 'createTime', sortOrder: 'descend' });
+            if (resp.code === 0 && resp.data) {
+                setStudyPlans(resp.data.records || []);
+            }
+        } catch (error) {
+            console.error('Fetch study plans failed', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchPosts();
+        fetchStudyPlans();
+    }, []);
 
     const handleCreatePost = async () => {
         if (!title.trim()) { message.warning('请输入标题'); return; }
@@ -170,9 +187,33 @@ function OJMain() {
             </div>
 
             <div className="study-plans">
-                <StudyPlanCard title="算法基础" progress={15} total={50} icon={<BookOpen theme="outline" size="24" fill="#fff" />} color="bg-blue" />
-                <StudyPlanCard title="面试经典 150 题" progress={32} total={150} icon={<Target theme="outline" size="24" fill="#fff" />} color="bg-green" />
-                <StudyPlanCard title="每日一题挑战" progress={7} total={30} icon={<Fire theme="outline" size="24" fill="#fff" />} color="bg-orange" />
+                {studyPlans.length > 0 ? (
+                    studyPlans.map((plan, index) => {
+                        const icons = [
+                            { icon: <BookOpen theme="outline" size="24" fill="#fff" />, color: "bg-blue" },
+                            { icon: <Target theme="outline" size="24" fill="#fff" />, color: "bg-green" },
+                            { icon: <Fire theme="outline" size="24" fill="#fff" />, color: "bg-orange" }
+                        ];
+                        const style = icons[index % icons.length];
+                        return (
+                            <div key={plan.id} onClick={() => navigate(`/question-set/${plan.id}`)} style={{ cursor: 'pointer' }}>
+                                <StudyPlanCard
+                                    title={plan.title || '未命名题单'}
+                                    progress={0}
+                                    total={plan.questionNum || 0}
+                                    icon={style.icon}
+                                    color={style.color}
+                                />
+                            </div>
+                        );
+                    })
+                ) : (
+                    <>
+                        <StudyPlanCard title="算法基础" progress={15} total={50} icon={<BookOpen theme="outline" size="24" fill="#fff" />} color="bg-blue" />
+                        <StudyPlanCard title="面试经典 150 题" progress={32} total={150} icon={<Target theme="outline" size="24" fill="#fff" />} color="bg-green" />
+                        <StudyPlanCard title="每日一题挑战" progress={7} total={30} icon={<Fire theme="outline" size="24" fill="#fff" />} color="bg-orange" />
+                    </>
+                )}
             </div>
 
             <div className="main-grid">
