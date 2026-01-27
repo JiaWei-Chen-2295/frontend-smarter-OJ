@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { RoomControllerService } from '../../generated';
+import { roomApi } from '../api';
 import type {
   RoomAddRequest,
   RoomEditRequest,
@@ -7,12 +7,12 @@ import type {
   RoomQueryRequest,
   RoomQuitRequest,
   RoomTransferRequest,
-  BaseResponse_Page_RoomVO_,
-  BaseResponse_RoomVO_,
-  BaseResponse_boolean_,
-  BaseResponse_long_,
+  BaseResponsePageRoomVO,
+  BaseResponseRoomVO,
+  BaseResponseBoolean,
+  BaseResponseLong,
   RoomUpdateRequest
-} from '../../generated';
+} from '../../generated_new/room';
 
 /**
  * Room 服务类
@@ -24,8 +24,8 @@ export class RoomService {
    */
   static async listRoomVOByPage(params: RoomQueryRequest) {
     try {
-      const response = await RoomControllerService.listRoomVoByPageUsingPost(params);
-      return response as BaseResponse_Page_RoomVO_;
+      const response = await roomApi.listRoomVOByPage(params);
+      return response.data as BaseResponsePageRoomVO;
     } catch (error) {
       message.error('获取房间列表失败');
       throw error;
@@ -37,8 +37,8 @@ export class RoomService {
    */
   static async listMyRoomVOByPage(params: RoomQueryRequest) {
     try {
-      const response = await RoomControllerService.listMyRoomVoByPageUsingPost(params);
-      return response as BaseResponse_Page_RoomVO_;
+      const response = await roomApi.listMyRoomVOByPage(params);
+      return response.data as BaseResponsePageRoomVO;
     } catch (error) {
       message.error('获取我的房间列表失败');
       throw error;
@@ -66,9 +66,10 @@ export class RoomService {
       } else {
         safeId = id;
       }
-      
-      const response = await RoomControllerService.getRoomVoByIdUsingGet(safeId);
-      return response as BaseResponse_RoomVO_;
+
+      // @ts-ignore
+      const response = await roomApi.getRoomVOById(safeId);
+      return response.data as BaseResponseRoomVO;
     } catch (error) {
       message.error('获取房间详情失败');
       throw error;
@@ -77,25 +78,12 @@ export class RoomService {
 
   /**
    * 使用字符串ID获取房间详情（处理大整数）
+   * 现在的 roomApi 基于 axios，可以处理 query 中的字符串 id
    */
-  private static async getRoomVOByIdWithString(id: string): Promise<BaseResponse_RoomVO_> {
-    const { request } = await import('../../generated/core/request');
-    const { OpenAPI } = await import('../../generated/core/OpenAPI');
-    
-    const response = await request(OpenAPI, {
-      method: 'GET',
-      url: '/api/room/get/vo',
-      query: {
-        'id': id  // 直接使用字符串，让axios序列化
-      },
-      errors: {
-        401: `Unauthorized`,
-        403: `Forbidden`,
-        404: `Not Found`,
-      },
-    });
-    
-    return response as BaseResponse_RoomVO_;
+  private static async getRoomVOByIdWithString(id: string): Promise<BaseResponseRoomVO> {
+    // @ts-ignore
+    const response = await roomApi.getRoomVOById(id);
+    return response.data;
   }
 
   /**
@@ -103,9 +91,9 @@ export class RoomService {
    */
   static async addRoom(params: RoomAddRequest) {
     try {
-      const response = await RoomControllerService.addRoomUsingPost(params);
+      const response = await roomApi.addRoom(params);
       message.success('房间创建成功');
-      return response as BaseResponse_long_;
+      return response.data as BaseResponseLong;
     } catch (error) {
       const errorMessage = (error as Error)?.message || '房间创建失败';
       message.error(errorMessage);
@@ -118,9 +106,9 @@ export class RoomService {
    */
   static async editRoom(params: RoomEditRequest) {
     try {
-      const response = await RoomControllerService.editRoomUsingPost(params);
+      const response = await roomApi.editRoom(params);
       message.success('房间编辑成功');
-      return response as BaseResponse_boolean_;
+      return response.data as BaseResponseBoolean;
     } catch (error) {
       const errorMessage = (error as Error)?.message || '房间编辑失败';
       message.error(errorMessage);
@@ -133,9 +121,9 @@ export class RoomService {
    */
   static async updateRoom(params: RoomUpdateRequest) {
     try {
-      const response = await RoomControllerService.updateRoomUsingPost(params);
+      const response = await roomApi.updateRoom(params);
       message.success('房间更新成功');
-      return response as BaseResponse_boolean_;
+      return response.data as BaseResponseBoolean;
     } catch (error) {
       const errorMessage = (error as Error)?.message || '房间更新失败';
       message.error(errorMessage);
@@ -158,10 +146,11 @@ export class RoomService {
         }
         processedParams.roomId = parsed;
       }
-      
-      const response = await RoomControllerService.joinRoomUsingPost(processedParams);
+
+      // @ts-ignore
+      const response = await roomApi.joinRoom(processedParams);
       message.success('加入房间成功');
-      return response as BaseResponse_boolean_;
+      return response.data as BaseResponseBoolean;
     } catch (error) {
       const errorMessage = (error as Error)?.message || '加入房间失败';
       message.error(errorMessage);
@@ -171,23 +160,12 @@ export class RoomService {
 
   /**
    * 使用字符串ID加入房间（处理大整数）
+   * 现在的 roomApi 基于 axios，可以处理 body 中的字符串 id
    */
-  private static async joinRoomWithString(roomId: string, password: string): Promise<BaseResponse_boolean_> {
-    const { request } = await import('../../generated/core/request');
-    const { OpenAPI } = await import('../../generated/core/OpenAPI');
-    
-    const response = await request(OpenAPI, {
-      method: 'POST',
-      url: '/api/room/join',
-      body: { roomId, password },
-      errors: {
-        401: `Unauthorized`,
-        403: `Forbidden`,
-        404: `Not Found`,
-      },
-    });
-    
-    return response as BaseResponse_boolean_;
+  private static async joinRoomWithString(roomId: string, password: string): Promise<BaseResponseBoolean> {
+    // @ts-ignore
+    const response = await roomApi.joinRoom({ roomId, password });
+    return response.data;
   }
 
   /**
@@ -205,10 +183,11 @@ export class RoomService {
         }
         processedParams.roomId = parsed;
       }
-      
-      const response = await RoomControllerService.quitRoomUsingPost(processedParams);
+
+      // @ts-ignore
+      const response = await roomApi.quitRoom(processedParams);
       message.success('退出房间成功');
-      return response as BaseResponse_boolean_;
+      return response.data as BaseResponseBoolean;
     } catch (error) {
       const errorMessage = (error as Error)?.message || '退出房间失败';
       message.error(errorMessage);
@@ -219,22 +198,10 @@ export class RoomService {
   /**
    * 使用字符串ID退出房间（处理大整数）
    */
-  private static async quitRoomWithString(roomId: string): Promise<BaseResponse_boolean_> {
-    const { request } = await import('../../generated/core/request');
-    const { OpenAPI } = await import('../../generated/core/OpenAPI');
-    
-    const response = await request(OpenAPI, {
-      method: 'POST',
-      url: '/api/room/quit',
-      body: { roomId },
-      errors: {
-        401: `Unauthorized`,
-        403: `Forbidden`,
-        404: `Not Found`,
-      },
-    });
-    
-    return response as BaseResponse_boolean_;
+  private static async quitRoomWithString(roomId: string): Promise<BaseResponseBoolean> {
+    // @ts-ignore
+    const response = await roomApi.quitRoom({ roomId });
+    return response.data;
   }
 
   /**
@@ -252,10 +219,11 @@ export class RoomService {
         }
         processedParams.roomId = parsed;
       }
-      
-      const response = await RoomControllerService.transferLeaderUsingPost(processedParams);
+
+      // @ts-ignore
+      const response = await roomApi.transferLeader(processedParams);
       message.success('转让队长成功');
-      return response as BaseResponse_boolean_;
+      return response.data as BaseResponseBoolean;
     } catch (error) {
       const errorMessage = (error as Error)?.message || '转让队长失败';
       message.error(errorMessage);
@@ -266,22 +234,10 @@ export class RoomService {
   /**
    * 使用字符串ID转让队长（处理大整数）
    */
-  private static async transferLeaderWithString(roomId: string, newLeaderUserId: number): Promise<BaseResponse_boolean_> {
-    const { request } = await import('../../generated/core/request');
-    const { OpenAPI } = await import('../../generated/core/OpenAPI');
-    
-    const response = await request(OpenAPI, {
-      method: 'POST',
-      url: '/api/room/transfer',
-      body: { roomId, newLeaderUserId },
-      errors: {
-        401: `Unauthorized`,
-        403: `Forbidden`,
-        404: `Not Found`,
-      },
-    });
-    
-    return response as BaseResponse_boolean_;
+  private static async transferLeaderWithString(roomId: string, newLeaderUserId: number): Promise<BaseResponseBoolean> {
+    // @ts-ignore
+    const response = await roomApi.transferLeader({ roomId, newLeaderUserId });
+    return response.data;
   }
 
   /**
@@ -302,10 +258,11 @@ export class RoomService {
       } else {
         safeId = id;
       }
-      
-      const response = await RoomControllerService.deleteRoomUsingPost({ id: safeId });
+
+      // @ts-ignore
+      const response = await roomApi.deleteRoom({ id: safeId });
       message.success('房间删除成功');
-      return response as BaseResponse_boolean_;
+      return response.data as BaseResponseBoolean;
     } catch (error) {
       const errorMessage = (error as Error)?.message || '房间删除失败';
       message.error(errorMessage);
@@ -316,22 +273,10 @@ export class RoomService {
   /**
    * 使用字符串ID删除房间（处理大整数）
    */
-  private static async deleteRoomWithString(id: string): Promise<BaseResponse_boolean_> {
-    const { request } = await import('../../generated/core/request');
-    const { OpenAPI } = await import('../../generated/core/OpenAPI');
-    
-    const response = await request(OpenAPI, {
-      method: 'POST',
-      url: '/api/room/delete',
-      body: { id },
-      errors: {
-        401: `Unauthorized`,
-        403: `Forbidden`,
-        404: `Not Found`,
-      },
-    });
-    
-    return response as BaseResponse_boolean_;
+  private static async deleteRoomWithString(id: string): Promise<BaseResponseBoolean> {
+    // @ts-ignore
+    const response = await roomApi.deleteRoom({ id });
+    return response.data;
   }
 
   /**
@@ -341,7 +286,7 @@ export class RoomService {
     if (!currentUserId) {
       return false; // 未登录不能创建
     }
-    
+
     try {
       const response = await this.listMyRoomVOByPage({
         current: 1,
@@ -349,10 +294,10 @@ export class RoomService {
         sortField: 'createTime',
         sortOrder: 'desc'
       });
-      
+
       if (response.code === 0 && response.data) {
         // 检查是否有创建的房间
-        const myCreatedRooms = response.data.records?.filter(room => 
+        const myCreatedRooms = response.data.records?.filter(room =>
           room.userId === currentUserId
         );
         return (myCreatedRooms?.length ?? 0) === 0;

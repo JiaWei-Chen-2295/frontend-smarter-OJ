@@ -12,6 +12,7 @@ export type Question = {
     isDelete?: number;
     judgeCase?: string;
     judgeConfig?: string;
+    questionSetId?: number;
     submitNum?: number;
     tags?: string;
     title?: string;

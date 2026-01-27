@@ -1,5 +1,5 @@
 import React from 'react';
-import type { JudgeInfo } from '../../../../../generated';
+import type { JudgeInfo } from '../../../../../generated_new/question';
 import { formatMemorySize } from '../../utils/formatUtils';
 
 interface PerformanceStatsProps {
@@ -8,7 +8,7 @@ interface PerformanceStatsProps {
 
 const PerformanceStats: React.FC<PerformanceStatsProps> = ({ judgeInfo }) => {
     return (
-        <div style={{ 
+        <div style={{
             backgroundColor: '#1e1e1e',
             border: '1px solid #303030',
             borderRadius: '8px',
@@ -19,9 +19,9 @@ const PerformanceStats: React.FC<PerformanceStatsProps> = ({ judgeInfo }) => {
             <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', marginTop: '10px' }}>
                 <div>
                     <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>执行用时</div>
-                    <div style={{ 
-                        fontSize: '24px', 
-                        fontWeight: 'bold', 
+                    <div style={{
+                        fontSize: '24px',
+                        fontWeight: 'bold',
                         color: '#52c41a',
                         fontFamily: 'monospace'
                     }}>
@@ -30,9 +30,9 @@ const PerformanceStats: React.FC<PerformanceStatsProps> = ({ judgeInfo }) => {
                 </div>
                 <div>
                     <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>内存消耗</div>
-                    <div style={{ 
-                        fontSize: '24px', 
-                        fontWeight: 'bold', 
+                    <div style={{
+                        fontSize: '24px',
+                        fontWeight: 'bold',
                         color: '#1890ff',
                         fontFamily: 'monospace'
                     }}>

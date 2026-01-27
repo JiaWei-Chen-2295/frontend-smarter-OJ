@@ -8,7 +8,7 @@ import { router } from "../config/router.config.tsx";
 import { SourceCode } from "@icon-park/react";
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import React from 'react';
-import { UserControllerService } from '../../generated/index.ts';
+import { userApi } from '../api';
 
 const { Header, Content, Footer } = Layout;
 
@@ -59,7 +59,7 @@ function MainLayout({ children }: { children: ReactNode }) {
             icon: <LogoutOutlined />,
             danger: true,
             onClick: () => {
-                UserControllerService.userLogoutUsingPost()
+                userApi.userLogout()
                     .then(() => {
                         navigate('/', { replace: true })
                         window.location.reload()
@@ -175,7 +175,7 @@ function MainLayout({ children }: { children: ReactNode }) {
                     {children}
                 </div>
             </Content>
-            <Footer style={{ 
+            <Footer style={{
                 textAlign: 'center',
                 padding: '24px 0',
                 background: colorBgContainer,

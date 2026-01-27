@@ -1,0 +1,90 @@
+.heatmap-section {
+    width: 100%;
+}
+
+.heatmap-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.heatmap-stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    font-family: 'Poppins', sans-serif;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-rows: repeat(7, 1fr);
+    grid-auto-flow: column;
+    gap: 3px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    /* Custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.heatmap-grid::-webkit-scrollbar {
+    height: 6px;
+}
+
+.heatmap-grid::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+}
+
+.heatmap-cell {
+    width: 10px;
+    height: 10px;
+    background: #f1f5f9;
+    border-radius: 2px;
+    transition: transform 0.1s;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.4);
+    z-index: 2;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.heatmap-cell.active-low { background: #bbf7d0; }
+.heatmap-cell.active-medium { background: #4ade80; }
+.heatmap-cell.active-high { background: #16a34a; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .heatmap-stats {
+        gap: 8px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+    }
+    
+    .heatmap-grid {
+        padding-bottom: 4px;
+    }
+}

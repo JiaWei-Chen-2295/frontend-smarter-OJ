@@ -1,4 +1,4 @@
-import {CrownOutlined, ExperimentOutlined, HomeOutlined, QuestionOutlined, TeamOutlined} from "@ant-design/icons";
+import { CrownOutlined, HomeOutlined, QuestionOutlined, TeamOutlined, BookOutlined, MessageOutlined } from "@ant-design/icons";
 import type { ReactNode } from 'react';
 
 interface NavBarItem {
@@ -24,25 +24,32 @@ const NavBarItems: NavBarItem[] = [
     },
     {
         key: '3',
-        label: '实验室',
-        path: '/lab',
-        icon: <ExperimentOutlined />,
+        label: '题单',
+        path: '/question-sets',
+        icon: <BookOutlined />,
+    },
+
+    {
+        key: '5',
+        label: '帖子',
+        path: '/posts',
+        icon: <MessageOutlined />,
     },
     {
-        key: '4',
+        key: '6',
         label: '房间',
         path: '/room',
         icon: <TeamOutlined />,
     },
     {
-        key: '5',
+        key: '7',
         label: '管理员',
         path: '/admin',
         icon: <CrownOutlined />,
     }
 ];
 
-export function getPathByKey(key: string)  {
+export function getPathByKey(key: string) {
     const item = NavBarItems.find(item => item.key === key);
     return item?.path;
 }

@@ -24,13 +24,13 @@ const Veditor: React.FC<VeditorProps> = ({ value, className = '', enableAnchor =
                     code({ inline, className, children, ...props }) {
                         const match = /language-(\w+)/.exec(className || '');
                         return !inline && match ? (
-                            <pre className="bg-[#1e1e1e] p-4 rounded-lg overflow-x-auto">
-                                <code className={className} {...props}>
+                            <pre className="bg-[#111111] p-4 rounded-lg overflow-x-auto border border-[#2a2a2a] shadow-[0_0_0_1px_rgba(34,139,34,0.08)]">
+                                <code className={`text-gray-100 ${className || ''}`} {...props}>
                                     {children}
                                 </code>
                             </pre>
                         ) : (
-                            <code className="bg-[#303030] px-1 py-0.5 rounded text-sm" {...props}>
+                            <code className="bg-[#262626] px-1 py-0.5 rounded text-sm text-white border border-[#333333]" {...props}>
                                 {children}
                             </code>
                         );

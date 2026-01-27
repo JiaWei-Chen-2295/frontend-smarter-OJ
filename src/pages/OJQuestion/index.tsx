@@ -2,24 +2,24 @@ import { ConfigProvider, theme, Spin, message } from "antd";
 import QuestionLayout from "../../layouts/QuestionLayout";
 import { useParams } from "react-router-dom";
 import CustomSplitter from "./components/CustomSplitter";
-import { QuestionControllerService } from "../../../generated";
+import { questionApi } from "../../api";
 import { useEffect, useState } from "react";
-import type { QuestionVO } from "../../../generated";
+import type { QuestionVO } from "../../../generated_new/question";
 
 function OJQuestion() {
-    const params = useParams<{questionId: string}>();
+    const params = useParams<{ questionId: string }>();
     const [question, setQuestion] = useState<QuestionVO>();
     const [loading, setLoading] = useState(true);
     const [fontSize, setFontSize] = useState(14);
-    
+
     useEffect(() => {
         const fetchQuestion = async () => {
             try {
-                const resp = await QuestionControllerService.getQuestionVoByIdUsingGet(
-                    params.questionId
+                const resp = await questionApi.getQuestionVOById(
+                    params.questionId as string
                 );
-                if (resp.code === 0 && resp.data) {
-                    setQuestion(resp.data);
+                if (resp.data.code === 0 && resp.data.data) {
+                    setQuestion(resp.data.data);
                     message.success("获取题目详情成功");
                 }
             } catch (error) {

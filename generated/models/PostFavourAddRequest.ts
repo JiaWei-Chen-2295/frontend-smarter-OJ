@@ -3,6 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PostFavourAddRequest = {
-    postId?: string | number;
+    postId?: number;
 };
 

@@ -20,9 +20,8 @@ export type OpenAPIConfig = {
 };
 
 export const OpenAPI: OpenAPIConfig = {
-    BASE: 'http://localhost:82',
+    BASE: '',
     VERSION: '1.0',
-    // 这个非常重要 
     WITH_CREDENTIALS: true,
     CREDENTIALS: 'include',
     TOKEN: undefined,
@@ -30,4 +29,4 @@ export const OpenAPI: OpenAPIConfig = {
     PASSWORD: undefined,
     HEADERS: undefined,
     ENCODE_PATH: undefined,
-  };
+};

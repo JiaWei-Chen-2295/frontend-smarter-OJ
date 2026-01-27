@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { ProTable, ProColumns, ActionType } from "@ant-design/pro-components";
-import { QuestionControllerService, Question, QuestionQueryRequest, QuestionVO } from "../../generated"; // Import Question and QuestionQueryRequest
+import { questionApi } from "../api";
+import type { Question, QuestionQueryRequest, QuestionVO } from "../../../generated_new/question";
 import { Tag, Button, Modal, Form, InputNumber, message, Row, Col, Tooltip, Space } from "antd";
 import { EditOutlined, PlusOutlined, DeleteOutlined, ExclamationCircleFilled, InboxOutlined } from "@ant-design/icons";
 import { ProForm, ProFormText, ProFormTextArea, ProFormItem } from '@ant-design/pro-components';
@@ -45,12 +46,12 @@ export default function QuestionList() {
         try {
             // Use getQuestionVOByIdUsingGet for filling the edit form
             // const response = await QuestionControllerService.getQuestionVoByIdUsingGet(id);
-            const response = await QuestionControllerService.getQuestionByIdUsingGet(id);
-            if (response.code === 0 && response.data) {
-                const questionData = response.data;
-                questionData.tags = JSON.parse(questionData?.tags ?? " ");
-                questionData.judgeCase = JSON.parse(questionData?.judgeCase ?? " ");
-                questionData.judgeConfig = JSON.parse(questionData?.judgeConfig ?? " ");
+            const response = await questionApi.getQuestionById1(id);
+            if (response.data.code === 0 && response.data.data) {
+                const questionData: any = response.data.data;
+                questionData.tags = JSON.parse(questionData?.tags ?? "[]");
+                questionData.judgeCase = JSON.parse(questionData?.judgeCase ?? "[]");
+                questionData.judgeConfig = JSON.parse(questionData?.judgeConfig ?? "{}");
                 setCurrentQuestion(questionData);
 
                 form.setFieldsValue({
@@ -66,7 +67,7 @@ export default function QuestionList() {
                 });
                 setOpen(true);
             } else {
-                message.error('获取题目信息失败：' + (response.message || '未知错误'));
+                message.error('获取题目信息失败：' + (response.data.message || '未知错误'));
             }
         } catch (error) {
             console.error('Failed to fetch question data:', error);
@@ -98,24 +99,24 @@ export default function QuestionList() {
             try {
                 let response;
                 if (isEditMode && editingQuestionId) {
-                    response = await QuestionControllerService.editQuestionUsingPost({
+                    response = await questionApi.editQuestion({
                         ...values,
                         id: editingQuestionId
                     });
                 } else {
-                    response = await QuestionControllerService.addQuestionUsingPost(values);
+                    response = await questionApi.addQuestion(values);
                 }
 
                 const successMessage = isEditMode ? '修改题目成功' : '添加题目成功';
                 const failureMessagePrefix = isEditMode ? '修改题目失败：' : '添加题目失败：';
 
-                if (response && response.code === 0) {
+                if (response && response.data.code === 0) {
                     message.success(successMessage);
                     setOpen(false);
                     form.resetFields();
                     actionRef.current?.reload();
                 } else {
-                    message.error(failureMessagePrefix + (response?.message || '未知错误'));
+                    message.error(failureMessagePrefix + (response.data?.message || '未知错误'));
                 }
             } catch (apiError) {
                 console.error('API call failed:', apiError);
@@ -144,14 +145,14 @@ export default function QuestionList() {
             onOk: async () => {
                 try {
                     console.log(`Attempting to delete question with ID: ${id}`);
-                    const response = await QuestionControllerService.deleteQuestionUsingPost({ id });
+                    const response = await questionApi.deleteQuestion({ id });
                     console.log('Delete API Response:', response);
 
-                    if (response && response.code === 0) {
+                    if (response && response.data.code === 0) {
                         message.success('删除题目成功');
                         actionRef.current?.reload(); // Refresh the table
                     } else {
-                        message.error('删除题目失败：' + (response?.message || '未知错误'));
+                        message.error('删除题目失败：' + (response.data?.message || '未知错误'));
                     }
                 } catch (error) {
                     console.error('Failed to delete question:', error);
@@ -259,13 +260,13 @@ export default function QuestionList() {
                             current: params.current || 1,
                         };
                         console.log('Query Request:', queryRequest);
-                        const res = await QuestionControllerService.getQuestionListUsingPost(queryRequest);
+                        const res = await questionApi.listQuestionByPage(queryRequest);
                         console.log('API Response (Question List):', res);
 
                         return {
-                            data: res?.data?.records || [],
-                            success: !!res?.data,
-                            total: res?.data?.total || 0,
+                            data: res.data?.data?.records || [],
+                            success: !!res.data?.data,
+                            total: res.data?.data?.total || 0,
                         };
                     } catch (error) {
                         console.error("Error fetching data:", error);

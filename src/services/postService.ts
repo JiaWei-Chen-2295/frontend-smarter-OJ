@@ -1,36 +1,42 @@
-import { PostControllerService } from '../../generated/services/PostControllerService';
-import { PostThumbControllerService } from '../../generated/services/PostThumbControllerService';
-import { PostFavourControllerService } from '../../generated/services/PostFavourControllerService';
-import type { PostAddRequest } from '../../generated/models/PostAddRequest';
-import type { PostQueryRequest } from '../../generated/models/PostQueryRequest';
+import { postApi } from '../api';
+import type { PostAddRequest } from '../../generated_new/post';
+import type { PostQueryRequest } from '../../generated_new/post';
 
 let thumbTimer: number | null = null;
 let favourTimer: number | null = null;
 
 export const createPost = async (params: PostAddRequest) => {
-  return await PostControllerService.addPostUsingPost(params);
+  const res = await postApi.addPost(params);
+  return res.data;
 };
 
 export const thumbPost = (postId: string | number, callback?: () => void) => {
   if (thumbTimer) clearTimeout(thumbTimer);
+  // @ts-ignore
   thumbTimer = setTimeout(async () => {
-    await PostThumbControllerService.doThumbUsingPost({ postId });
+    // Cast postId to number if needed, assuming API expects number. 
+    // generated_new's doThumb takes PostThumbAddRequest which likely has postId as number.
+    // The old code passed { postId }.
+    await postApi.doThumb({ postId: Number(postId) });
     callback?.();
   }, 300);
 };
 
 export const favourPost = (postId: string | number, callback?: () => void) => {
   if (favourTimer) clearTimeout(favourTimer);
+  // @ts-ignore
   favourTimer = setTimeout(async () => {
-    await PostFavourControllerService.doPostFavourUsingPost({ postId });
+    await postApi.doPostFavour({ postId: Number(postId) });
     callback?.();
   }, 300);
 };
 
 export const getMyPosts = async (params: PostQueryRequest) => {
-  return await PostControllerService.listMyPostVoByPageUsingPost(params);
+  const res = await postApi.listMyPostVOByPage(params);
+  return res.data;
 };
 
 export const getAllPosts = async (params: PostQueryRequest) => {
-  return await PostControllerService.listPostByPageUsingPost(params);
+  const res = await postApi.listPostByPage(params);
+  return res.data;
 };

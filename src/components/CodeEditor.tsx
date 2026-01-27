@@ -195,6 +195,15 @@ export const CodeEditor = forwardRef<CodeEditorRef, CodeEditorProps>((props, ref
         }
     }, [fontSize]);
 
+    useEffect(() => {
+        if (editorRef.current && typeof defaultValue === 'string') {
+            const currentValue = editorRef.current.getValue();
+            if (currentValue !== defaultValue) {
+                editorRef.current.setValue(defaultValue);
+            }
+        }
+    }, [defaultValue]);
+
     // 清理小部件 - 更直接的方式
     const cleanupWidget = () => {
         if (currentWidget && editorRef.current) {
