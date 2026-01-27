@@ -13,9 +13,12 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { User } from './user';
 
-export * from './api/default-api';
-export * from './api/inner-question-controller-api';
-export * from './api/question-controller-api';
-export * from './api/question-set-controller-api';
+export interface JudgeRequest {
+    'questionSubmitId'?: string;
+    'loginUser'?: User;
+}
 

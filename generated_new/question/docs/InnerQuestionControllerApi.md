@@ -1,6 +1,6 @@
 # InnerQuestionControllerApi
 
-All URIs are relative to *http://192.168.254.1:8202/api/question*
+All URIs are relative to *http://172.19.0.6:8202*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|

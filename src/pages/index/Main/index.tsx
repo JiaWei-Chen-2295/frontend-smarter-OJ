@@ -10,6 +10,7 @@ import { getAllQuestionSets } from '../../../services/questionSetService';
 import type { PostVO } from '../../../../generated_new/post';
 import type { QuestionSetVO } from '../../../../generated_new/question';
 import { Fire, Target, ChartLine, Code, BookOpen } from '@icon-park/react';
+import Heatmap from '../../../components/Heatmap';
 import '../Posts/Posts.css';
 import './Main.css';
 
@@ -26,72 +27,6 @@ const StudyPlanCard = ({ title, progress, total, icon, color }: { title: string;
         </div>
     </div>
 );
-
-const FeaturedBanner = ({ title, desc, tag, color }: { title: string; desc: string; tag: string; color: string }) => (
-    <div className="featured-banner" onClick={() => { }}>
-        <div className="featured-banner-content">
-            <div className="featured-banner-tag">{tag}</div>
-            <h3 className="featured-banner-title">{title}</h3>
-            <p className="featured-banner-desc">{desc}</p>
-        </div>
-        <div className={`featured-banner-visual ${color}`}>
-            <Code theme="outline" size="48" fill="#fff" />
-        </div>
-    </div>
-);
-
-const CompanyCard = ({ name, logoColor, trend }: { name: string; logoColor: string; trend: number }) => (
-    <div className="company-card">
-        <div className={`company-logo ${logoColor}`}>{name.charAt(0)}</div>
-        <div className="company-info">
-            <div className="company-name">{name}</div>
-            <div className="company-trend">热门指数 {trend} <span className="trend-up">▲</span></div>
-        </div>
-    </div>
-);
-
-const CalendarWidget = () => {
-    const days = [
-        { day: '周二', date: '03', status: 'past' },
-        { day: '周三', date: '04', status: 'past' },
-        { day: '周四', date: '05', status: 'today' },
-        { day: '周五', date: '06', status: 'future' },
-        { day: '周六', date: '07', status: 'future' },
-        { day: '周日', date: '08', status: 'future' },
-        { day: '周一', date: '09', status: 'future' },
-    ];
-    return (
-        <div className="calendar-widget">
-            {days.map((d, i) => (
-                <div key={i} className={`calendar-day ${d.status === 'today' ? 'today' : ''}`}>
-                    <span className="calendar-day-name">{d.day}</span>
-                    <span className="calendar-day-date">{d.date}</span>
-                    {d.status === 'today' && <div className="calendar-dot" />}
-                </div>
-            ))}
-        </div>
-    );
-};
-
-const Heatmap = () => {
-    const months = ['8月', '9月', '10月', '11月'];
-    return (
-        <div className="heatmap-section">
-            <div className="heatmap-stats">
-                <div className="heatmap-stat"><div className="stat-value">5</div><div className="stat-label">连续提交</div></div>
-                <div className="heatmap-stat"><div className="stat-value">12</div><div className="stat-label">本月解决</div></div>
-                <div className="heatmap-stat"><div className="stat-value">3</div><div className="stat-label">每日一题</div></div>
-            </div>
-            <div className="heatmap-grid">
-                {Array.from({ length: 75 }).map((_, i) => (
-                    <div key={i} className={`heatmap-cell ${Math.random() > 0.7 ? 'active-high' : Math.random() > 0.5 ? 'active-low' : ''}`} />
-                ))}
-            </div>
-            <div className="heatmap-months">{months.map(m => <span key={m}>{m}</span>)}</div>
-            <button className="heatmap-btn">进展分析</button>
-        </div>
-    );
-};
 
 function OJMain() {
     const navigate = useNavigate();
@@ -187,33 +122,25 @@ function OJMain() {
             </div>
 
             <div className="study-plans">
-                {studyPlans.length > 0 ? (
-                    studyPlans.map((plan, index) => {
-                        const icons = [
-                            { icon: <BookOpen theme="outline" size="24" fill="#fff" />, color: "bg-blue" },
-                            { icon: <Target theme="outline" size="24" fill="#fff" />, color: "bg-green" },
-                            { icon: <Fire theme="outline" size="24" fill="#fff" />, color: "bg-orange" }
-                        ];
-                        const style = icons[index % icons.length];
-                        return (
-                            <div key={plan.id} onClick={() => navigate(`/question-set/${plan.id}`)} style={{ cursor: 'pointer' }}>
-                                <StudyPlanCard
-                                    title={plan.title || '未命名题单'}
-                                    progress={0}
-                                    total={plan.questionNum || 0}
-                                    icon={style.icon}
-                                    color={style.color}
-                                />
-                            </div>
-                        );
-                    })
-                ) : (
-                    <>
-                        <StudyPlanCard title="算法基础" progress={15} total={50} icon={<BookOpen theme="outline" size="24" fill="#fff" />} color="bg-blue" />
-                        <StudyPlanCard title="面试经典 150 题" progress={32} total={150} icon={<Target theme="outline" size="24" fill="#fff" />} color="bg-green" />
-                        <StudyPlanCard title="每日一题挑战" progress={7} total={30} icon={<Fire theme="outline" size="24" fill="#fff" />} color="bg-orange" />
-                    </>
-                )}
+                {studyPlans.length > 0 && studyPlans.map((plan, index) => {
+                    const icons = [
+                        { icon: <BookOpen theme="outline" size="24" fill="#fff" />, color: "bg-blue" },
+                        { icon: <Target theme="outline" size="24" fill="#fff" />, color: "bg-green" },
+                        { icon: <Fire theme="outline" size="24" fill="#fff" />, color: "bg-orange" }
+                    ];
+                    const style = icons[index % icons.length];
+                    return (
+                        <div key={plan.id} onClick={() => navigate(`/question-set/${plan.id}`)} style={{ cursor: 'pointer' }}>
+                            <StudyPlanCard
+                                title={plan.title || '未命名题单'}
+                                progress={0}
+                                total={plan.questionNum || 0}
+                                icon={style.icon}
+                                color={style.color}
+                            />
+                        </div>
+                    );
+                })}
             </div>
 
             <div className="main-grid">
@@ -228,23 +155,6 @@ function OJMain() {
                     </div>
 
                     <div className="content-feed">
-                        <FeaturedBanner title="滑动窗口和双指针" desc="围绕滑动窗口与双指针进行讲解和练习，帮助你提升算法理解和解题能力。" tag="SmarterOJ" color="bg-blue" />
-
-                        <div className="company-section">
-                            <div className="section-header">
-                                <div className="section-title"><CodeOutlined /> 名企面试题</div>
-                                <span className="section-more">更多 <RightOutlined /></span>
-                            </div>
-                            <div className="company-grid">
-                                <CompanyCard name="字节跳动" logoColor="bg-blue" trend={6359} />
-                                <CompanyCard name="Meta" logoColor="bg-indigo" trend={6062} />
-                                <CompanyCard name="谷歌" logoColor="bg-red" trend={6051} />
-                                <CompanyCard name="华为" logoColor="bg-rose" trend={5971} />
-                            </div>
-                        </div>
-
-                        <FeaturedBanner title="从 BUG 入手：编程基础修炼" desc="从实际工作场景出发，透视高频 BUG，深度理解编程基础。" tag="SmarterOJ" color="bg-red" />
-
                         <div className="posts-section">
                             <div className="section-header">
                                 <div className="section-title"><BookOutlined /> 我的帖子</div>
@@ -279,20 +189,8 @@ function OJMain() {
 
                 <div className="main-sidebar">
                     <div className="sidebar-card">
-                        <CalendarWidget />
                         <div className="sidebar-divider" />
-                        <div className="daily-tasks">
-                            <div className="daily-task" onClick={() => navigate('/qs')}>
-                                <div><div className="task-label"><Fire theme="outline" size="14" fill="#1890ff" /> 每日 1 题</div><div className="task-title">两数之和</div></div>
-                                <div className="task-check" />
-                            </div>
-                            <div className="daily-task" onClick={() => navigate('/qs')}>
-                                <div><div className="task-label"><Target theme="outline" size="14" fill="#52c41a" /> 学习计划</div><div className="task-title">面试经典 150 题</div></div>
-                                <div className="task-check" />
-                            </div>
-                        </div>
-                        <div className="sidebar-divider" />
-                        <Heatmap />
+                        <Heatmap range="month" />
                     </div>
                 </div>
             </div>

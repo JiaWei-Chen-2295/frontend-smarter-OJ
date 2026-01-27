@@ -1,13 +1,13 @@
 # InnerJudgeControllerApi
 
-All URIs are relative to *http://192.168.254.1:8203/api/judge*
+All URIs are relative to *http://172.19.0.8:8203/api/judge*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**doJudge**](#dojudge) | **POST** /inner/do | |
 
 # **doJudge**
-> QuestionSubmitVO doJudge(doJudgeRequest)
+> QuestionSubmitVO doJudge(judgeRequest)
 
 
 ### Example
@@ -16,16 +16,16 @@ All URIs are relative to *http://192.168.254.1:8203/api/judge*
 import {
     InnerJudgeControllerApi,
     Configuration,
-    DoJudgeRequest
+    JudgeRequest
 } from 'judge';
 
 const configuration = new Configuration();
 const apiInstance = new InnerJudgeControllerApi(configuration);
 
-let doJudgeRequest: DoJudgeRequest; //
+let judgeRequest: JudgeRequest; //
 
 const { status, data } = await apiInstance.doJudge(
-    doJudgeRequest
+    judgeRequest
 );
 ```
 
@@ -33,7 +33,7 @@ const { status, data } = await apiInstance.doJudge(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **doJudgeRequest** | **DoJudgeRequest**|  | |
+| **judgeRequest** | **JudgeRequest**|  | |
 
 
 ### Return type

@@ -1,6 +1,6 @@
 # DefaultApi
 
-All URIs are relative to *http://192.168.254.1:8204/api/post*
+All URIs are relative to *http://172.19.0.7:8204/api/post*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|

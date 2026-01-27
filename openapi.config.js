@@ -11,7 +11,7 @@ const generatedDir = path.resolve(__dirname, './generated_new');
 
 // Headers provided by the user to bypass potential blocks/auth checks
 const headers = {
-    'Cookie': 'satoken=a95a5e0f-f1cb-40d9-bda9-9bc597057352'
+    'Cookie': 'satoken=e4d84a2a-950c-4a9f-a0bd-62b411e63698'
 };
 
 async function fetchSpec(url) {
@@ -77,6 +77,7 @@ async function run() {
                 const json = JSON.parse(specContent);
                 if (!json.openapi && !json.swagger) {
                     console.error(`Skipping ${serviceName}: Response is not a valid OpenAPI spec.`);
+                    console.error(`Response start: ${specContent.substring(0, 500)}`);
                     continue;
                 }
             } catch (e) {

@@ -47,28 +47,29 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 
 ### Documentation for API Endpoints
 
-All URIs are relative to *http://192.168.254.1:8202/api/question*
+All URIs are relative to *http://172.19.0.6:8202*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*DefaultApi* | [**addQuestion**](docs/DefaultApi.md#addquestion) | **POST** /add | 
+*DefaultApi* | [**deleteQuestion**](docs/DefaultApi.md#deletequestion) | **POST** /delete | 
+*DefaultApi* | [**doQuestionSubmit**](docs/DefaultApi.md#doquestionsubmit) | **POST** /submit | 
+*DefaultApi* | [**editQuestion**](docs/DefaultApi.md#editquestion) | **POST** /edit | 
+*DefaultApi* | [**getAllQuestionSubmitByList**](docs/DefaultApi.md#getallquestionsubmitbylist) | **GET** /submit/admin/list | 
+*DefaultApi* | [**getQuestionById1**](docs/DefaultApi.md#getquestionbyid1) | **GET** /get/all | 
+*DefaultApi* | [**getQuestionList**](docs/DefaultApi.md#getquestionlist) | **POST** /list/admin-page | 
+*DefaultApi* | [**getQuestionVOById**](docs/DefaultApi.md#getquestionvobyid) | **GET** /get/vo | 
+*DefaultApi* | [**getSubmit**](docs/DefaultApi.md#getsubmit) | **GET** /submit/getSubmitStatus | 
+*DefaultApi* | [**getSubmitHeatmap**](docs/DefaultApi.md#getsubmitheatmap) | **GET** /submit/heatmap | 获取用户提交热力图
+*DefaultApi* | [**listMyQuestionVOByPage**](docs/DefaultApi.md#listmyquestionvobypage) | **POST** /my/list/page/vo | 
+*DefaultApi* | [**listQuestionByPage**](docs/DefaultApi.md#listquestionbypage) | **POST** /list/page | 
+*DefaultApi* | [**listQuestionSubmitByPage**](docs/DefaultApi.md#listquestionsubmitbypage) | **POST** /submit/admin/page | 
+*DefaultApi* | [**listQuestionVOByPage**](docs/DefaultApi.md#listquestionvobypage) | **POST** /list/page/vo | 
+*DefaultApi* | [**updateQuestion**](docs/DefaultApi.md#updatequestion) | **POST** /update | 
 *InnerQuestionControllerApi* | [**getQuestionById**](docs/InnerQuestionControllerApi.md#getquestionbyid) | **GET** /inner/get/id | 
 *InnerQuestionControllerApi* | [**getQuestionSubmitById**](docs/InnerQuestionControllerApi.md#getquestionsubmitbyid) | **GET** /inner/submit/update/id | 
 *InnerQuestionControllerApi* | [**getQuestionSubmitVO**](docs/InnerQuestionControllerApi.md#getquestionsubmitvo) | **POST** /inner/submit/get/vo | 
 *InnerQuestionControllerApi* | [**updateQuestionSubmitById**](docs/InnerQuestionControllerApi.md#updatequestionsubmitbyid) | **POST** /inner/submit/update | 
-*QuestionControllerApi* | [**addQuestion**](docs/QuestionControllerApi.md#addquestion) | **POST** /add | 
-*QuestionControllerApi* | [**deleteQuestion**](docs/QuestionControllerApi.md#deletequestion) | **POST** /delete | 
-*QuestionControllerApi* | [**doQuestionSubmit**](docs/QuestionControllerApi.md#doquestionsubmit) | **POST** /submit | 
-*QuestionControllerApi* | [**editQuestion**](docs/QuestionControllerApi.md#editquestion) | **POST** /edit | 
-*QuestionControllerApi* | [**getAllQuestionSubmitByList**](docs/QuestionControllerApi.md#getallquestionsubmitbylist) | **GET** /submit/admin/list | 
-*QuestionControllerApi* | [**getQuestionById1**](docs/QuestionControllerApi.md#getquestionbyid1) | **GET** /get/all | 
-*QuestionControllerApi* | [**getQuestionList**](docs/QuestionControllerApi.md#getquestionlist) | **POST** /list/admin-page | 
-*QuestionControllerApi* | [**getQuestionVOById**](docs/QuestionControllerApi.md#getquestionvobyid) | **GET** /get/vo | 
-*QuestionControllerApi* | [**getSubmit**](docs/QuestionControllerApi.md#getsubmit) | **GET** /submit/getSubmitStatus | 
-*QuestionControllerApi* | [**listMyQuestionVOByPage**](docs/QuestionControllerApi.md#listmyquestionvobypage) | **POST** /my/list/page/vo | 
-*QuestionControllerApi* | [**listQuestionByPage**](docs/QuestionControllerApi.md#listquestionbypage) | **POST** /list/page | 
-*QuestionControllerApi* | [**listQuestionSubmitByPage**](docs/QuestionControllerApi.md#listquestionsubmitbypage) | **POST** /submit/admin/page | 
-*QuestionControllerApi* | [**listQuestionVOByPage**](docs/QuestionControllerApi.md#listquestionvobypage) | **POST** /list/page/vo | 
-*QuestionControllerApi* | [**updateQuestion**](docs/QuestionControllerApi.md#updatequestion) | **POST** /update | 
 *QuestionSetControllerApi* | [**addQuestionSet**](docs/QuestionSetControllerApi.md#addquestionset) | **POST** /questionSet/add | 
 *QuestionSetControllerApi* | [**addQuestionToSet**](docs/QuestionSetControllerApi.md#addquestiontoset) | **POST** /questionSet/item/add | 
 *QuestionSetControllerApi* | [**deleteQuestionSet**](docs/QuestionSetControllerApi.md#deletequestionset) | **POST** /questionSet/delete | 
@@ -99,7 +100,9 @@ Class | Method | HTTP request | Description
  - [BaseResponseQuestionSetVO](docs/BaseResponseQuestionSetVO.md)
  - [BaseResponseQuestionSubmitVO](docs/BaseResponseQuestionSubmitVO.md)
  - [BaseResponseQuestionVO](docs/BaseResponseQuestionVO.md)
+ - [BaseResponseSubmitHeatmapVO](docs/BaseResponseSubmitHeatmapVO.md)
  - [CodeTemplate](docs/CodeTemplate.md)
+ - [DailySubmitCount](docs/DailySubmitCount.md)
  - [DeleteRequest](docs/DeleteRequest.md)
  - [JudgeCase](docs/JudgeCase.md)
  - [JudgeConfig](docs/JudgeConfig.md)
@@ -128,6 +131,7 @@ Class | Method | HTTP request | Description
  - [QuestionSubmitVO](docs/QuestionSubmitVO.md)
  - [QuestionUpdateRequest](docs/QuestionUpdateRequest.md)
  - [QuestionVO](docs/QuestionVO.md)
+ - [SubmitHeatmapVO](docs/SubmitHeatmapVO.md)
  - [User](docs/User.md)
  - [UserVO](docs/UserVO.md)
 

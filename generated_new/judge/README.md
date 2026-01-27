@@ -47,7 +47,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 
 ### Documentation for API Endpoints
 
-All URIs are relative to *http://192.168.254.1:8203/api/judge*
+All URIs are relative to *http://172.19.0.8:8203/api/judge*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
@@ -57,9 +57,9 @@ Class | Method | HTTP request | Description
 ### Documentation For Models
 
  - [CodeTemplate](docs/CodeTemplate.md)
- - [DoJudgeRequest](docs/DoJudgeRequest.md)
  - [JudgeConfig](docs/JudgeConfig.md)
  - [JudgeInfo](docs/JudgeInfo.md)
+ - [JudgeRequest](docs/JudgeRequest.md)
  - [QuestionSubmitVO](docs/QuestionSubmitVO.md)
  - [QuestionVO](docs/QuestionVO.md)
  - [User](docs/User.md)

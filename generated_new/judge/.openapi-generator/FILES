@@ -7,10 +7,10 @@ base.ts
 common.ts
 configuration.ts
 docs/CodeTemplate.md
-docs/DoJudgeRequest.md
 docs/InnerJudgeControllerApi.md
 docs/JudgeConfig.md
 docs/JudgeInfo.md
+docs/JudgeRequest.md
 docs/QuestionSubmitVO.md
 docs/QuestionVO.md
 docs/User.md
@@ -18,10 +18,10 @@ docs/UserVO.md
 git_push.sh
 index.ts
 model/code-template.ts
-model/do-judge-request.ts
 model/index.ts
 model/judge-config.ts
 model/judge-info.ts
+model/judge-request.ts
 model/question-submit-vo.ts
 model/question-vo.ts
 model/user-vo.ts

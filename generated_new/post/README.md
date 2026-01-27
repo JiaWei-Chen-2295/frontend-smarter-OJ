@@ -47,7 +47,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 
 ### Documentation for API Endpoints
 
-All URIs are relative to *http://192.168.254.1:8204/api/post*
+All URIs are relative to *http://172.19.0.7:8204/api/post*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------

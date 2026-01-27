@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { DoJudgeRequest } from '../model';
+import type { JudgeRequest } from '../model';
 // @ts-ignore
 import type { QuestionSubmitVO } from '../model';
 /**
@@ -32,13 +32,13 @@ export const InnerJudgeControllerApiAxiosParamCreator = function (configuration?
     return {
         /**
          * 
-         * @param {DoJudgeRequest} doJudgeRequest 
+         * @param {JudgeRequest} judgeRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        doJudge: async (doJudgeRequest: DoJudgeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'doJudgeRequest' is not null or undefined
-            assertParamExists('doJudge', 'doJudgeRequest', doJudgeRequest)
+        doJudge: async (judgeRequest: JudgeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'judgeRequest' is not null or undefined
+            assertParamExists('doJudge', 'judgeRequest', judgeRequest)
             const localVarPath = `/inner/do`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -57,7 +57,7 @@ export const InnerJudgeControllerApiAxiosParamCreator = function (configuration?
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(doJudgeRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(judgeRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -75,12 +75,12 @@ export const InnerJudgeControllerApiFp = function(configuration?: Configuration)
     return {
         /**
          * 
-         * @param {DoJudgeRequest} doJudgeRequest 
+         * @param {JudgeRequest} judgeRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async doJudge(doJudgeRequest: DoJudgeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionSubmitVO>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.doJudge(doJudgeRequest, options);
+        async doJudge(judgeRequest: JudgeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuestionSubmitVO>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.doJudge(judgeRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['InnerJudgeControllerApi.doJudge']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -96,12 +96,12 @@ export const InnerJudgeControllerApiFactory = function (configuration?: Configur
     return {
         /**
          * 
-         * @param {DoJudgeRequest} doJudgeRequest 
+         * @param {JudgeRequest} judgeRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        doJudge(doJudgeRequest: DoJudgeRequest, options?: RawAxiosRequestConfig): AxiosPromise<QuestionSubmitVO> {
-            return localVarFp.doJudge(doJudgeRequest, options).then((request) => request(axios, basePath));
+        doJudge(judgeRequest: JudgeRequest, options?: RawAxiosRequestConfig): AxiosPromise<QuestionSubmitVO> {
+            return localVarFp.doJudge(judgeRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -112,12 +112,12 @@ export const InnerJudgeControllerApiFactory = function (configuration?: Configur
 export class InnerJudgeControllerApi extends BaseAPI {
     /**
      * 
-     * @param {DoJudgeRequest} doJudgeRequest 
+     * @param {JudgeRequest} judgeRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public doJudge(doJudgeRequest: DoJudgeRequest, options?: RawAxiosRequestConfig) {
-        return InnerJudgeControllerApiFp(this.configuration).doJudge(doJudgeRequest, options).then((request) => request(this.axios, this.basePath));
+    public doJudge(judgeRequest: JudgeRequest, options?: RawAxiosRequestConfig) {
+        return InnerJudgeControllerApiFp(this.configuration).doJudge(judgeRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

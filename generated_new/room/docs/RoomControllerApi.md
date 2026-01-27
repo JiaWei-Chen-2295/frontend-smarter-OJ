@@ -1,6 +1,6 @@
 # RoomControllerApi
 
-All URIs are relative to *http://192.168.254.1:8205/api/room*
+All URIs are relative to *http://172.19.0.4:8205/api/room*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|

@@ -26,6 +26,21 @@ interface JudgeResultCardProps {
 }
 
 // 状态图标和颜色相关函数
+// 辅助函数：尝试解析judgeInfo.message
+const parseJudgeMessage = (message?: string): string => {
+    if (!message) return '';
+    if (message.startsWith('{') || message.startsWith('[')) {
+        try {
+            const parsed = JSON.parse(message);
+            return parsed.message || message;
+        } catch {
+            return message;
+        }
+    }
+    return message;
+};
+
+// 状态图标和颜色相关函数
 const getStatusIconAndColor = (isJudging: boolean, submissionResult: any, judgeInfo: JudgeInfo | null) => {
     if (isJudging) return { icon: <SyncOutlined spin />, color: '#1890ff' };
 
@@ -34,9 +49,9 @@ const getStatusIconAndColor = (isJudging: boolean, submissionResult: any, judgeI
         // 如果有提交结果，根据status判断
         if (submissionResult && submissionResult.status !== undefined) {
             switch (submissionResult.status) {
-                case 1: // 成功
+                case 1: // 成功 (System flow success, not necessarily Accepted)
                     return { icon: <CheckCircleOutlined />, color: '#228B22' };
-                case 2: // 失败
+                case 2: // 失败 (System flow failed)
                     return { icon: <CloseCircleOutlined />, color: '#f5222d' };
                 case 3: // 进行中
                     return { icon: <SyncOutlined spin />, color: '#1890ff' };
@@ -48,21 +63,21 @@ const getStatusIconAndColor = (isJudging: boolean, submissionResult: any, judgeI
     }
 
     // 根据judgeInfo.message判断
-    switch (judgeInfo.message) {
-        case '成功':
-        case 'Accepted':
-            return { icon: <CheckCircleOutlined />, color: '#228B22' };
-        case '答案错误':
-        case 'Wrong Answer':
-            return { icon: <CloseCircleOutlined />, color: '#f5222d' };
-        case '内存超限':
-        case 'Memory Limit Exceeded':
-            return { icon: <WarningOutlined />, color: '#faad14' };
-        case '时间超限':
-        case 'Time Limit Exceeded':
-            return { icon: <WarningOutlined />, color: '#faad14' };
-        default:
-            return { icon: <InfoCircleOutlined />, color: '#228B22' };
+    const message = parseJudgeMessage(judgeInfo.message);
+
+    // 使用 includes 匹配，因为 message 可能是 "Wrong Answer on test 1"
+    if (message === 'Accepted' || message === '成功' || message.includes('Accepted')) {
+        return { icon: <CheckCircleOutlined />, color: '#228B22' };
+    } else if (message.includes('Wrong Answer') || message === '答案错误') {
+        return { icon: <CloseCircleOutlined />, color: '#f5222d' };
+    } else if (message.includes('Memory Limit Exceeded') || message === '内存超限') {
+        return { icon: <WarningOutlined />, color: '#faad14' };
+    } else if (message.includes('Time Limit Exceeded') || message === '时间超限') {
+        return { icon: <WarningOutlined />, color: '#faad14' };
+    } else if (message.includes('Compilation Error') || message === '编译错误') {
+        return { icon: <CloseCircleOutlined />, color: '#f5222d' };
+    } else {
+        return { icon: <InfoCircleOutlined />, color: '#228B22' };
     }
 };
 
@@ -72,14 +87,14 @@ const getJudgeStatusMessage = (isJudging: boolean, submissionResult: any, judgeI
 
     // 如果judgeInfo有message，直接返回
     if (judgeInfo && judgeInfo.message) {
-        return judgeInfo.message;
+        return parseJudgeMessage(judgeInfo.message);
     }
 
     // 如果judgeInfo为空，但有提交状态，根据状态返回消息
     if (submissionResult && submissionResult.status !== undefined) {
         switch (submissionResult.status) {
             case 0: return '等待判题';
-            case 1: return '判题成功';
+            case 1: return '判题完成'; // Changed from '判题成功' to avoid confusion with Accepted
             case 2: return '判题失败';
             case 3: return '判题中';
             default: return '判题完成';
@@ -103,6 +118,11 @@ const JudgeResultCard: React.FC<JudgeResultCardProps> = ({
 
     // 格式化输出结果
     const formatOutputResult = () => {
+        // 优先检查 submissionResult.outputList (Users provided JSON structure)
+        if (submissionResult && Array.isArray(submissionResult.outputList)) {
+            return submissionResult.outputList;
+        }
+
         if (!submissionResult || !submissionResult.outputResult) return [];
 
         try {

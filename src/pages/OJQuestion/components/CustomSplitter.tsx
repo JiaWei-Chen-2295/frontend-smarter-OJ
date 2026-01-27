@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Select, Space, message as messageService, ConfigProvider, Layout } from "antd";
+import { Button, Select, Space, message as messageService, ConfigProvider, Layout, Tabs } from "antd";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
 import type { QuestionVO, JudgeInfo, QuestionSubmitVO } from "../../../../generated_new/question";
@@ -14,6 +14,7 @@ import {
 } from "@ant-design/icons";
 import MojoCarrot from "../../../components/MojoCarrot";
 import JudgeResultCard from "./judge/JudgeResultCard";
+import SubmissionHistory from "./SubmissionHistory";
 
 const { Sider, Content } = Layout;
 const { Option } = Select;
@@ -494,6 +495,44 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
                     background-color: #1a6b1a;
                 }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background-color: #1a6b1a;
+                }
+
+                /* Tabs custom styles */
+                .ant-tabs-nav {
+                    margin-bottom: 0 !important;
+                    padding: 0 16px; 
+                    border-bottom: 1px solid #303030;
+                }
+                .ant-tabs-tab {
+                    color: #a6a6a6 !important;
+                }
+                .ant-tabs-tab-active .ant-tabs-tab-btn {
+                    color: #228B22 !important;
+                }
+                .ant-tabs-ink-bar {
+                    background-color: #228B22 !important;
+                }
+                
+                /* Ensure tabs fill height and content scrolls */
+                .ant-tabs {
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .ant-tabs-content-holder {
+                    flex: 1;
+                    min-height: 0;
+                    overflow: hidden;
+                }
+                .ant-tabs-content {
+                    height: 100%;
+                }
+                .ant-tabs-tabpane {
+                    height: 100%;
+                    padding: 0 !important;
+                }
                 `}
             </style>
 
@@ -511,28 +550,51 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                                     题目详情
                                 </span>
                             </div>
-                            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar rounded-lg border border-[#232323] bg-[#171717]/60 p-3 shadow-[0_0_0_1px_rgba(34,139,34,0.08)]">
-                                <div className="prose prose-invert max-w-none">
-                                    <Veditor
-                                        value={question?.content || ''}
-                                        className="bg-transparent"
-                                    />
-                                </div>
-                                {question?.tags && question.tags.length > 0 && (
-                                    <div className="mt-4 rounded-lg border border-[#232323] bg-[#151515] p-3">
-                                        <h2 className="text-xs font-semibold text-white mb-2">标签</h2>
-                                        <div className="flex flex-wrap gap-2">
-                                            {question.tags.map((tag, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="px-2 py-1 bg-[#303030] text-gray-300 rounded text-[10px] border border-[#3a3a3a]"
-                                                >
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-[#232323] bg-[#171717]/60 shadow-[0_0_0_1px_rgba(34,139,34,0.08)]">
+                                <Tabs
+                                    defaultActiveKey="1"
+                                    className="h-full"
+                                    items={[
+                                        {
+                                            key: '1',
+                                            label: '题目描述',
+                                            children: (
+                                                <div className="h-full overflow-auto custom-scrollbar p-3">
+                                                    <div className="prose prose-invert max-w-none">
+                                                        <Veditor
+                                                            value={question?.content || ''}
+                                                            className="bg-transparent"
+                                                        />
+                                                    </div>
+                                                    {question?.tags && question.tags.length > 0 && (
+                                                        <div className="mt-4 rounded-lg border border-[#232323] bg-[#151515] p-3">
+                                                            <h2 className="text-xs font-semibold text-white mb-2">标签</h2>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {question.tags.map((tag, index) => (
+                                                                    <span
+                                                                        key={index}
+                                                                        className="px-2 py-1 bg-[#303030] text-gray-300 rounded text-[10px] border border-[#3a3a3a]"
+                                                                    >
+                                                                        {tag}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        },
+                                        {
+                                            key: '2',
+                                            label: '提交记录',
+                                            children: (
+                                                <div className="h-full overflow-auto custom-scrollbar p-3">
+                                                    <SubmissionHistory questionId={question?.id} />
+                                                </div>
+                                            )
+                                        }
+                                    ]}
+                                />
                             </div>
                         </div>
                     </Sider>
@@ -558,28 +620,51 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                                         题目详情
                                     </span>
                                 </div>
-                                <div className="flex-1 min-h-0 overflow-auto custom-scrollbar rounded-lg border border-[#232323] bg-[#171717]/60 p-4 shadow-[0_0_0_1px_rgba(34,139,34,0.08)]">
-                                    <div className="prose prose-invert max-w-none">
-                                        <Veditor
-                                            value={question?.content || ''}
-                                            className="bg-transparent"
-                                        />
-                                    </div>
-                                    {question?.tags && question.tags.length > 0 && (
-                                        <div className="mt-6 rounded-lg border border-[#232323] bg-[#151515] p-3">
-                                            <h2 className="text-sm font-semibold text-white mb-2">标签</h2>
-                                            <div className="flex flex-wrap gap-2">
-                                                {question.tags.map((tag, index) => (
-                                                    <span
-                                                        key={index}
-                                                        className="px-2 py-1 bg-[#303030] text-gray-300 rounded text-xs border border-[#3a3a3a]"
-                                                    >
-                                                        {tag}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
+                                <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-[#232323] bg-[#171717]/60 shadow-[0_0_0_1px_rgba(34,139,34,0.08)]">
+                                    <Tabs
+                                        defaultActiveKey="1"
+                                        className="h-full"
+                                        items={[
+                                            {
+                                                key: '1',
+                                                label: '题目描述',
+                                                children: (
+                                                    <div className="h-full overflow-auto custom-scrollbar p-4">
+                                                        <div className="prose prose-invert max-w-none">
+                                                            <Veditor
+                                                                value={question?.content || ''}
+                                                                className="bg-transparent"
+                                                            />
+                                                        </div>
+                                                        {question?.tags && question.tags.length > 0 && (
+                                                            <div className="mt-6 rounded-lg border border-[#232323] bg-[#151515] p-3">
+                                                                <h2 className="text-sm font-semibold text-white mb-2">标签</h2>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {question.tags.map((tag, index) => (
+                                                                        <span
+                                                                            key={index}
+                                                                            className="px-2 py-1 bg-[#303030] text-gray-300 rounded text-xs border border-[#3a3a3a]"
+                                                                        >
+                                                                            {tag}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            },
+                                            {
+                                                key: '2',
+                                                label: '提交记录',
+                                                children: (
+                                                    <div className="h-full overflow-auto custom-scrollbar p-4">
+                                                        <SubmissionHistory questionId={question?.id} />
+                                                    </div>
+                                                )
+                                            }
+                                        ]}
+                                    />
                                 </div>
                             </div>
                         </Sider>

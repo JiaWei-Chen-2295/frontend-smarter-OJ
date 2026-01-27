@@ -47,7 +47,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 
 ### Documentation for API Endpoints
 
-All URIs are relative to *http://192.168.254.1:8201/api/user*
+All URIs are relative to *http://172.19.0.3:8201/api/user*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------

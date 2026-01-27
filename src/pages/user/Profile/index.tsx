@@ -11,6 +11,7 @@ import type { QuestionSubmitVO } from '../../../../generated_new/question';
 import { FileControllerService } from '../../../../generated/services/FileControllerService';
 import { createPost, thumbPost, favourPost, getMyPosts } from '../../../services/postService';
 import MarkDownNewEditor from '../../../components/MarkDownNewEditor';
+import Heatmap from '../../../components/Heatmap';
 
 import './index.css';
 
@@ -361,6 +362,9 @@ const Profile = () => {
                 label: '提交记录',
                 children: (
                   <div className="submissions-list">
+                    <div style={{ marginBottom: 24 }}>
+                      <Heatmap range="year" />
+                    </div>
                     <List
                       loading={submissionsLoading}
                       dataSource={submissions}

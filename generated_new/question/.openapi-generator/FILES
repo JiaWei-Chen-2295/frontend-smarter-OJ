@@ -2,8 +2,8 @@
 .npmignore
 README.md
 api.ts
+api/default-api.ts
 api/inner-question-controller-api.ts
-api/question-controller-api.ts
 api/question-set-controller-api.ts
 base.ts
 common.ts
@@ -21,7 +21,10 @@ docs/BaseResponseQuestionSet.md
 docs/BaseResponseQuestionSetVO.md
 docs/BaseResponseQuestionSubmitVO.md
 docs/BaseResponseQuestionVO.md
+docs/BaseResponseSubmitHeatmapVO.md
 docs/CodeTemplate.md
+docs/DailySubmitCount.md
+docs/DefaultApi.md
 docs/DeleteRequest.md
 docs/InnerQuestionControllerApi.md
 docs/JudgeCase.md
@@ -35,7 +38,6 @@ docs/PageQuestionSubmitVO.md
 docs/PageQuestionVO.md
 docs/Question.md
 docs/QuestionAddRequest.md
-docs/QuestionControllerApi.md
 docs/QuestionEditRequest.md
 docs/QuestionQueryRequest.md
 docs/QuestionSet.md
@@ -53,6 +55,7 @@ docs/QuestionSubmitQueryRequest.md
 docs/QuestionSubmitVO.md
 docs/QuestionUpdateRequest.md
 docs/QuestionVO.md
+docs/SubmitHeatmapVO.md
 docs/User.md
 docs/UserVO.md
 git_push.sh
@@ -70,7 +73,9 @@ model/base-response-question-set.ts
 model/base-response-question-submit-vo.ts
 model/base-response-question-vo.ts
 model/base-response-question.ts
+model/base-response-submit-heatmap-vo.ts
 model/code-template.ts
+model/daily-submit-count.ts
 model/delete-request.ts
 model/index.ts
 model/judge-case.ts
@@ -100,6 +105,7 @@ model/question-submit.ts
 model/question-update-request.ts
 model/question-vo.ts
 model/question.ts
+model/submit-heatmap-vo.ts
 model/user-vo.ts
 model/user.ts
 package.json
