@@ -52,6 +52,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
     const codeByLanguageRef = useRef<Record<string, string>>({});
     const lastQuestionIdRef = useRef<string | undefined>(undefined);
     const [isMobile, setIsMobile] = useState(false);
+    const [mobileTab, setMobileTab] = useState<'question' | 'code'>('question');
     const [availableHeight, setAvailableHeight] = useState(() => Math.max(window.innerHeight - 64, 360));
     const getStorageKey = useCallback((questionId: string, language: string) => {
         return `oj:question:${questionId}:lang:${language}`;
@@ -444,6 +445,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 judgeProgress={judgeProgress}
                 solvingTime={solvingTime}
                 expectedOutputs={expectedOutputs}
+                isMobile={isMobile}
             />
 
 
@@ -537,86 +539,30 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
             </style>
 
             <Layout className={`bg-[#141414] overflow-hidden min-h-0 ${isMobile ? 'flex flex-col' : ''}`} style={{ height: availableHeight }}>
-                {isMobile ? (
-                    <Sider
-                        width="100%"
-                        className="bg-[#141414] border-b border-[#303030] w-full overflow-hidden"
-                        style={{ height: Math.round(availableHeight * 0.45) }}
-                    >
-                        <div className="h-full p-3 flex flex-col gap-3 min-h-0">
-                            <div className="flex items-center justify-between gap-2">
-                                <h1 className="text-base font-bold text-white truncate">{question?.title}</h1>
-                                <span className="text-[10px] text-[#8a8a8a] bg-[#1f1f1f] border border-[#303030] rounded-full px-2 py-1">
-                                    题目详情
-                                </span>
-                            </div>
-                            <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-[#232323] bg-[#171717]/60 shadow-[0_0_0_1px_rgba(34,139,34,0.08)]">
-                                <Tabs
-                                    defaultActiveKey="1"
-                                    className="h-full"
-                                    items={[
-                                        {
-                                            key: '1',
-                                            label: '题目描述',
-                                            children: (
-                                                <div className="h-full overflow-auto custom-scrollbar p-3">
-                                                    <div className="prose prose-invert max-w-none">
-                                                        <Veditor
-                                                            value={question?.content || ''}
-                                                            className="bg-transparent"
-                                                        />
-                                                    </div>
-                                                    {question?.tags && question.tags.length > 0 && (
-                                                        <div className="mt-4 rounded-lg border border-[#232323] bg-[#151515] p-3">
-                                                            <h2 className="text-xs font-semibold text-white mb-2">标签</h2>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {question.tags.map((tag, index) => (
-                                                                    <span
-                                                                        key={index}
-                                                                        className="px-2 py-1 bg-[#303030] text-gray-300 rounded text-[10px] border border-[#3a3a3a]"
-                                                                    >
-                                                                        {tag}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )
-                                        },
-                                        {
-                                            key: '2',
-                                            label: '提交记录',
-                                            children: (
-                                                <div className="h-full overflow-auto custom-scrollbar p-3">
-                                                    <SubmissionHistory questionId={question?.id} />
-                                                </div>
-                                            )
-                                        }
-                                    ]}
-                                />
-                            </div>
-                        </div>
-                    </Sider>
-                ) : (
-                    <ResizableBox
-                        width={width}
-                        height={availableHeight}
-                        minConstraints={[300, Infinity]}
-                        maxConstraints={[1200, Infinity]}
-                        onResize={handleResize}
-                        handle={
-                            <div className="w-1 h-full bg-[#303030] cursor-col-resize absolute right-0 top-0 transition-colors duration-300 hover:bg-[#228B22]" />
-                        }
-                    >
-                        <Sider
-                            width={width}
-                            className="bg-[#141414] border-r border-[#303030] h-full overflow-hidden"
+                {isMobile && (
+                    <div className="flex bg-[#141414] border-b border-[#303030] shrink-0 h-10">
+                        <div 
+                            className={`flex-1 flex items-center justify-center cursor-pointer transition-colors ${mobileTab === 'question' ? 'text-[#228B22] border-b-2 border-[#228B22] font-medium bg-[#1a1a1a]' : 'text-gray-400 hover:text-gray-200 bg-[#141414]'}`}
+                            onClick={() => setMobileTab('question')}
                         >
-                            <div className="h-full p-4 flex flex-col gap-4 min-h-0">
-                                <div className="flex items-center justify-between">
-                                    <h1 className="text-xl font-bold text-white">{question?.title}</h1>
-                                    <span className="text-xs text-[#8a8a8a] bg-[#1f1f1f] border border-[#303030] rounded-full px-3 py-1">
+                            题目描述
+                        </div>
+                        <div 
+                            className={`flex-1 flex items-center justify-center cursor-pointer transition-colors ${mobileTab === 'code' ? 'text-[#228B22] border-b-2 border-[#228B22] font-medium bg-[#1a1a1a]' : 'text-gray-400 hover:text-gray-200 bg-[#141414]'}`}
+                            onClick={() => setMobileTab('code')}
+                        >
+                            代码编辑
+                        </div>
+                    </div>
+                )}
+
+                {(!isMobile || mobileTab === 'question') && (
+                    isMobile ? (
+                        <div className="flex-1 overflow-hidden min-h-0 relative">
+                             <div className="absolute inset-0 p-3 flex flex-col gap-3 min-h-0">
+                                <div className="flex items-center justify-between gap-2">
+                                    <h1 className="text-base font-bold text-white truncate">{question?.title}</h1>
+                                    <span className="text-[10px] text-[#8a8a8a] bg-[#1f1f1f] border border-[#303030] rounded-full px-2 py-1">
                                         题目详情
                                     </span>
                                 </div>
@@ -629,7 +575,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                                                 key: '1',
                                                 label: '题目描述',
                                                 children: (
-                                                    <div className="h-full overflow-auto custom-scrollbar p-4">
+                                                    <div className="h-full overflow-auto custom-scrollbar p-3">
                                                         <div className="prose prose-invert max-w-none">
                                                             <Veditor
                                                                 value={question?.content || ''}
@@ -637,13 +583,13 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                                                             />
                                                         </div>
                                                         {question?.tags && question.tags.length > 0 && (
-                                                            <div className="mt-6 rounded-lg border border-[#232323] bg-[#151515] p-3">
-                                                                <h2 className="text-sm font-semibold text-white mb-2">标签</h2>
+                                                            <div className="mt-4 rounded-lg border border-[#232323] bg-[#151515] p-3">
+                                                                <h2 className="text-xs font-semibold text-white mb-2">标签</h2>
                                                                 <div className="flex flex-wrap gap-2">
                                                                     {question.tags.map((tag, index) => (
                                                                         <span
                                                                             key={index}
-                                                                            className="px-2 py-1 bg-[#303030] text-gray-300 rounded text-xs border border-[#3a3a3a]"
+                                                                            className="px-2 py-1 bg-[#303030] text-gray-300 rounded text-[10px] border border-[#3a3a3a]"
                                                                         >
                                                                             {tag}
                                                                         </span>
@@ -658,7 +604,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                                                 key: '2',
                                                 label: '提交记录',
                                                 children: (
-                                                    <div className="h-full overflow-auto custom-scrollbar p-4">
+                                                    <div className="h-full overflow-auto custom-scrollbar p-3">
                                                         <SubmissionHistory questionId={question?.id} />
                                                     </div>
                                                 )
@@ -667,51 +613,129 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                                     />
                                 </div>
                             </div>
-                        </Sider>
-                    </ResizableBox>
+                        </div>
+                    ) : (
+                        <ResizableBox
+                            width={width}
+                            height={availableHeight}
+                            minConstraints={[300, Infinity]}
+                            maxConstraints={[1200, Infinity]}
+                            onResize={handleResize}
+                            handle={
+                                <div className="w-1 h-full bg-[#303030] cursor-col-resize absolute right-0 top-0 transition-colors duration-300 hover:bg-[#228B22]" />
+                            }
+                        >
+                            <Sider
+                                width={width}
+                                className="bg-[#141414] border-r border-[#303030] h-full overflow-hidden"
+                            >
+                                <div className="h-full p-4 flex flex-col gap-4 min-h-0">
+                                    <div className="flex items-center justify-between">
+                                        <h1 className="text-xl font-bold text-white">{question?.title}</h1>
+                                        <span className="text-xs text-[#8a8a8a] bg-[#1f1f1f] border border-[#303030] rounded-full px-3 py-1">
+                                            题目详情
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-[#232323] bg-[#171717]/60 shadow-[0_0_0_1px_rgba(34,139,34,0.08)]">
+                                        <Tabs
+                                            defaultActiveKey="1"
+                                            className="h-full"
+                                            items={[
+                                                {
+                                                    key: '1',
+                                                    label: '题目描述',
+                                                    children: (
+                                                        <div className="h-full overflow-auto custom-scrollbar p-4">
+                                                            <div className="prose prose-invert max-w-none">
+                                                                <Veditor
+                                                                    value={question?.content || ''}
+                                                                    className="bg-transparent"
+                                                                />
+                                                            </div>
+                                                            {question?.tags && question.tags.length > 0 && (
+                                                                <div className="mt-6 rounded-lg border border-[#232323] bg-[#151515] p-3">
+                                                                    <h2 className="text-sm font-semibold text-white mb-2">标签</h2>
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        {question.tags.map((tag, index) => (
+                                                                            <span
+                                                                                key={index}
+                                                                                className="px-2 py-1 bg-[#303030] text-gray-300 rounded text-xs border border-[#3a3a3a]"
+                                                                            >
+                                                                                {tag}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                },
+                                                {
+                                                    key: '2',
+                                                    label: '提交记录',
+                                                    children: (
+                                                        <div className="h-full overflow-auto custom-scrollbar p-4">
+                                                            <SubmissionHistory questionId={question?.id} />
+                                                        </div>
+                                                    )
+                                                }
+                                            ]}
+                                        />
+                                    </div>
+                                </div>
+                            </Sider>
+                        </ResizableBox>
+                    )
                 )}
-                <Content
-                    className={`bg-[#141414] ${isMobile ? 'px-3 pb-3 pt-2' : 'p-4'} flex-grow overflow-hidden min-h-0`}
-                    style={isMobile ? { height: Math.round(availableHeight * 0.55) } : undefined}
-                >
-                    <div className={`h-full bg-[#1b1b1b] rounded-xl ${isMobile ? 'p-3' : 'p-4'} border border-[#232323] shadow-[0_0_0_1px_rgba(34,139,34,0.08)] flex flex-col gap-4 min-h-0`}>
-                        <div className="flex items-center justify-between">
-                            <Space>
-                                <Select
-                                    value={currentLanguage}
-                                    onChange={handleLanguageChange}
-                                    style={{ width: isMobile ? 100 : 120 }}
-                                    className="[&_.ant-select-selector]:bg-[#303030] [&_.ant-select-selector]:border-[#404040] [&_.ant-select-selection-item]:text-white [&_.ant-select-arrow]:text-white hover:[&_.ant-select-selector]:border-[#228B22] [&_.ant-select-dropdown]:bg-[#1e1e1e] [&_.ant-select-dropdown]:border-[#303030] [&_.ant-select-item]:text-white hover:[&_.ant-select-item]:bg-[#303030] [&_.ant-select-item-option-selected]:bg-[#228B22] [&_.ant-select-item-option-selected]:text-white [&_.ant-select-item-option-active]:bg-[#303030] [&_.ant-select-item-option-search]:text-white [&_.ant-select-item-option-search_input]:bg-[#303030] [&_.ant-select-item-option-search_input]:text-white [&_.ant-select-item-option-search_input]:border-[#404040] focus:[&_.ant-select-item-option-search_input]:border-[#228B22] focus:[&_.ant-select-item-option-search_input]:shadow-[0_0_0_2px_rgba(34,139,34,0.2)]"
-                                    popupClassName="bg-[#1e1e1e] border border-[#303030]"
-                                    optionFilterProp="children"
-                                >
-                                    {SUPPORTED_LANGUAGES.map(lang => (
-                                        <Option
-                                            key={lang.value}
-                                            value={lang.value}
-                                            className="text-white hover:bg-[#303030] data-[selected=true]:bg-[#228B22] data-[selected=true]:text-white"
+
+                {(!isMobile || mobileTab === 'code') && (
+                    <Content
+                        className={`bg-[#141414] ${isMobile ? 'px-3 pb-3 pt-2' : 'p-4'} flex-grow overflow-hidden min-h-0`}
+                        style={isMobile ? { height: '100%' } : undefined}
+                    >
+                        <div className={`h-full bg-[#1b1b1b] rounded-xl ${isMobile ? 'p-3' : 'p-4'} border border-[#232323] shadow-[0_0_0_1px_rgba(34,139,34,0.08)] flex flex-col gap-4 min-h-0`}>
+                            <div className={`flex items-center justify-between ${isMobile ? 'flex-wrap gap-2' : ''}`}>
+                                <Space className={isMobile ? 'w-full justify-between' : ''}>
+                                    <Select
+                                        value={currentLanguage}
+                                        onChange={handleLanguageChange}
+                                        style={{ width: isMobile ? 100 : 120 }}
+                                        className="[&_.ant-select-selector]:bg-[#303030] [&_.ant-select-selector]:border-[#404040] [&_.ant-select-selection-item]:text-white [&_.ant-select-arrow]:text-white hover:[&_.ant-select-selector]:border-[#228B22] [&_.ant-select-dropdown]:bg-[#1e1e1e] [&_.ant-select-dropdown]:border-[#303030] [&_.ant-select-item]:text-white hover:[&_.ant-select-item]:bg-[#303030] [&_.ant-select-item-option-selected]:bg-[#228B22] [&_.ant-select-item-option-selected]:text-white [&_.ant-select-item-option-active]:bg-[#303030] [&_.ant-select-item-option-search]:text-white [&_.ant-select-item-option-search_input]:bg-[#303030] [&_.ant-select-item-option-search_input]:text-white [&_.ant-select-item-option-search_input]:border-[#404040] focus:[&_.ant-select-item-option-search_input]:border-[#228B22] focus:[&_.ant-select-item-option-search_input]:shadow-[0_0_0_2px_rgba(34,139,34,0.2)]"
+                                        popupClassName="bg-[#1e1e1e] border border-[#303030]"
+                                        optionFilterProp="children"
+                                    >
+                                        {SUPPORTED_LANGUAGES.map(lang => (
+                                            <Option
+                                                key={lang.value}
+                                                value={lang.value}
+                                                className="text-white hover:bg-[#303030] data-[selected=true]:bg-[#228B22] data-[selected=true]:text-white"
+                                            >
+                                                {lang.label}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            icon={<FormatPainterOutlined />}
+                                            onClick={handleFormatCode}
+                                            className="bg-[#303030] text-white hover:bg-[#404040]"
+                                            size={isMobile ? 'small' : 'middle'}
                                         >
-                                            {lang.label}
-                                        </Option>
-                                    ))}
-                                </Select>
-                                <Button
-                                    icon={<FormatPainterOutlined />}
-                                    onClick={handleFormatCode}
-                                    className="bg-[#303030] text-white hover:bg-[#404040]"
-                                >
-                                    格式化代码
-                                </Button>
-                                <Button
-                                    icon={<SendOutlined />}
-                                    onClick={handleSubmitCode}
-                                    className="bg-[#228B22] text-white hover:bg-[#1a6b1a]"
-                                >
-                                    提交代码
-                                </Button>
+                                            {isMobile ? '' : '格式化代码'}
+                                        </Button>
+                                        <Button
+                                            icon={<SendOutlined />}
+                                            onClick={handleSubmitCode}
+                                            className="bg-[#228B22] text-white hover:bg-[#1a6b1a]"
+                                            size={isMobile ? 'small' : 'middle'}
+                                        >
+                                            {isMobile ? '提交' : '提交代码'}
+                                        </Button>
+                                    </div>
+                                </Space>
 
 
-                                <div className={`solve-qustion-time-counter bg-[#252525] rounded-lg border border-[#404040] flex items-center ${isMobile ? 'px-3 py-2 ml-2' : 'px-4 py-2 ml-4'}`}>
+                                <div className={`solve-qustion-time-counter bg-[#252525] rounded-lg border border-[#404040] flex items-center ${isMobile ? 'w-full justify-between px-3 py-2 mt-2' : 'px-4 py-2 ml-4'}`}>
                                     <div className="flex flex-col items-center">
                                         <span className="text-gray-300 text-xs mb-1">已用时间</span>
                                         <div className="flex items-center">
@@ -731,27 +755,29 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                                     </div>
                                 </div>
 
-                            </Space>
-                            <div className="text-xs text-[#8a8a8a] bg-[#1f1f1f] border border-[#303030] rounded-full px-3 py-1">
-                                代码编辑区
+                                {!isMobile && (
+                                    <div className="text-xs text-[#8a8a8a] bg-[#1f1f1f] border border-[#303030] rounded-full px-3 py-1">
+                                        代码编辑区
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                        <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-[#232323] bg-[#141414]">
-                            <div className="h-full custom-scrollbar overflow-hidden">
-                                <div style={{ position: 'relative', height: '100%' }}>
-                                    <CodeEditor
-                                        ref={codeEditorRef}
-                                        language={currentLanguage}
-                                        onChange={handleCodeChange}
-                                        defaultValue={editorCode}
-                                        fontSize={fontSize}
-                                    />
+                            <div className="flex-1 min-h-0 overflow-hidden rounded-lg border border-[#232323] bg-[#141414]">
+                                <div className="h-full custom-scrollbar overflow-hidden">
+                                    <div style={{ position: 'relative', height: '100%' }}>
+                                        <CodeEditor
+                                            ref={codeEditorRef}
+                                            language={currentLanguage}
+                                            onChange={handleCodeChange}
+                                            defaultValue={editorCode}
+                                            fontSize={fontSize}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                    </div>
-                </Content>
+                        </div>
+                    </Content>
+                )}
             </Layout>
         </ConfigProvider>
     );

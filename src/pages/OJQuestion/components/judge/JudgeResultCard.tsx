@@ -23,6 +23,7 @@ interface JudgeResultCardProps {
     judgeProgress: number;
     solvingTime: number;
     expectedOutputs: string[];
+    isMobile?: boolean;
 }
 
 // 状态图标和颜色相关函数
@@ -112,7 +113,8 @@ const JudgeResultCard: React.FC<JudgeResultCardProps> = ({
     isJudging,
     judgeProgress,
     solvingTime,
-    expectedOutputs
+    expectedOutputs,
+    isMobile = false
 }) => {
     const statusInfo = getStatusIconAndColor(isJudging, submissionResult, judgeInfo);
 
@@ -188,19 +190,28 @@ const JudgeResultCard: React.FC<JudgeResultCardProps> = ({
             open={open}
             onCancel={onCancel}
             footer={null}
-            width={700}
+            width={isMobile ? '100%' : 700}
             style={{
-                top: 20
+                top: isMobile ? 0 : 20,
+                margin: isMobile ? 0 : undefined,
+                maxWidth: '100%'
             }}
+            className={`dark-modal ${isMobile ? 'full-screen-modal' : ''}`}
             styles={{
                 body: {
                     backgroundColor: '#141414',
                     color: 'white',
-                    padding: '20px',
+                    padding: isMobile ? '16px' : '20px',
+                    height: isMobile ? 'calc(100vh - 55px)' : 'auto',
+                    overflowY: 'auto'
                 },
+                content: {
+                    backgroundColor: '#141414',
+                    height: isMobile ? '100vh' : 'auto',
+                    borderRadius: isMobile ? 0 : undefined
+                }
             }}
             maskClosable={!isJudging}
-            className="dark-modal"
         >
             {isJudging ? (
                 <JudgingInProgress judgeProgress={judgeProgress} />

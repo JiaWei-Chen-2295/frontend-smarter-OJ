@@ -95,14 +95,14 @@ function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionL
 
     return (
         <div className="h-screen overflow-hidden bg-[#1a1a1a]">
-            <Header className="bg-[#141414] border-b border-[#228B22]/20 px-6 flex items-center justify-between" style={{ position: 'sticky', top: 0, zIndex: 1000, height: 64, lineHeight: '64px' }}>
+            <Header className="bg-[#141414] border-b border-[#228B22]/20 px-4 sm:px-6 flex items-center justify-between" style={{ position: 'sticky', top: 0, zIndex: 1000, height: 64, lineHeight: '64px' }}>
                 <Link to="/" className="flex items-center gap-2">
-                    <HomeOutlined className="text-[#228B22] text-2xl" />
-                    <span className="text-[#228B22] font-bold text-xl hidden sm:inline">SmarterOJ</span>
+                    <HomeOutlined className="text-[#228B22] text-xl sm:text-2xl" />
+                    <span className="text-[#228B22] font-bold text-xl hidden md:inline">SmarterOJ</span>
                 </Link>
 
-                <Space size="large" className="flex-1 justify-center">
-                    <Space size="middle">
+                <Space size="middle" className="flex-1 justify-center overflow-hidden px-2">
+                    <Space size="small" className="overflow-x-auto no-scrollbar">
                         <Tooltip title="运行代码 (Ctrl + Enter)">
                             <Button
                                 type="primary"
@@ -130,9 +130,9 @@ function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionL
                         </Tooltip>
                     </Space>
 
-                    <Divider type="vertical" style={{ height: 24, margin: '0 8px' }} className="bg-[#228B22]/20" />
+                    <Divider type="vertical" style={{ height: 24, margin: '0 8px' }} className="bg-[#228B22]/20 hidden sm:block" />
 
-                    <Space size="small">
+                    <Space size="small" className="hidden sm:flex">
                         <Tooltip title="调试代码 (F5)">
                             <Button
                                 type="text"
@@ -156,27 +156,29 @@ function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionL
                 </Space>
 
                 <Space size="small">
-                    <Tooltip title="题目描述">
-                        <Button
-                            type="text"
-                            size="middle"
-                            icon={<FileTextOutlined style={{ fontSize: 16 }} />}
-                            className="text-[#228B22] hover:bg-[#228B22]/10"
-                            style={{ height: 32, width: 32 }}
-                        />
-                    </Tooltip>
+                    <div className="hidden sm:flex">
+                        <Tooltip title="题目描述">
+                            <Button
+                                type="text"
+                                size="middle"
+                                icon={<FileTextOutlined style={{ fontSize: 16 }} />}
+                                className="text-[#228B22] hover:bg-[#228B22]/10"
+                                style={{ height: 32, width: 32 }}
+                            />
+                        </Tooltip>
 
-                    <Tooltip title="帮助文档">
-                        <Button
-                            type="text"
-                            size="middle"
-                            icon={<QuestionCircleOutlined style={{ fontSize: 16 }} />}
-                            className="text-[#228B22] hover:bg-[#228B22]/10"
-                            style={{ height: 32, width: 32 }}
-                        />
-                    </Tooltip>
+                        <Tooltip title="帮助文档">
+                            <Button
+                                type="text"
+                                size="middle"
+                                icon={<QuestionCircleOutlined style={{ fontSize: 16 }} />}
+                                className="text-[#228B22] hover:bg-[#228B22]/10"
+                                style={{ height: 32, width: 32 }}
+                            />
+                        </Tooltip>
+                    </div>
 
-                    <Divider type="vertical" style={{ height: 24, margin: '0 8px' }} className="bg-[#228B22]/20" />
+                    <Divider type="vertical" style={{ height: 24, margin: '0 8px' }} className="bg-[#228B22]/20 hidden sm:block" />
 
                     <Tooltip title="编辑器设置">
                         <Button
@@ -191,10 +193,9 @@ function QuestionLayout({ children, fontSize = 14, onFontSizeChange }: QuestionL
 
                     <Dropdown menu={{ items: userMenuItems, onClick: handleMenuClick }} placement="bottomRight">
                         <Avatar
-                            size={40}
+                            size={32}
                             src={currentUser?.userAvatar || "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png"}
-                            className="cursor-pointer border-2 border-[#228B22]/50 hover:scale-105 transition-transform"
-                            style={{ marginLeft: 8 }}
+                            className="cursor-pointer border-2 border-[#228B22]/50 hover:scale-105 transition-transform ml-2"
                         />
                     </Dropdown>
 
