@@ -47,7 +47,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 
 ### Documentation for API Endpoints
 
-All URIs are relative to *http://172.19.0.6:8202*
+All URIs are relative to *http://172.24.80.1:8202/api/question*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
@@ -61,6 +61,7 @@ Class | Method | HTTP request | Description
 *DefaultApi* | [**getQuestionVOById**](docs/DefaultApi.md#getquestionvobyid) | **GET** /get/vo | 
 *DefaultApi* | [**getSubmit**](docs/DefaultApi.md#getsubmit) | **GET** /submit/getSubmitStatus | 
 *DefaultApi* | [**getSubmitHeatmap**](docs/DefaultApi.md#getsubmitheatmap) | **GET** /submit/heatmap | 获取用户提交热力图
+*DefaultApi* | [**importQuestions**](docs/DefaultApi.md#importquestions) | **POST** /import | 批量导入题目
 *DefaultApi* | [**listMyQuestionVOByPage**](docs/DefaultApi.md#listmyquestionvobypage) | **POST** /my/list/page/vo | 
 *DefaultApi* | [**listQuestionByPage**](docs/DefaultApi.md#listquestionbypage) | **POST** /list/page | 
 *DefaultApi* | [**listQuestionSubmitByPage**](docs/DefaultApi.md#listquestionsubmitbypage) | **POST** /submit/admin/page | 
@@ -96,6 +97,7 @@ Class | Method | HTTP request | Description
  - [BaseResponsePageQuestionSubmitVO](docs/BaseResponsePageQuestionSubmitVO.md)
  - [BaseResponsePageQuestionVO](docs/BaseResponsePageQuestionVO.md)
  - [BaseResponseQuestion](docs/BaseResponseQuestion.md)
+ - [BaseResponseQuestionBatchImportResponse](docs/BaseResponseQuestionBatchImportResponse.md)
  - [BaseResponseQuestionSet](docs/BaseResponseQuestionSet.md)
  - [BaseResponseQuestionSetVO](docs/BaseResponseQuestionSetVO.md)
  - [BaseResponseQuestionSubmitVO](docs/BaseResponseQuestionSubmitVO.md)
@@ -115,7 +117,9 @@ Class | Method | HTTP request | Description
  - [PageQuestionVO](docs/PageQuestionVO.md)
  - [Question](docs/Question.md)
  - [QuestionAddRequest](docs/QuestionAddRequest.md)
+ - [QuestionBatchImportResponse](docs/QuestionBatchImportResponse.md)
  - [QuestionEditRequest](docs/QuestionEditRequest.md)
+ - [QuestionImportResult](docs/QuestionImportResult.md)
  - [QuestionQueryRequest](docs/QuestionQueryRequest.md)
  - [QuestionSet](docs/QuestionSet.md)
  - [QuestionSetAddRequest](docs/QuestionSetAddRequest.md)

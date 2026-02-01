@@ -3,7 +3,8 @@ import { QuestionControllerService, QuestionSetControllerService } from '../../.
 import type { QuestionVO, QuestionSetVO, BaseResponse_Page_QuestionSetVO_ } from '../../../../generated';
 import { Link } from 'react-router-dom';
 import { Spin, Modal, message, Tree, Input, Button, Empty } from 'antd';
-import { SearchOutlined, SortAscendingOutlined, FilterOutlined, EyeOutlined, CommentOutlined, StarOutlined, FolderAddOutlined } from '@ant-design/icons';
+import { SearchOutlined, SortAscendingOutlined, FilterOutlined, EyeOutlined, CommentOutlined, StarOutlined, FolderAddOutlined, DatabaseOutlined } from '@ant-design/icons';
+import '../../../styles/uiuxpro.css';
 import './Questions.css';
 
 const Questions: React.FC = () => {
@@ -198,45 +199,62 @@ const Questions: React.FC = () => {
   }));
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-6">
-      <div className="qs-filter-section">
+    <div className="uiux-scope uiux-page uiux-questionbank-page">
+      <div className="uiux-hero">
+        <div className="uiux-hero-inner">
+          <div>
+            <h1 className="uiux-hero-title">题库</h1>
+            <p className="uiux-hero-subtitle">筛选题目、查看通过率，一键收藏到题单</p>
+          </div>
+          <div className="qb-hero-right">
+            <DatabaseOutlined className="qb-hero-icon" />
+          </div>
+        </div>
+      </div>
+
+      <div className="qs-filter-section uiux-card">
         <div className="qs-stat-row">
           <div className="qs-stat-item"><span className="qs-badge-dot"></span><strong>题目总数</strong> {questions.length}</div>
           <div className="qs-stat-item"><strong>已筛选</strong> {filteredQuestions.length}</div>
         </div>
         <div className="qs-chips">
-          <div
+          <button
+            type="button"
             className={`qs-chip ${activeCategory === '全部' ? 'qs-active' : ''}`}
             onClick={() => setActiveCategory('全部')}
           >
             全部
-          </div>
+          </button>
           {allTags.slice(0, 15).map(tag => (
-            <div
+            <button
+              type="button"
               key={tag}
               className={`qs-chip ${activeCategory === tag ? 'qs-active' : ''}`}
               onClick={() => setActiveCategory(tag)}
             >
               {tag}
-            </div>
+            </button>
           ))}
         </div>
       </div>
 
-      <div className="qs-question-panel">
+      <div className="qs-question-panel uiux-card">
         <div className="qs-question-toolbar">
-          <div className="qs-toolbar-search">
-            <SearchOutlined style={{color:'#8c8c8c', fontSize: 14}} />
-            <input
-              type="text"
-              placeholder="搜索题目"
-              value={searchText}
-              onChange={e => setSearchText(e.target.value)}
-            />
-          </div>
+          <Input
+            allowClear
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="搜索题目"
+            prefix={<SearchOutlined />}
+            className="qs-toolbar-search-input"
+          />
           <div className="qs-toolbar-actions">
-            <button className="qs-ghost-btn"><SortAscendingOutlined style={{fontSize: 14}} /></button>
-            <button className="qs-filter-btn"><FilterOutlined style={{fontSize: 14, marginRight: 6}} />筛选</button>
+            <Button className="qs-ghost-btn" icon={<SortAscendingOutlined />} disabled>
+              排序
+            </Button>
+            <Button className="qs-filter-btn" icon={<FilterOutlined />} disabled>
+              筛选
+            </Button>
           </div>
           <div className="qs-stat-item" style={{marginLeft:'auto'}}>
             {questions.filter(q => q.acceptedNum && q.acceptedNum > 0).length}/{questions.length} 已解答
@@ -246,8 +264,10 @@ const Questions: React.FC = () => {
         <div className="qs-question-list">
           {filteredQuestions.length === 0 && !loading ? (
             <div className="qs-empty-state">
-              <div className="qs-empty-icon">📋</div>
-              <div className="qs-empty-text">暂无符合条件的题目</div>
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="暂无符合条件的题目"
+              />
             </div>
           ) : (
             filteredQuestions.map((question) => {
@@ -261,7 +281,7 @@ const Questions: React.FC = () => {
                     to={`/oj/${question.id}`}
                     style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
                   >
-                    <div className="qs-question">
+                    <div className="qs-question uiux-card">
                       <div className="qs-question-title">
                         <span className="qs-number">{question.id}.</span> {question.title}
                       </div>
@@ -272,7 +292,9 @@ const Questions: React.FC = () => {
                       <div className="qs-meta">
                         <span className="qs-bubble"><EyeOutlined style={{fontSize: 12}} /> {question.submitNum || 0}</span>
                         <span className="qs-bubble"><CommentOutlined style={{fontSize: 12}} /> {question.favourNum || 0}</span>
-                        <div className="qs-star"><StarOutlined style={{fontSize: 14}} /></div>
+                        <button className="qs-star uiux-focusable" type="button" aria-label="收藏（占位）" disabled>
+                          <StarOutlined style={{ fontSize: 14 }} />
+                        </button>
                       </div>
                     </div>
                   </Link>
@@ -281,6 +303,7 @@ const Questions: React.FC = () => {
                       type="text"
                       size="small"
                       icon={<FolderAddOutlined />}
+                      className="qs-collect-btn"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -326,6 +349,7 @@ const Questions: React.FC = () => {
           </Button>
         ]}
         width={500}
+        className="uiux-scope"
       >
         <div style={{ marginBottom: 16, paddingTop: 8 }}>
           <div style={{ marginBottom: 8, fontWeight: 500 }}>请选择要收藏到的题单：</div>
@@ -351,7 +375,7 @@ const Questions: React.FC = () => {
           )}
         </div>
         {selectedQuestionSetId && (
-          <div style={{ padding: '8px 0', color: '#228B22' }}>
+          <div style={{ padding: '8px 0', color: 'var(--uiux-primary)' }}>
             已选择：{questionSets.find(qs => qs.id === selectedQuestionSetId)?.title}
           </div>
         )}

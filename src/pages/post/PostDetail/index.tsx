@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spin, Tag, message, Anchor } from 'antd';
+import { Anchor, Button, Spin, Tag, message } from 'antd';
 import { ArrowLeftOutlined, HeartOutlined, HeartFilled, StarOutlined, StarFilled, UserOutlined, ClockCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import { PostControllerService } from '../../../../generated/services/PostControllerService';
 import { thumbPost, favourPost } from '../../../services/postService';
 import type { PostVO } from '../../../../generated/models/PostVO';
 import Veditor from '../../../components/Veditor';
+import '../../../styles/uiuxpro.css';
 import './PostDetail.css';
 
 const PostDetail: React.FC = () => {
@@ -85,9 +86,14 @@ const PostDetail: React.FC = () => {
     return headings;
   }, [post?.content]);
 
+  const prefersReducedMotion = () => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  };
+
   if (loading) {
     return (
-      <div className="post-detail-loading">
+      <div className="uiux-scope uiux-page post-detail-loading">
         <Spin size="large" />
       </div>
     );
@@ -95,23 +101,25 @@ const PostDetail: React.FC = () => {
 
   if (!post) {
     return (
-      <div className="post-detail-error">
+      <div className="uiux-scope uiux-page post-detail-error">
         <h2>帖子不存在</h2>
-        <button onClick={() => navigate('/posts')}>返回帖子列表</button>
+        <Button type="primary" onClick={() => navigate('/posts')}>
+          返回帖子列表
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="post-detail-container">
+    <div className="uiux-scope uiux-page post-detail-container">
       <div className="post-detail-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
+        <button className="uiux-button uiux-focusable back-btn" type="button" onClick={() => navigate(-1)}>
           <ArrowLeftOutlined /> 返回
         </button>
       </div>
 
       <div className="post-detail-main">
-        <div className="post-detail-content">
+        <div className="post-detail-content uiux-card">
           <h1 className="post-detail-title">{post.title}</h1>
 
           <div className="post-detail-meta">
@@ -141,7 +149,9 @@ const PostDetail: React.FC = () => {
           {post.tagList && post.tagList.length > 0 && (
             <div className="post-detail-tags">
               {post.tagList.map(tag => (
-                <Tag key={tag} color="blue">{tag}</Tag>
+                <Tag key={tag} color="green">
+                  {tag}
+                </Tag>
               ))}
             </div>
           )}
@@ -158,6 +168,9 @@ const PostDetail: React.FC = () => {
             <button 
               className={`action-btn ${post.hasThumb ? 'active-thumb' : ''}`}
               onClick={handleThumb}
+              type="button"
+              aria-label={`点赞，当前 ${post.thumbNum || 0}`}
+              aria-pressed={!!post.hasThumb}
             >
               {post.hasThumb ? <HeartFilled /> : <HeartOutlined />}
               <span>点赞 {post.thumbNum || 0}</span>
@@ -165,6 +178,9 @@ const PostDetail: React.FC = () => {
             <button 
               className={`action-btn ${post.hasFavour ? 'active-favour' : ''}`}
               onClick={handleFavour}
+              type="button"
+              aria-label={`收藏，当前 ${post.favourNum || 0}`}
+              aria-pressed={!!post.hasFavour}
             >
               {post.hasFavour ? <StarFilled /> : <StarOutlined />}
               <span>收藏 {post.favourNum || 0}</span>
@@ -174,7 +190,7 @@ const PostDetail: React.FC = () => {
 
         <div className="post-detail-sidebar">
           {anchorItems.length > 0 && (
-            <div className="sidebar-card">
+            <div className="sidebar-card uiux-card">
               <h3>目录</h3>
               <Anchor
                 affix={false}
@@ -203,7 +219,7 @@ const PostDetail: React.FC = () => {
                     const offsetTop = element.offsetTop - 120;
                     window.scrollTo({
                       top: offsetTop,
-                      behavior: 'smooth'
+                      behavior: prefersReducedMotion() ? 'auto' : 'smooth'
                     });
                   }
                 }}
@@ -211,7 +227,7 @@ const PostDetail: React.FC = () => {
             </div>
           )}
           
-          <div className="sidebar-card">
+          <div className="sidebar-card uiux-card">
             <h3>作者信息</h3>
             <div className="sidebar-author">
               <div className="sidebar-author-avatar">
@@ -228,7 +244,7 @@ const PostDetail: React.FC = () => {
             </div>
           </div>
 
-          <div className="sidebar-card">
+          <div className="sidebar-card uiux-card">
             <h3>帖子信息</h3>
             <div className="sidebar-info">
               <div className="info-item">

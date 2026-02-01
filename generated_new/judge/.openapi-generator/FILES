@@ -1,5 +1,6 @@
 .gitignore
 .npmignore
+.openapi-generator-ignore
 README.md
 api.ts
 api/inner-judge-controller-api.ts
@@ -8,6 +9,7 @@ common.ts
 configuration.ts
 docs/CodeTemplate.md
 docs/InnerJudgeControllerApi.md
+docs/JudgeCase.md
 docs/JudgeConfig.md
 docs/JudgeInfo.md
 docs/JudgeRequest.md
@@ -19,6 +21,7 @@ git_push.sh
 index.ts
 model/code-template.ts
 model/index.ts
+model/judge-case.ts
 model/judge-config.ts
 model/judge-info.ts
 model/judge-request.ts

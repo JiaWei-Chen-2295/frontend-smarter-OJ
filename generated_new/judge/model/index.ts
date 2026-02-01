@@ -1,4 +1,5 @@
 export * from './code-template';
+export * from './judge-case';
 export * from './judge-config';
 export * from './judge-info';
 export * from './judge-request';

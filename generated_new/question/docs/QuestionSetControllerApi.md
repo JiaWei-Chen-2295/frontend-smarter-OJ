@@ -1,6 +1,6 @@
 # QuestionSetControllerApi
 
-All URIs are relative to *http://172.19.0.6:8202*
+All URIs are relative to *http://172.24.80.1:8202/api/question*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|

@@ -16,7 +16,8 @@ import {
   Modal,
   Form,
   Tooltip,
-  Badge
+  Badge,
+  Empty
 } from 'antd';
 import {
   PlusOutlined,
@@ -30,6 +31,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { RoomService } from '../../../services/room';
 import type { RoomVO, RoomQueryRequest, RoomJoinRequest } from '../../../../generated';
+import '../../../styles/uiuxpro.css';
 import './index.css';
 
 const { Search } = Input;
@@ -269,22 +271,20 @@ const RoomList: React.FC = () => {
   };
 
   return (
-    <div className="room-list-container">
-      <div className="room-list-header">
-        <div className="room-list-title">
-          <h2>房间列表</h2>
-          <p>与小伙伴一起刷题，提升编程技能</p>
+    <div className="uiux-scope uiux-page room-list-container">
+      <div className="uiux-hero">
+        <div className="uiux-hero-inner">
+          <div>
+            <h1 className="uiux-hero-title">房间</h1>
+            <p className="uiux-hero-subtitle">与小伙伴组队刷题，协作交流，持续进步</p>
+          </div>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateRoom} size="large">
+            创建房间
+          </Button>
         </div>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleCreateRoom}
-        >
-          创建房间
-        </Button>
       </div>
 
-      <div className="room-list-filters">
+      <div className="room-list-filters uiux-card">
         <Row gutter={16} align="middle">
           <Col flex="auto">
             <Search
@@ -314,13 +314,16 @@ const RoomList: React.FC = () => {
         </Row>
         
         {rooms.length === 0 && !loading && (
-          <div className="empty-state">
-            <p>暂无房间，快去创建一个吧！</p>
+          <div className="empty-state uiux-card">
+            <Empty
+              description="暂无房间"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
           </div>
         )}
       </div>
 
-      <div className="room-list-pagination">
+      <div className="room-list-pagination uiux-card">
         <Pagination
           current={current}
           total={total}
@@ -345,6 +348,7 @@ const RoomList: React.FC = () => {
           setSelectedRoom(null);
         }}
         destroyOnClose
+        className="uiux-scope"
       >
         <div style={{ marginBottom: 16 }}>
           <p><strong>房间名称：</strong>{selectedRoom?.name}</p>

@@ -1,4 +1,4 @@
-# BaseResponseObject
+# BaseResponseQuestionBatchImportResponse
 
 
 ## Properties
@@ -6,15 +6,15 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **code** | **number** |  | [optional] [default to undefined]
-**data** | **object** |  | [optional] [default to undefined]
+**data** | [**QuestionBatchImportResponse**](QuestionBatchImportResponse.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { BaseResponseObject } from 'user';
+import { BaseResponseQuestionBatchImportResponse } from 'question';
 
-const instance: BaseResponseObject = {
+const instance: BaseResponseQuestionBatchImportResponse = {
     code,
     data,
     message,

@@ -1,6 +1,6 @@
 .room-chat-page-container {
   min-height: calc(100vh - 64px);
-  background: #fafafa;
+  background: var(--uiux-bg);
   padding: 24px;
 }
 
@@ -17,8 +17,9 @@
   max-width: 600px;
   margin: 0 auto;
   margin-top: 100px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: var(--uiux-shadow-sm);
 }
 
 .room-chat-header {
@@ -26,9 +27,9 @@
 }
 
 .room-info-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: none;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: var(--uiux-shadow-sm);
 }
 
 .room-info-content {
@@ -38,8 +39,8 @@
 }
 
 .back-button {
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
@@ -85,9 +86,9 @@
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  background: #e6f7ff;
-  color: #0958d9;
-  border: 1px solid #91d5ff;
+  background: rgba(240, 253, 244, 1);
+  color: var(--uiux-primary);
+  border: 1px solid rgba(22, 163, 74, 0.28);
 }
 
 .room-capacity.full {
@@ -129,19 +130,19 @@
 
 /* 按钮样式 */
 .room-chat-page-container .ant-btn-primary {
-  background: #228B22;
+  background: var(--uiux-primary);
   border: none;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 800;
 }
 
 .room-chat-page-container .ant-btn-primary:hover {
-  background: #2ea043;
+  background: var(--uiux-primary-hover);
 }
 
 .room-chat-page-container .ant-btn {
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 800;
 }
 
 /* 响应式设计 */
@@ -242,5 +243,5 @@
 }
 
 .loading-container .ant-spin-dot-item {
-  background-color: #228B22;
+  background-color: var(--uiux-primary);
 }

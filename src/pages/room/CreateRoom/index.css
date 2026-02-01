@@ -1,48 +1,46 @@
 .create-room-container {
-  padding: 24px;
-  min-height: calc(100vh - 64px);
-  background: #fafafa;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .create-room-header {
-  max-width: 1200px;
-  margin: 0 auto;
+  margin: 6px 0 0;
 }
 
 .create-room-card {
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: none;
-  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: var(--uiux-shadow-sm);
 }
 
-.create-room-title {
+.create-room-hero {
+  margin-top: 6px;
+}
+
+.create-room-form-title {
   text-align: center;
-  margin-bottom: 32px;
-  padding: 32px 0;
-  background: linear-gradient(135deg, #228B22 0%, #2ea043 100%);
-  margin: -24px -24px 32px -24px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(34, 139, 34, 0.2);
+  margin-bottom: 22px;
+  padding: 8px 0 18px;
+  border-bottom: 2px solid rgba(226, 232, 240, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.create-room-title .title-icon {
-  font-size: 32px;
-  margin-bottom: 8px;
-  display: block;
-}
-
-.create-room-title h2 {
-  color: white;
-  margin: 0;
-  font-weight: 600;
+.create-room-form-title .title-icon {
+  font-size: 22px;
+  color: var(--uiux-primary);
 }
 
 .room-privacy-setting {
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 14px;
   padding: 16px;
-  background: #fafafa;
+  background: rgba(241, 245, 249, 0.6);
 }
 
 .privacy-option {
@@ -68,74 +66,70 @@
   margin-bottom: 4px;
 }
 
-/* Form样式增强 */
-.ant-form-item-label > label {
-  font-weight: 600;
-  color: #262626;
+.create-room-container .ant-form-item-label > label {
+  font-weight: 800;
+  color: var(--uiux-text);
 }
 
-.ant-input-affix-wrapper,
-.ant-input,
-.ant-input-number,
-.ant-input-password {
+.create-room-container .ant-input-affix-wrapper,
+.create-room-container .ant-input,
+.create-room-container .ant-input-number,
+.create-room-container .ant-input-password {
   border-radius: 8px;
-  border: 1px solid #d9d9d9;
-  transition: all 0.3s ease;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.ant-input-affix-wrapper:hover,
-.ant-input:hover,
-.ant-input-number:hover,
-.ant-input-password:hover {
-  border-color: #228B22;
+.create-room-container .ant-input-affix-wrapper:hover,
+.create-room-container .ant-input:hover,
+.create-room-container .ant-input-number:hover,
+.create-room-container .ant-input-password:hover {
+  border-color: rgba(22, 163, 74, 0.35);
 }
 
-.ant-input-affix-wrapper:focus,
-.ant-input:focus,
-.ant-input-number:focus,
-.ant-input-password:focus,
-.ant-input-affix-wrapper-focused,
-.ant-input-number-focused {
-  border-color: #228B22;
-  box-shadow: 0 0 0 2px rgba(34, 139, 34, 0.1);
+.create-room-container .ant-input-affix-wrapper:focus,
+.create-room-container .ant-input:focus,
+.create-room-container .ant-input-number:focus,
+.create-room-container .ant-input-password:focus,
+.create-room-container .ant-input-affix-wrapper-focused,
+.create-room-container .ant-input-number-focused {
+  border-color: var(--uiux-primary);
+  box-shadow: var(--uiux-focus);
 }
 
 .create-room-container .ant-btn-primary {
-  background: #228B22;
+  background: var(--uiux-primary);
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 800;
   height: 40px;
   padding: 0 24px;
   font-size: 14px;
-  box-shadow: 0 2px 4px rgba(34, 139, 34, 0.2);
+  box-shadow: 0 10px 20px -18px rgba(22, 163, 74, 0.75);
 }
 
 .create-room-container .ant-btn-primary:hover {
-  background: #2ea043;
-  box-shadow: 0 4px 8px rgba(34, 139, 34, 0.3);
+  background: var(--uiux-primary-hover);
 }
 
 .create-room-container .ant-btn-default {
-  border-radius: 8px;
+  border-radius: 12px;
   height: 40px;
   padding: 0 16px;
-  font-weight: 500;
+  font-weight: 800;
 }
 
-/* Switch样式 */
-.ant-switch-checked {
-  background-color: #228B22;
+.create-room-container .ant-switch-checked {
+  background-color: var(--uiux-primary);
 }
 
-/* Alert样式 */
-.ant-alert-info {
+.create-room-container .ant-alert-info {
   border-radius: 8px;
   border: 1px solid #91d5ff;
   background: #f6ffff;
 }
 
-.ant-alert-warning {
+.create-room-container .ant-alert-warning {
   border-radius: 8px;
   border: 1px solid #ffe58f;
   background: #fffbe6;
@@ -143,23 +137,6 @@
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .create-room-container {
-    padding: 16px;
-  }
-  
-  .create-room-title {
-    padding: 16px 0;
-    margin: -24px -16px 24px -16px;
-  }
-  
-  .create-room-title .title-icon {
-    font-size: 24px;
-  }
-  
-  .create-room-title h2 {
-    font-size: 20px;
-  }
-  
   .privacy-option {
     flex-direction: column;
     align-items: flex-start;

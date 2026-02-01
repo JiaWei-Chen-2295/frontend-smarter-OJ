@@ -1,21 +1,21 @@
-# DoJudgeRequest
+# JudgeCase
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**questionSubmitId** | **string** |  | [optional] [default to undefined]
-**loginUser** | [**User**](User.md) |  | [optional] [default to undefined]
+**input** | **string** |  | [optional] [default to undefined]
+**output** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { DoJudgeRequest } from 'judge';
+import { JudgeCase } from 'judge';
 
-const instance: DoJudgeRequest = {
-    questionSubmitId,
-    loginUser,
+const instance: JudgeCase = {
+    input,
+    output,
 };
 ```
 

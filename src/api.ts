@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { UserControllerApi } from '../generated_new/user';
-import { QuestionControllerApi, QuestionSetControllerApi, DefaultApi as QuestionDefaultApi } from '../generated_new/question';
+import { QuestionSetControllerApi, DefaultApi as QuestionDefaultApi } from '../generated_new/question';
 import { DefaultApi as PostControllerApi } from '../generated_new/post';
 import { RoomControllerApi } from '../generated_new/room';
 
@@ -43,7 +43,8 @@ const ROOM_SERVICE_PATH = `${API_BASE_URL}/room`;
 
 // Initialize API instances
 export const userApi = new UserControllerApi(undefined, USER_SERVICE_PATH, request);
-export const questionApi = new QuestionControllerApi(undefined, QUESTION_SERVICE_PATH, request);
+// QuestionControllerApi merged into DefaultApi
+export const questionApi = new QuestionDefaultApi(undefined, QUESTION_SERVICE_PATH, request);
 export const questionDefaultApi = new QuestionDefaultApi(undefined, QUESTION_SERVICE_PATH, request);
 export const questionSetApi = new QuestionSetControllerApi(undefined, QUESTION_SERVICE_PATH, request);
 export const postApi = new PostControllerApi(undefined, POST_SERVICE_PATH, request);

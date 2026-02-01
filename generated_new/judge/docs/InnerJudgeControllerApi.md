@@ -1,6 +1,6 @@
 # InnerJudgeControllerApi
 
-All URIs are relative to *http://172.19.0.8:8203/api/judge*
+All URIs are relative to *http://172.24.80.1:8203/api/judge*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|

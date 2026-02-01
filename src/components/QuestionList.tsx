@@ -1,11 +1,17 @@
 import React, { useState, useRef } from "react";
 import { ProTable, ProColumns, ActionType } from "@ant-design/pro-components";
-import { questionApi } from "../api";
+import { questionApi, questionDefaultApi } from "../api";
 import type { Question, QuestionQueryRequest, QuestionVO } from "../../../generated_new/question";
+
 import { Tag, Button, Modal, Form, InputNumber, message, Row, Col, Tooltip, Space } from "antd";
 import { EditOutlined, PlusOutlined, DeleteOutlined, ExclamationCircleFilled, InboxOutlined } from "@ant-design/icons";
 import { ProForm, ProFormText, ProFormTextArea, ProFormItem } from '@ant-design/pro-components';
 import MarkDownNewEditor from "../components/MarkDownNewEditor";
+import { Upload, Typography, Table } from "antd";
+import { UploadOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import type { UploadRequestOption } from 'rc-upload/lib/interface';
+import type { QuestionBatchImportResponse, QuestionImportResult } from "../../../generated_new/question";
+
 
 
 type DataType = Question;
@@ -38,8 +44,15 @@ export default function QuestionList() {
     const [form] = Form.useForm<QuestionAddRequest>();
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
+
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [modal, contextHolder] = Modal.useModal();
+
+    // === Import State ===
+    const [importModalVisible, setImportModalVisible] = useState(false);
+    const [importResults, setImportResults] = useState<QuestionBatchImportResponse | null>(null);
+    const [importing, setImporting] = useState(false);
+
 
     const fetchQuestionData = async (id: number) => {
         setConfirmLoading(true);
@@ -167,6 +180,33 @@ export default function QuestionList() {
         modal.confirm(config);
     };
 
+    // === Import Handlers ===
+    const handleImport = async (options: UploadRequestOption) => {
+        const { file, onSuccess, onError } = options;
+        setImporting(true);
+        const hide = message.loading('正在导入题目中，请稍候...', 0);
+        try {
+            const res = await questionDefaultApi.importQuestions(file as File);
+            if (res.data.code === 0 && res.data.data) {
+                setImportResults(res.data.data);
+                setImportModalVisible(true);
+                message.success('导入处理完成');
+                actionRef.current?.reload();
+                onSuccess?.(res.data.data);
+            } else {
+                message.error('导入失败: ' + (res.data.message || '未知错误'));
+                onError?.(new Error(res.data.message));
+            }
+        } catch (error: any) {
+            console.error('Import failed:', error);
+            message.error('导入请求发生错误');
+            onError?.(error);
+        } finally {
+            hide();
+            setImporting(false);
+        }
+    };
+
 
     // Define columns with updated render functions
     const columns: ProColumns<DataType>[] = [
@@ -288,6 +328,17 @@ export default function QuestionList() {
                 dateFormatter="string"
                 headerTitle="题目列表"
                 toolBarRender={() => [
+                    <Upload
+                        key="import"
+                        accept=".xml"
+                        showUploadList={false}
+                        customRequest={handleImport}
+                        disabled={importing}
+                    >
+                        <Button icon={<UploadOutlined />} loading={importing}>
+                            {importing ? '导入中' : '导入题目'}
+                        </Button>
+                    </Upload>,
                     <Button
                         key="add"
                         type="primary"
@@ -298,6 +349,79 @@ export default function QuestionList() {
                     </Button>,
                 ]}
             />
+
+            {/* === Import Result Modal === */}
+            <Modal
+                title="导入结果"
+                open={importModalVisible}
+                onCancel={() => setImportModalVisible(false)}
+                footer={[
+                    <Button key="close" type="primary" onClick={() => setImportModalVisible(false)}>
+                        关闭
+                    </Button>
+                ]}
+                width={800}
+            >
+                {importResults && (
+                    <div className="space-y-4">
+                        <div className="flex gap-4 p-4 bg-gray-50 rounded-lg">
+                            <div className="text-center">
+                                <div className="text-gray-500">总数</div>
+                                <div className="text-xl font-bold">{importResults.totalCount || 0}</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-green-600">成功</div>
+                                <div className="text-xl font-bold text-green-600">{importResults.successCount || 0}</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-red-600">失败</div>
+                                <div className="text-xl font-bold text-red-600">{importResults.failCount || 0}</div>
+                            </div>
+                        </div>
+
+                        {importResults.results && importResults.results.length > 0 && (
+                            <Table<QuestionImportResult>
+                                dataSource={importResults.results}
+                                rowKey="index"
+                                pagination={{ pageSize: 5 }}
+                                size="small"
+                                columns={[
+                                    {
+                                        title: '#',
+                                        dataIndex: 'index',
+                                        width: 60,
+                                    },
+                                    {
+                                        title: '标题',
+                                        dataIndex: 'title',
+                                        ellipsis: true,
+                                    },
+                                    {
+                                        title: '状态',
+                                        dataIndex: 'success',
+                                        width: 100,
+                                        render: (success: boolean) => (
+                                            success ?
+                                                <Tag icon={<CheckCircleOutlined />} color="success">成功</Tag> :
+                                                <Tag icon={<CloseCircleOutlined />} color="error">失败</Tag>
+                                        )
+                                    },
+                                    {
+                                        title: '详情',
+                                        key: 'info',
+                                        render: (_, record) => (
+                                            record.success ?
+                                                <span className="text-gray-500">ID: {record.questionId}</span> :
+                                                <span className="text-red-500">{record.errorMessage}</span>
+                                        )
+                                    }
+                                ]}
+                            />
+                        )}
+                    </div>
+                )}
+            </Modal>
+
 
             {/* === Modal and Form === */}
             <Modal

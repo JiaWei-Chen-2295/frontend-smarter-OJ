@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Select, Space, message as messageService, ConfigProvider, Layout, Tabs } from "antd";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
-import type { QuestionVO, JudgeInfo, QuestionSubmitVO } from "../../../../generated_new/question";
+import type { QuestionVO, JudgeInfo, QuestionSubmitVO, JudgeCase } from "../../../../generated_new/question";
 import { questionApi } from "../../../api";
 import Veditor from "../../../components/Veditor";
 import { CodeEditor, CodeEditorRef } from "../../../components/CodeEditor";
@@ -13,14 +13,18 @@ import {
     PlayCircleOutlined,
 } from "@ant-design/icons";
 import MojoCarrot from "../../../components/MojoCarrot";
-import JudgeResultCard from "./judge/JudgeResultCard";
+import JudgeResultOverlay from "./judge/JudgeResultOverlay";
 import SubmissionHistory from "./SubmissionHistory";
 
 const { Sider, Content } = Layout;
 const { Option } = Select;
 
+interface ExtendedQuestionVO extends QuestionVO {
+    judgeCase?: string;
+}
+
 interface CustomSplitterProps {
-    question?: QuestionVO;
+    question?: ExtendedQuestionVO;
     fontSize?: number;
 }
 
@@ -90,11 +94,31 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
 
     const [judgeInfo, setJudgeInfo] = useState<JudgeInfo | null>(null);
     const [showResultCard, setShowResultCard] = useState(false);
-    const [isRollingRequest, setIsRollingRequest] = useState(false); // 是否正在轮询请求
+    const isRollingRequestRef = useRef(false); // 用于内部逻辑，避免闭包过时
 
 
     // 预期答案 - 从测试用例中提取
-    const [expectedOutputs] = useState<string[]>([]);
+    const [expectedOutputs, setExpectedOutputs] = useState<string[]>([]);
+
+    // 辅助函数：从 judgeCase 字符串中解析预期输出
+    const extractExpectedOutputs = useCallback((judgeCaseStr?: string) => {
+        if (!judgeCaseStr) return [];
+        try {
+            const cases: JudgeCase[] = JSON.parse(judgeCaseStr);
+            return cases.map(c => c.output || '');
+        } catch (e) {
+            console.warn('Failed to parse judgeCase:', e);
+            return [];
+        }
+    }, []);
+
+    // 监听题目变化，更新预期输出
+    useEffect(() => {
+        if (question?.judgeCase) {
+            const outputs = extractExpectedOutputs(question.judgeCase);
+            setExpectedOutputs(outputs);
+        }
+    }, [question?.judgeCase, extractExpectedOutputs]);
 
 
     // 格式化时间显示
@@ -151,11 +175,9 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
             if (timerRef.current) {
                 window.clearInterval(timerRef.current);
             }
-            if (isRollingRequest) {
-                setIsRollingRequest(false);
-            }
+            isRollingRequestRef.current = false;
         };
-    }, [isRollingRequest]);
+    }, []);
 
     useEffect(() => {
         const media = window.matchMedia('(max-width: 768px)');
@@ -253,87 +275,91 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
         setJudgeProgress(0);
 
         let retryCount = 0;
-        const maxRetries = 30; // 最多轮询30次，每次间隔1秒
-        const intervalTime = 1000; // 1秒
+        const maxRetries = 60; // 增加重试次数
+        const intervalTime = 1000;
 
         return new Promise<ExtendedQuestionSubmit | null>((resolve) => {
-            setIsRollingRequest(true);
+            isRollingRequestRef.current = true;
+
             const pollInterval = setInterval(async () => {
                 try {
-                    if (!isRollingRequest) return;
+                    // 使用 ref 进行判断，避免闭包陷阱
+                    if (!isRollingRequestRef.current) {
+                        clearInterval(pollInterval);
+                        return;
+                    }
 
                     // 更新进度条
-                    setJudgeProgress(prev => Math.min(prev + (100 / maxRetries), 95));
+                    setJudgeProgress(prev => Math.min(prev + (100 / maxRetries), 98));
 
-                    // 获取所有提交记录
+                    // 获取提交记录
                     const qustionSubmitResp = await questionApi.getSubmit(submitId);
 
                     if (qustionSubmitResp.data.code === 0 && qustionSubmitResp.data.data) {
-                        // 找到当前提交的记录
-                        setIsRollingRequest(false);
                         const currentSubmission = qustionSubmitResp.data.data;
-                        if (currentSubmission) {
-                            // 更新提交结果
-                            const extSubmission = currentSubmission as ExtendedQuestionSubmit;
+                        const extSubmission = currentSubmission as ExtendedQuestionSubmit;
 
-                            // 解析judgeInfo
-                            if (currentSubmission.judgeInfo) {
-                                try {
-                                    const parsedJudgeInfo = currentSubmission.judgeInfo;
-                                    setJudgeInfo(parsedJudgeInfo);
+                        // 解析judgeInfo
+                        if (currentSubmission.judgeInfo) {
+                            try {
+                                const parsedJudgeInfo = currentSubmission.judgeInfo;
+                                setJudgeInfo(parsedJudgeInfo);
+                                extSubmission.parsedJudgeInfo = parsedJudgeInfo;
 
-                                    // 存储解析后的judgeInfo
-                                    extSubmission.parsedJudgeInfo = parsedJudgeInfo;
+                                // 判断是否完成判题 (通过状态或者具体的判题消息)
+                                const statusLabel = parsedJudgeInfo.message;
+                                const isFinished = statusLabel && (
+                                    statusLabel.includes('Accepted') ||
+                                    statusLabel.includes('Wrong Answer') ||
+                                    statusLabel.includes('Limit Exceeded') ||
+                                    statusLabel.includes('Error') ||
+                                    statusLabel === '成功' ||
+                                    statusLabel === '失败'
+                                );
 
-                                    // 判断是否完成判题
-                                    if (parsedJudgeInfo?.memory) {
-                                        setSubmissionResult(extSubmission);
-                                        finishJudging(pollInterval, extSubmission);
-                                        return;
-                                    }
-                                } catch (error) {
-                                    console.error('解析judgeInfo失败:', error);
+                                if (isFinished || (parsedJudgeInfo.time !== undefined && parsedJudgeInfo.memory !== undefined)) {
+                                    setSubmissionResult(extSubmission);
+                                    finishJudging(pollInterval, extSubmission);
+                                    return;
                                 }
+                            } catch (error) {
+                                console.error('解析JudgeInfo出错:', error);
                             }
+                        }
 
-                            // 检查输出结果
-                            const hasOutputResult = !!(extSubmission.outputResult && extSubmission.outputResult.length > 0);
-
-                            // 只要有outputResult，就认为判题结束
-                            if (hasOutputResult) {
-                                setSubmissionResult(extSubmission);
-                                finishJudging(pollInterval, extSubmission);
-                                return;
-                            }
+                        // 备用方案：检查输出结果
+                        if (extSubmission.outputResult && extSubmission.outputResult.length > 0) {
+                            setSubmissionResult(extSubmission);
+                            finishJudging(pollInterval, extSubmission);
+                            return;
                         }
                     }
 
                     // 检查是否超过最大重试次数
                     if (++retryCount >= maxRetries) {
-                        clearInterval(pollInterval);
-                        setIsJudging(false);
-                        setJudgeProgress(100);
-                        messageService.warning('判题时间较长，请稍后查看结果');
-                        resolve(null);
+                        finishJudging(pollInterval, null);
+                        messageService.warning('判题时间较长，请稍后在提交历史中查看结果');
                     }
                 } catch (error) {
                     console.error('轮询判题结果出错:', error);
-                    clearInterval(pollInterval);
-                    setIsJudging(false);
-                    resolve(null);
+                    finishJudging(pollInterval, null);
                 }
             }, intervalTime);
 
             // 完成判题的辅助函数
-            function finishJudging(interval: ReturnType<typeof setInterval>, submission: ExtendedQuestionSubmit) {
-                setJudgeProgress(100);
-                setIsJudging(false);
-                setShowResultCard(true);
+            function finishJudging(interval: ReturnType<typeof setInterval>, submission: ExtendedQuestionSubmit | null) {
                 clearInterval(interval);
+                isRollingRequestRef.current = false;
+                setIsJudging(false);
+                setJudgeProgress(100);
+                if (submission) {
+                    setSubmissionResult(submission);
+                }
+                setShowResultCard(true);
                 resolve(submission);
             }
         });
-    }, [isRollingRequest]);
+    }, []); // 移除 isRollingRequest 依赖
 
     const handleSubmitCode = async () => {
         try {
@@ -434,10 +460,10 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
             </div>
 
 
-            {/* 判题结果卡片 */}
-            <JudgeResultCard
-                open={showResultCard}
-                onCancel={() => setShowResultCard(false)}
+            {/* 判题结果浮层 (取代原有的 Modal) */}
+            <JudgeResultOverlay
+                isVisible={showResultCard}
+                onClose={() => setShowResultCard(false)}
                 // @ts-ignore
                 submissionResult={submissionResult}
                 judgeInfo={judgeInfo}
@@ -445,7 +471,6 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 judgeProgress={judgeProgress}
                 solvingTime={solvingTime}
                 expectedOutputs={expectedOutputs}
-                isMobile={isMobile}
             />
 
 
@@ -541,13 +566,13 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
             <Layout className={`bg-[#141414] overflow-hidden min-h-0 ${isMobile ? 'flex flex-col' : ''}`} style={{ height: availableHeight }}>
                 {isMobile && (
                     <div className="flex bg-[#141414] border-b border-[#303030] shrink-0 h-10">
-                        <div 
+                        <div
                             className={`flex-1 flex items-center justify-center cursor-pointer transition-colors ${mobileTab === 'question' ? 'text-[#228B22] border-b-2 border-[#228B22] font-medium bg-[#1a1a1a]' : 'text-gray-400 hover:text-gray-200 bg-[#141414]'}`}
                             onClick={() => setMobileTab('question')}
                         >
                             题目描述
                         </div>
-                        <div 
+                        <div
                             className={`flex-1 flex items-center justify-center cursor-pointer transition-colors ${mobileTab === 'code' ? 'text-[#228B22] border-b-2 border-[#228B22] font-medium bg-[#1a1a1a]' : 'text-gray-400 hover:text-gray-200 bg-[#141414]'}`}
                             onClick={() => setMobileTab('code')}
                         >
@@ -559,7 +584,7 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 {(!isMobile || mobileTab === 'question') && (
                     isMobile ? (
                         <div className="flex-1 overflow-hidden min-h-0 relative">
-                             <div className="absolute inset-0 p-3 flex flex-col gap-3 min-h-0">
+                            <div className="absolute inset-0 p-3 flex flex-col gap-3 min-h-0">
                                 <div className="flex items-center justify-between gap-2">
                                     <h1 className="text-base font-bold text-white truncate">{question?.title}</h1>
                                     <span className="text-[10px] text-[#8a8a8a] bg-[#1f1f1f] border border-[#303030] rounded-full px-2 py-1">
@@ -691,9 +716,9 @@ const CustomSplitter: React.FC<CustomSplitterProps> = ({ question, fontSize = 14
                 {(!isMobile || mobileTab === 'code') && (
                     <Content
                         className={`bg-[#141414] ${isMobile ? 'px-3 pb-3 pt-2' : 'p-4'} flex-grow overflow-hidden min-h-0`}
-                        style={isMobile ? { height: '100%' } : undefined}
+                        style={isMobile ? { height: '100%', position: 'relative' } : { position: 'relative' }}
                     >
-                        <div className={`h-full bg-[#1b1b1b] rounded-xl ${isMobile ? 'p-3' : 'p-4'} border border-[#232323] shadow-[0_0_0_1px_rgba(34,139,34,0.08)] flex flex-col gap-4 min-h-0`}>
+                        <div className={`h-full bg-[#1b1b1b] rounded-xl ${isMobile ? 'p-3' : 'p-4'} border border-[#232323] shadow-[0_0_0_1px_rgba(34,139,34,0.08)] flex flex-col gap-4 min-h-0 relative`}>
                             <div className={`flex items-center justify-between ${isMobile ? 'flex-wrap gap-2' : ''}`}>
                                 <Space className={isMobile ? 'w-full justify-between' : ''}>
                                     <Select

@@ -1,6 +1,6 @@
 # UserControllerApi
 
-All URIs are relative to *http://172.19.0.3:8201/api/user*
+All URIs are relative to *http://172.24.80.1:8201/api/user*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|

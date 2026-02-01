@@ -36,6 +36,8 @@ import type { BaseResponsePageQuestionVO } from '../model';
 // @ts-ignore
 import type { BaseResponseQuestion } from '../model';
 // @ts-ignore
+import type { BaseResponseQuestionBatchImportResponse } from '../model';
+// @ts-ignore
 import type { BaseResponseQuestionSubmitVO } from '../model';
 // @ts-ignore
 import type { BaseResponseQuestionVO } from '../model';
@@ -408,6 +410,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 从 HUSTOJ FPS XML 文件批量导入题目，仅管理员可用
+         * @summary 批量导入题目
+         * @param {File} file FPS XML 文件
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        importQuestions: async (file: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'file' is not null or undefined
+            assertParamExists('importQuestions', 'file', file)
+            const localVarPath = `/import`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
+
+
+            if (file !== undefined) { 
+                localVarFormParams.append('file', file as any);
+            }
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+            localVarHeaderParameter['Accept'] = '*/*';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = localVarFormParams;
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @param {QuestionQueryRequest} questionQueryRequest 
          * @param {*} [options] Override http request option.
@@ -708,6 +750,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 从 HUSTOJ FPS XML 文件批量导入题目，仅管理员可用
+         * @summary 批量导入题目
+         * @param {File} file FPS XML 文件
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async importQuestions(file: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseQuestionBatchImportResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.importQuestions(file, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.importQuestions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @param {QuestionQueryRequest} questionQueryRequest 
          * @param {*} [options] Override http request option.
@@ -868,6 +923,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getSubmitHeatmap(startDate, endDate, options).then((request) => request(axios, basePath));
         },
         /**
+         * 从 HUSTOJ FPS XML 文件批量导入题目，仅管理员可用
+         * @summary 批量导入题目
+         * @param {File} file FPS XML 文件
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        importQuestions(file: File, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseQuestionBatchImportResponse> {
+            return localVarFp.importQuestions(file, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @param {QuestionQueryRequest} questionQueryRequest 
          * @param {*} [options] Override http request option.
@@ -1018,6 +1083,17 @@ export class DefaultApi extends BaseAPI {
      */
     public getSubmitHeatmap(startDate?: string, endDate?: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getSubmitHeatmap(startDate, endDate, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 从 HUSTOJ FPS XML 文件批量导入题目，仅管理员可用
+     * @summary 批量导入题目
+     * @param {File} file FPS XML 文件
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public importQuestions(file: File, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).importQuestions(file, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
