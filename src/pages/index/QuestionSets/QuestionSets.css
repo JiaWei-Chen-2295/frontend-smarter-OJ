@@ -14,36 +14,21 @@
 }
 
 .qs-tabs {
-  display: flex;
-  gap: 8px;
-  background: rgba(241, 245, 249, 0.85);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 14px;
-  padding: 6px;
   width: fit-content;
 }
 
 .qs-tab {
-  min-height: 44px;
-  padding: 10px 16px;
-  border: none;
-  background: transparent;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--uiux-muted);
-  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  border-radius: 14px;
 }
 
 .qs-tab:hover {
-  color: var(--uiux-text);
+  color: inherit;
 }
 
 .qs-tab.active {
-  background: #ffffff;
-  color: var(--uiux-primary);
-  box-shadow: 0 8px 18px -14px rgba(15, 23, 42, 0.35);
+  background: inherit;
+  color: inherit;
+  box-shadow: none;
 }
 
 .qs-header-actions {

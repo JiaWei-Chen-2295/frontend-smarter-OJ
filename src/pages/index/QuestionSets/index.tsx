@@ -135,12 +135,12 @@ const QuestionSets: React.FC = () => {
       </div>
 
       <div className="qs-toolbar uiux-card">
-        <div className="qs-tabs" role="tablist" aria-label="题单视图">
+        <div className="qs-tabs uiux-tabs" role="tablist" aria-label="题单视图">
           <button
             type="button"
             role="tab"
             aria-selected={viewMode === 'my'}
-            className={`qs-tab ${viewMode === 'my' ? 'active' : ''}`}
+            className={`qs-tab uiux-tab ${viewMode === 'my' ? 'active uiux-tab-active' : ''}`}
             onClick={() => {
               setViewMode('my');
               setCurrentPage(1);
@@ -152,7 +152,7 @@ const QuestionSets: React.FC = () => {
             type="button"
             role="tab"
             aria-selected={viewMode === 'all'}
-            className={`qs-tab ${viewMode === 'all' ? 'active' : ''}`}
+            className={`qs-tab uiux-tab ${viewMode === 'all' ? 'active uiux-tab-active' : ''}`}
             onClick={() => {
               setViewMode('all');
               setCurrentPage(1);

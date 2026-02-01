@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Modal, message, Spin, Tag, Progress } from "antd";
+import { Avatar, Modal, message, Spin, Tag, Progress } from "antd";
 import { useSelector } from "react-redux";
 import { useNavigate } from 'react-router-dom';
 import { RootState } from "../../../context/store.ts";
 import MarkDownNewEditor from "../../../components/MarkDownNewEditor.tsx";
 import { HeartOutlined, HeartFilled, StarOutlined, StarFilled, PlusOutlined, UserOutlined, ClockCircleOutlined, RightOutlined, FireOutlined, TrophyOutlined, BookOutlined, CodeOutlined } from '@ant-design/icons';
-import { createPost, thumbPost, favourPost, getMyPosts } from '../../../services/postService';
+import { createPost, thumbPost, favourPost, getAllPosts } from '../../../services/postService';
 import { getAllQuestionSets } from '../../../services/questionSetService';
 import type { PostVO } from '../../../../generated_new/post';
 import type { QuestionSetVO } from '../../../../generated_new/question';
 import { Fire, Target, ChartLine, Code, BookOpen } from '@icon-park/react';
 import Heatmap from '../../../components/Heatmap';
 import '../Posts/Posts.css';
+import MarkdownPreview from '../../../components/MarkdownPreview';
+import '../../../styles/uiuxpro.css';
 import './Main.css';
 
 const StudyPlanCard = ({ title, progress, total, icon, color }: { title: string; progress: number; total: number; icon: React.ReactNode; color: string }) => (
@@ -45,7 +47,7 @@ function OJMain() {
     const fetchPosts = async () => {
         setLoading(true);
         try {
-            const resp = await getMyPosts({ current: 1, pageSize: 5 });
+            const resp = await getAllPosts({ current: 1, pageSize: 5 });
             if (resp.code === 0 && resp.data) {
                 setPosts(resp.data.records || []);
             }
@@ -104,8 +106,25 @@ function OJMain() {
     const addTag = () => { if (tagInput.trim() && !tags.includes(tagInput.trim())) { setTags([...tags, tagInput.trim()]); setTagInput(''); } };
     const removeTag = (tag: string) => { setTags(tags.filter(t => t !== tag)); };
 
+    const stripMarkdown = (value: string) => {
+        return value
+            .replace(/```[\s\S]*?```/g, ' ')
+            .replace(/`[^`]*`/g, ' ')
+            .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
+            .replace(/\[[^\]]*]\([^)]*\)/g, ' ')
+            .replace(/[#>*_\-|~]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
+    const getReadMinutes = (markdown?: string) => {
+        const text = stripMarkdown(markdown || '');
+        if (!text) return 1;
+        return Math.max(1, Math.round(text.length / 360));
+    };
+
     return (
-        <div className="main-container">
+        <div className="uiux-scope main-container">
             <div className="welcome-banner">
                 <div className="welcome-content">
                     <h1>欢迎回来，{currentUser?.userName || '游客朋友'}</h1>
@@ -145,11 +164,17 @@ function OJMain() {
 
             <div className="main-grid">
                 <div className="main-content">
-                    <div className="content-tabs">
+                    <div className="content-tabs uiux-tabs" role="tablist" aria-label="内容分类">
                         {tabList.map(tab => (
-                            <button key={tab} className={`tab-btn ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
+                            <button
+                                key={tab}
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === tab}
+                                className={`tab-btn uiux-tab ${activeTab === tab ? 'active uiux-tab-active' : ''}`}
+                                onClick={() => setActiveTab(tab)}
+                            >
                                 {tab}
-                                {activeTab === tab && <div className="tab-indicator" />}
                             </button>
                         ))}
                     </div>
@@ -157,30 +182,77 @@ function OJMain() {
                     <div className="content-feed">
                         <div className="posts-section">
                             <div className="section-header">
-                                <div className="section-title"><BookOutlined /> 我的帖子</div>
+                                <div className="section-title"><BookOutlined /> 最新帖子</div>
                                 <button className="posts-create-btn" onClick={() => setIsModalOpen(true)}><PlusOutlined /> 发布</button>
                             </div>
                             {loading ? <div className="posts-loading"><Spin size="large" /></div> : posts.length === 0 ? (
                                 <div className="posts-empty"><div className="posts-empty-icon">📝</div><div className="posts-empty-text">暂无帖子</div></div>
                             ) : posts.map((post, index) => (
-                                <div key={post.id} className="post-card">
-                                    <div className="post-header">
-                                        <h3 className="post-title" onClick={() => navigate(`/post/${post.id}`)}>{post.title}</h3>
-                                        <div className="post-meta">
-                                            <span><UserOutlined /> {post.user?.userName || '匿名'}</span>
-                                            <span><ClockCircleOutlined /> {new Date(post.createTime || '').toLocaleDateString()}</span>
+                                <div key={post.id} className="uiux-post-card uiux-card">
+                                    <div className="uiux-post-top">
+                                        <div className="uiux-post-author">
+                                            <Avatar
+                                                size={32}
+                                                src={post.user?.userAvatar}
+                                                style={{ backgroundColor: 'rgba(240, 253, 244, 1)', color: 'rgba(22, 163, 74, 1)' }}
+                                            >
+                                                {(post.user?.userName || '匿').slice(0, 1)}
+                                            </Avatar>
+                                            <div className="uiux-post-author-meta">
+                                                <div className="uiux-post-author-name">{post.user?.userName || '匿名'}</div>
+                                                <div className="uiux-post-submeta">
+                                                    <span className="uiux-post-submeta-item">
+                                                        <ClockCircleOutlined /> {new Date(post.createTime || '').toLocaleDateString()}
+                                                    </span>
+                                                    <span className="uiux-post-dot">·</span>
+                                                    <span className="uiux-post-submeta-item">{getReadMinutes(post.content)} 分钟阅读</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="uiux-post-actions">
+                                            <button
+                                                className={`uiux-post-action ${post.hasThumb ? 'active' : ''}`}
+                                                onClick={() => handleThumb(index)}
+                                                type="button"
+                                                aria-label={`点赞，当前 ${post.thumbNum || 0}`}
+                                                aria-pressed={!!post.hasThumb}
+                                            >
+                                                {post.hasThumb ? <HeartFilled /> : <HeartOutlined />}
+                                                <span>{post.thumbNum || 0}</span>
+                                            </button>
+                                            <button
+                                                className={`uiux-post-action ${post.hasFavour ? 'active' : ''}`}
+                                                onClick={() => handleFavour(index)}
+                                                type="button"
+                                                aria-label={`收藏，当前 ${post.favourNum || 0}`}
+                                                aria-pressed={!!post.hasFavour}
+                                            >
+                                                {post.hasFavour ? <StarFilled /> : <StarOutlined />}
+                                                <span>{post.favourNum || 0}</span>
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="post-content">{post.content}</div>
-                                    {post.tagList && post.tagList.length > 0 && <div className="post-tags">{post.tagList.map(tag => <Tag key={tag} color="blue">{tag}</Tag>)}</div>}
-                                    <div className="post-actions">
-                                        <button className={`post-action-btn ${post.hasThumb ? 'active' : ''}`} onClick={() => handleThumb(index)}>
-                                            {post.hasThumb ? <HeartFilled /> : <HeartOutlined />}<span>{post.thumbNum || 0}</span>
-                                        </button>
-                                        <button className={`post-action-btn ${post.hasFavour ? 'active' : ''}`} onClick={() => handleFavour(index)}>
-                                            {post.hasFavour ? <StarFilled /> : <StarOutlined />}<span>{post.favourNum || 0}</span>
-                                        </button>
-                                    </div>
+
+                                    <button
+                                        type="button"
+                                        className="uiux-post-title uiux-focusable"
+                                        onClick={() => navigate(`/post/${post.id}`)}
+                                    >
+                                        {post.title}
+                                    </button>
+
+                                    <MarkdownPreview value={post.content || ''} />
+
+                                    {(post.tagList?.length || 0) > 0 && (
+                                        <div className="uiux-post-tags">
+                                            {post.tagList!.slice(0, 3).map(tag => (
+                                                <span key={tag} className="uiux-post-tag">{tag}</span>
+                                            ))}
+                                            {post.tagList!.length > 3 && (
+                                                <span className="uiux-post-tag uiux-post-tag-muted">+{post.tagList!.length - 3}</span>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

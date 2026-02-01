@@ -1,7 +1,7 @@
-import { Tabs } from "antd";
 import MainLayout from "../../layouts/MainLayout.tsx";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import "../../styles/uiuxpro.css";
 
 function AdminPageMain() {
 
@@ -55,17 +55,24 @@ function AdminPageMain() {
     return (
         <>
             <MainLayout>
-                <Tabs
-                    activeKey={activeKey}
-                    centered
-                    items={adminPageTabItems}
-                    onChange={(key) => {
-                        const path = adminPageTabItems.find(item => item.key === key)?.path;
-                        if (path) {
-                            navigate(path);
-                        }
-                    }}
-                />
+                <div className="uiux-scope" style={{ marginBottom: 12 }}>
+                    <nav className="uiux-tabs uiux-tabs-wrap" aria-label="管理后台导航">
+                        {adminPageTabItems.map(item => (
+                            <button
+                                key={item.key}
+                                type="button"
+                                role="tab"
+                                aria-selected={activeKey === item.key}
+                                className={`uiux-tab ${activeKey === item.key ? 'uiux-tab-active' : ''}`}
+                                onClick={() => {
+                                    if (item.path) navigate(item.path);
+                                }}
+                            >
+                                {item.label}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
                 <Outlet />
             </MainLayout>
 
