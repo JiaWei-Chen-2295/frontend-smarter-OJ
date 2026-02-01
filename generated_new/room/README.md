@@ -47,7 +47,7 @@ npm install PATH_TO_GENERATED_PACKAGE --save
 
 ### Documentation for API Endpoints
 
-All URIs are relative to *http://172.19.0.4:8205/api/room*
+All URIs are relative to *http://172.24.80.1:8205/api/room*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------

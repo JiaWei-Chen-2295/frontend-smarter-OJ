@@ -13,12 +13,9 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { User } from './user';
 
-export interface DoJudgeRequest {
-    'questionSubmitId'?: string;
-    'loginUser'?: User;
+export interface JudgeCase {
+    'input'?: string;
+    'output'?: string;
 }
 

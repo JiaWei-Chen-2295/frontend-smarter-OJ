@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **userVO** | [**UserVO**](UserVO.md) |  | [optional] [default to undefined]
 **questionVO** | [**QuestionVO**](QuestionVO.md) |  | [optional] [default to undefined]
 **outputResult** | **string** |  | [optional] [default to undefined]
+**judgeCaseList** | [**Array&lt;JudgeCase&gt;**](JudgeCase.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -32,6 +33,7 @@ const instance: QuestionSubmitVO = {
     userVO,
     questionVO,
     outputResult,
+    judgeCaseList,
 };
 ```
 

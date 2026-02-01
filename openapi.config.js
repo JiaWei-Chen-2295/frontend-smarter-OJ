@@ -11,7 +11,7 @@ const generatedDir = path.resolve(__dirname, './generated_new');
 
 // Headers provided by the user to bypass potential blocks/auth checks
 const headers = {
-    'Cookie': 'satoken=e4d84a2a-950c-4a9f-a0bd-62b411e63698'
+    'Cookie': 'satoken=a95a5e0f-f1cb-40d9-bda9-9bc597057352'
 };
 
 async function fetchSpec(url) {
@@ -88,10 +88,13 @@ async function run() {
             fs.writeFileSync(specFile, specContent);
 
             // Generate
-            // Comment out rmSync to allow .openapi-generator-ignore to work and preserve custom configs if needed
-            // if (fs.existsSync(serviceDir)) {
-            //     fs.rmSync(serviceDir, { recursive: true, force: true });
-            // }
+            if (fs.existsSync(serviceDir)) {
+                try {
+                    fs.rmSync(serviceDir, { recursive: true, force: true });
+                } catch (err) {
+                    console.warn(`Warning: Failed to delete ${serviceDir}. Trying to proceed...`, err.message);
+                }
+            }
             fs.mkdirSync(serviceDir, { recursive: true });
 
             const cmd = `npx openapi-generator-cli generate -i ${specFile} -g typescript-axios -o ${serviceDir} --skip-validate-spec --type-mappings=integer+int64=string --additional-properties=supportsES6=true,npmName=${serviceName.toLowerCase()},withSeparateModelsAndApi=true,modelPackage=model,apiPackage=api`;
@@ -113,6 +116,26 @@ async function run() {
                             content = content.replace(regex, `export const BASE_PATH = "${serviceContextPath}".replace(/\\/+$/, "");`);
                             fs.writeFileSync(baseTsFile, content);
                             console.log(`Fixed BASE_PATH in ${serviceName}/base.ts to "${serviceContextPath}"`);
+                        }
+                    }
+                }
+
+                // Post-generation fix: Append missing export for the main controller API if needed
+                // The generator sometimes misses exporting the main controller file (e.g. user-controller-api.ts)
+                const controllerApiFileName = `${serviceName.toLowerCase()}-controller-api`;
+                const controllerApiPathLocation = path.join(serviceDir, 'api', `${controllerApiFileName}.ts`);
+
+                if (fs.existsSync(controllerApiPathLocation)) {
+                    const apiTsFile = path.join(serviceDir, 'api.ts');
+                    if (fs.existsSync(apiTsFile)) {
+                        let content = fs.readFileSync(apiTsFile, 'utf8');
+                        const exportStatement = `export * from './api/${controllerApiFileName}';`;
+
+                        // Check if the export statement is already present
+                        if (!content.includes(controllerApiFileName)) {
+                            console.log(`Patching api.ts for ${serviceName} to include ${controllerApiFileName}...`);
+                            content += `\n${exportStatement}\n`;
+                            fs.writeFileSync(apiTsFile, content);
                         }
                     }
                 }

@@ -16,6 +16,5 @@
 
 export * from './api/default-api';
 export * from './api/inner-question-controller-api';
-export * from './api/question-controller-api';
 export * from './api/question-set-controller-api';
 

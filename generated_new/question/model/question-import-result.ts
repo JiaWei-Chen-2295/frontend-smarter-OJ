@@ -14,9 +14,11 @@
 
 
 
-export interface PointVO {
-    'secretKey'?: string;
-    'x'?: number;
-    'y'?: number;
+export interface QuestionImportResult {
+    'index'?: number;
+    'title'?: string;
+    'success'?: boolean;
+    'questionId'?: string;
+    'errorMessage'?: string;
 }
 

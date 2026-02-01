@@ -15,6 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
+import type { JudgeCase } from './judge-case';
+// May contain unused imports in some cases
+// @ts-ignore
 import type { JudgeInfo } from './judge-info';
 // May contain unused imports in some cases
 // @ts-ignore
@@ -34,5 +37,6 @@ export interface QuestionSubmitVO {
     'userVO'?: UserVO;
     'questionVO'?: QuestionVO;
     'outputResult'?: string;
+    'judgeCaseList'?: Array<JudgeCase>;
 }
 

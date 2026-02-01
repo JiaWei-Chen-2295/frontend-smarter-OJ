@@ -1,6 +1,6 @@
 # DefaultApi
 
-All URIs are relative to *http://172.19.0.6:8202*
+All URIs are relative to *http://172.24.80.1:8202/api/question*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -14,6 +14,7 @@ All URIs are relative to *http://172.19.0.6:8202*
 |[**getQuestionVOById**](#getquestionvobyid) | **GET** /get/vo | |
 |[**getSubmit**](#getsubmit) | **GET** /submit/getSubmitStatus | |
 |[**getSubmitHeatmap**](#getsubmitheatmap) | **GET** /submit/heatmap | 获取用户提交热力图|
+|[**importQuestions**](#importquestions) | **POST** /import | 批量导入题目|
 |[**listMyQuestionVOByPage**](#listmyquestionvobypage) | **POST** /my/list/page/vo | |
 |[**listQuestionByPage**](#listquestionbypage) | **POST** /list/page | |
 |[**listQuestionSubmitByPage**](#listquestionsubmitbypage) | **POST** /submit/admin/page | |
@@ -512,6 +513,57 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
+ - **Accept**: */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **importQuestions**
+> BaseResponseQuestionBatchImportResponse importQuestions()
+
+从 HUSTOJ FPS XML 文件批量导入题目，仅管理员可用
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from 'question';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let file: File; //FPS XML 文件 (default to undefined)
+
+const { status, data } = await apiInstance.importQuestions(
+    file
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **file** | [**File**] | FPS XML 文件 | defaults to undefined|
+
+
+### Return type
+
+**BaseResponseQuestionBatchImportResponse**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: multipart/form-data
  - **Accept**: */*
 
 

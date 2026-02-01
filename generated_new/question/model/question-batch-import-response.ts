@@ -13,9 +13,14 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { QuestionImportResult } from './question-import-result';
 
-export interface CaptchaVOPointListInner {
-    'x'?: number;
-    'y'?: number;
+export interface QuestionBatchImportResponse {
+    'totalCount'?: number;
+    'successCount'?: number;
+    'failCount'?: number;
+    'results'?: Array<QuestionImportResult>;
 }
 

@@ -13,10 +13,13 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { QuestionBatchImportResponse } from './question-batch-import-response';
 
-export interface BaseResponseObject {
+export interface BaseResponseQuestionBatchImportResponse {
     'code'?: number;
-    'data'?: object;
+    'data'?: QuestionBatchImportResponse;
     'message'?: string;
 }
 
