@@ -1,4 +1,4 @@
-import { Avatar, Button, Divider, Dropdown, Layout, Menu, MenuProps, Space, theme } from 'antd';
+import { Avatar, Button, Divider, Dropdown, Layout, MenuProps, Space, theme } from 'antd';
 import { ReactNode, useEffect, useState } from "react";
 import NavBarItems, { getPathByKey } from "../config/NavBarItem.config.tsx";
 import { useLocation, useNavigate } from "react-router";
@@ -9,6 +9,7 @@ import { SourceCode } from "@icon-park/react";
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import React from 'react';
 import { userApi } from '../api';
+import '../styles/uiuxpro.css';
 
 const { Header, Content, Footer } = Layout;
 
@@ -74,88 +75,123 @@ function MainLayout({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const path = location.pathname;
-        const selectedItem = NavBarItems.find(item => item.path === path);
-        if (selectedItem) {
-            setCurrentKey(selectedItem.key.toString());
-        }
+        const resolveActiveKey = () => {
+            const exact = NavBarItems.find(item => item.path === path);
+            if (exact) return exact.key.toString();
+
+            const aliasMap: Record<string, string> = {
+                '/post': '/posts',
+                '/question-set': '/question-sets',
+                '/oj': '/qs',
+            };
+            for (const [prefix, target] of Object.entries(aliasMap)) {
+                if (path === prefix || path.startsWith(`${prefix}/`)) {
+                    const hit = NavBarItems.find(item => item.path === target);
+                    if (hit) return hit.key.toString();
+                }
+            }
+
+            const candidates = NavBarItems
+                .filter(item => item.path !== '/' && (path === item.path || path.startsWith(`${item.path}/`)))
+                .sort((a, b) => b.path.length - a.path.length);
+            return candidates[0]?.key.toString() ?? '';
+        };
+
+        const selectedKey = resolveActiveKey();
+        setCurrentKey(selectedKey);
     }, [location]);
 
     return (
         <Layout>
-            <Header style={{
+            <Header className="uiux-scope uiux-navbar" style={{
                 position: 'sticky',
                 top: 0,
                 zIndex: 1000,
                 width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                background: colorBgContainer,
-                padding: '0 24px',
+                background: 'transparent',
+                padding: 0,
                 height: 64,
                 lineHeight: '64px',
             }}>
-                <div className="my-logo">
-                    <img src="/logo.svg" height={'48px'} width={'64px'} alt='Smarter OJ' />
-
-                </div>
-                {!hideMenu && (
-                    <Menu
-                        theme="light"
-                        mode="horizontal"
-                        defaultSelectedKeys={['1']}
-                        selectedKeys={[currentKey]}
-                        items={NavBarItems.filter(item => {
-                            const findRoute = router.routes.find(route => item.path === route.path);
-                            // @ts-expect-error meta
-                            return !(findRoute?.meta?.requiresAuth && currentUser?.userRole !== 'admin');
-                        })}
-                        onClick={(info) => {
-                            const path = getPathByKey(info.key);
-                            if (path) {
-                                navigate(path)
-                            }
-                        }}
-                        style={{ flex: 1, minWidth: 0 }}
-                    />
-                )}
-                {hideMenu && <div style={{ flex: 1 }} />}
-
-                <Dropdown
-                    menu={{ items }}
-                    placement="bottomLeft"
-                    dropdownRender={(menu) => (
-                        <div style={contentStyle}>
-                            {React.cloneElement(
-                                menu as React.ReactElement<{
-                                    style: React.CSSProperties;
-                                }>,
-                                { style: menuStyle },
-                            )}
-                            <Divider style={{ margin: 0 }} />
-                            {
-                                currentUser === null && (
-                                    <Space style={{ padding: 8 }}>
-                                        <Button type="primary" onClick={() => { window.location.reload() }}>立即登录</Button>
-                                    </Space>
-                                )
-                            }
-                        </div>
+                <div className="uiux-navbar-inner">
+                    <button
+                        type="button"
+                        className="uiux-navbar-logo"
+                        onClick={() => navigate('/')}
+                    >
+                        <img src="/logo.svg" height={'40px'} width={'56px'} alt='Smarter OJ' />
+                        <span className="uiux-navbar-brand">SmarterOJ</span>
+                    </button>
+                    {!hideMenu && (
+                        <nav className="uiux-navbar-nav uiux-tabs" aria-label="主导航">
+                            {NavBarItems.filter(item => {
+                                const findRoute = router.routes.find(route => item.path === route.path);
+                                // @ts-expect-error meta
+                                return !(findRoute?.meta?.requiresAuth && currentUser?.userRole !== 'admin');
+                            }).map(item => (
+                                <button
+                                    key={item.key}
+                                    type="button"
+                                    className={`uiux-tab uiux-navbar-tab ${currentKey === item.key ? 'uiux-tab-active' : ''}`}
+                                    onClick={() => {
+                                        const path = getPathByKey(item.key);
+                                        if (path) navigate(path);
+                                    }}
+                                    aria-current={currentKey === item.key ? 'page' : undefined}
+                                >
+                                    <span className="uiux-navbar-tab-icon">{item.icon}</span>
+                                    <span>{item.label}</span>
+                                </button>
+                            ))}
+                        </nav>
                     )}
-                >
-                    <a onClick={(e) => e.preventDefault()}>
-                        <div className="my-user pr-6">
-                            <Avatar
-                                style={{ backgroundColor: '#c7fdbb', color: '#096105' }}
-                                size={'large'}
-                                src={
-                                    <img src={currentUser?.userAvatar} alt={currentUser?.userName}></img>
+                    {hideMenu && <div style={{ flex: 1 }} />}
+
+                    <Dropdown
+                        menu={{ items }}
+                        placement="bottomLeft"
+                        dropdownRender={(menu) => (
+                            <div
+                                className="uiux-scope uiux-card"
+                                style={{
+                                    ...contentStyle,
+                                    backgroundColor: 'var(--uiux-card)',
+                                    borderRadius: 16,
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                {React.cloneElement(
+                                    menu as React.ReactElement<{
+                                        style: React.CSSProperties;
+                                    }>,
+                                    { style: menuStyle },
+                                )}
+                                <Divider style={{ margin: 0 }} />
+                                {
+                                    currentUser === null && (
+                                        <Space style={{ padding: 8 }}>
+                                            <Button type="primary" onClick={() => { window.location.reload() }}>立即登录</Button>
+                                        </Space>
+                                    )
                                 }
-                            >{
-                                    currentUser?.userName?.slice(0, 1)
-                                }</Avatar>
-                        </div>
-                    </a>
-                </Dropdown>
+                            </div>
+                        )}
+                    >
+                        <a onClick={(e) => e.preventDefault()}>
+                            <div className="uiux-navbar-user pr-6">
+                                <Avatar
+                                    style={{ backgroundColor: 'rgba(240, 253, 244, 1)', color: 'rgba(22, 163, 74, 1)' }}
+                                    size={'large'}
+                                    src={
+                                        <img src={currentUser?.userAvatar} alt={currentUser?.userName}></img>
+                                    }
+                                >{
+                                        currentUser?.userName?.slice(0, 1)
+                                    }</Avatar>
+                            </div>
+                        </a>
+                    </Dropdown>
+                </div>
 
 
 

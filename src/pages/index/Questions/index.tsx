@@ -217,11 +217,13 @@ const Questions: React.FC = () => {
           <div className="qs-stat-item"><span className="qs-badge-dot"></span><strong>题目总数</strong> {questions.length}</div>
           <div className="qs-stat-item"><strong>已筛选</strong> {filteredQuestions.length}</div>
         </div>
-        <div className="qs-chips">
+        <div className="qs-chips uiux-tabs uiux-tabs-wrap" role="tablist" aria-label="题目分类">
           <button
             type="button"
-            className={`qs-chip ${activeCategory === '全部' ? 'qs-active' : ''}`}
+            className={`qs-chip uiux-tab ${activeCategory === '全部' ? 'qs-active uiux-tab-active' : ''}`}
             onClick={() => setActiveCategory('全部')}
+            role="tab"
+            aria-selected={activeCategory === '全部'}
           >
             全部
           </button>
@@ -229,8 +231,10 @@ const Questions: React.FC = () => {
             <button
               type="button"
               key={tag}
-              className={`qs-chip ${activeCategory === tag ? 'qs-active' : ''}`}
+              className={`qs-chip uiux-tab ${activeCategory === tag ? 'qs-active uiux-tab-active' : ''}`}
               onClick={() => setActiveCategory(tag)}
+              role="tab"
+              aria-selected={activeCategory === tag}
             >
               {tag}
             </button>

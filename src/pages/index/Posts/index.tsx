@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Button, Empty, Input, Modal, Pagination, Spin, Tag, message } from 'antd';
+import { Avatar, Button, Empty, Input, Modal, Pagination, Spin, Tag, message } from 'antd';
 import { Link } from 'react-router-dom';
-import { ClockCircleOutlined, FileTextOutlined, HeartFilled, HeartOutlined, PlusOutlined, StarFilled, StarOutlined, UserOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, FileTextOutlined, HeartFilled, HeartOutlined, PlusOutlined, StarFilled, StarOutlined } from '@ant-design/icons';
+import MarkdownPreview from '../../../components/MarkdownPreview';
 import MarkDownNewEditor from '../../../components/MarkDownNewEditor';
 import { createPost, thumbPost, favourPost, getMyPosts, getAllPosts } from '../../../services/postService';
 import type { PostVO } from '../../../../generated/models/PostVO';
@@ -106,6 +107,23 @@ const Posts: React.FC = () => {
     setTags(tags.filter(t => t !== tag));
   };
 
+  const stripMarkdown = (value: string) => {
+    return value
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/`[^`]*`/g, ' ')
+      .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
+      .replace(/\[[^\]]*]\([^)]*\)/g, ' ')
+      .replace(/[#>*_\-|~]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  const getReadMinutes = (markdown?: string) => {
+    const text = stripMarkdown(markdown || '');
+    if (!text) return 1;
+    return Math.max(1, Math.round(text.length / 360));
+  };
+
   return (
     <div className="uiux-scope uiux-page uiux-posts-page">
       <div className="uiux-hero">
@@ -121,12 +139,12 @@ const Posts: React.FC = () => {
       </div>
 
       <div className="posts-toolbar uiux-card">
-        <div className="posts-tabs" role="tablist" aria-label="帖子视图">
+        <div className="posts-tabs uiux-tabs" role="tablist" aria-label="帖子视图">
           <button
             type="button"
             role="tab"
             aria-selected={viewMode === 'my'}
-            className={`posts-tab ${viewMode === 'my' ? 'active' : ''}`}
+            className={`posts-tab uiux-tab ${viewMode === 'my' ? 'active uiux-tab-active' : ''}`}
             onClick={() => setViewMode('my')}
           >
             我的帖子
@@ -135,7 +153,7 @@ const Posts: React.FC = () => {
             type="button"
             role="tab"
             aria-selected={viewMode === 'all'}
-            className={`posts-tab ${viewMode === 'all' ? 'active' : ''}`}
+            className={`posts-tab uiux-tab ${viewMode === 'all' ? 'active uiux-tab-active' : ''}`}
             onClick={() => setViewMode('all')}
           >
             全部帖子
@@ -157,55 +175,69 @@ const Posts: React.FC = () => {
           </div>
         ) : (
           posts.map((post, index) => (
-            <div key={post.id} className="post-card uiux-card">
-              <div className="post-header">
-                <Link className="post-title-link uiux-focusable" to={`/post/${post.id}`}>
-                  {post.title}
-                </Link>
-                <div className="post-meta">
-                  <span className="post-author">
-                    <UserOutlined /> {post.user?.userName || '匿名'}
-                  </span>
-                  <span className="post-time">
-                    <ClockCircleOutlined /> {new Date(post.createTime || '').toLocaleDateString()}
-                  </span>
+            <div key={post.id} className="uiux-post-card uiux-card">
+              <div className="uiux-post-top">
+                <div className="uiux-post-author">
+                  <Avatar
+                    size={32}
+                    src={post.user?.userAvatar}
+                    style={{ backgroundColor: 'rgba(240, 253, 244, 1)', color: 'rgba(22, 163, 74, 1)' }}
+                  >
+                    {(post.user?.userName || '匿').slice(0, 1)}
+                  </Avatar>
+                  <div className="uiux-post-author-meta">
+                    <div className="uiux-post-author-name">{post.user?.userName || '匿名'}</div>
+                    <div className="uiux-post-submeta">
+                      <span className="uiux-post-submeta-item">
+                        <ClockCircleOutlined /> {new Date(post.createTime || '').toLocaleDateString()}
+                      </span>
+                      <span className="uiux-post-dot">·</span>
+                      <span className="uiux-post-submeta-item">{getReadMinutes(post.content)} 分钟阅读</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="uiux-post-actions">
+                  <button
+                    className={`uiux-post-action ${post.hasThumb ? 'active' : ''}`}
+                    onClick={() => handleThumb(index)}
+                    type="button"
+                    aria-label={`点赞，当前 ${post.thumbNum || 0}`}
+                    aria-pressed={!!post.hasThumb}
+                  >
+                    {post.hasThumb ? <HeartFilled /> : <HeartOutlined />}
+                    <span>{post.thumbNum || 0}</span>
+                  </button>
+                  <button
+                    className={`uiux-post-action ${post.hasFavour ? 'active' : ''}`}
+                    onClick={() => handleFavour(index)}
+                    type="button"
+                    aria-label={`收藏，当前 ${post.favourNum || 0}`}
+                    aria-pressed={!!post.hasFavour}
+                  >
+                    {post.hasFavour ? <StarFilled /> : <StarOutlined />}
+                    <span>{post.favourNum || 0}</span>
+                  </button>
                 </div>
               </div>
-              
-              <div className="post-content">{post.content}</div>
-              
-              {post.tagList && post.tagList.length > 0 && (
-                <div className="post-tags">
-                  {post.tagList.map(tag => (
-                    <Tag key={tag} color="green">
+
+              <Link className="uiux-post-title uiux-focusable" to={`/post/${post.id}`}>
+                {post.title}
+              </Link>
+
+              <MarkdownPreview value={post.content || ''} />
+
+              {(post.tagList?.length || 0) > 0 && (
+                <div className="uiux-post-tags">
+                  {post.tagList!.slice(0, 3).map(tag => (
+                    <span key={tag} className="uiux-post-tag">
                       {tag}
-                    </Tag>
+                    </span>
                   ))}
+                  {post.tagList!.length > 3 && (
+                    <span className="uiux-post-tag uiux-post-tag-muted">+{post.tagList!.length - 3}</span>
+                  )}
                 </div>
               )}
-              
-              <div className="post-actions">
-                <button 
-                  className={`post-action-btn ${post.hasThumb ? 'active' : ''}`}
-                  onClick={() => handleThumb(index)}
-                  type="button"
-                  aria-label={`点赞，当前 ${post.thumbNum || 0}`}
-                  aria-pressed={!!post.hasThumb}
-                >
-                  {post.hasThumb ? <HeartFilled /> : <HeartOutlined />}
-                  <span>{post.thumbNum || 0}</span>
-                </button>
-                <button 
-                  className={`post-action-btn ${post.hasFavour ? 'active' : ''}`}
-                  onClick={() => handleFavour(index)}
-                  type="button"
-                  aria-label={`收藏，当前 ${post.favourNum || 0}`}
-                  aria-pressed={!!post.hasFavour}
-                >
-                  {post.hasFavour ? <StarFilled /> : <StarOutlined />}
-                  <span>{post.favourNum || 0}</span>
-                </button>
-              </div>
             </div>
           ))
         )}
