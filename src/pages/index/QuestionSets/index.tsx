@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Modal, message, Spin, Tag, Input, Form, Button, Pagination } from 'antd';
+import { Button, Input, Modal, Pagination, Spin, Tag, message, Form } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { PlusOutlined, BookOutlined, UserOutlined, ClockCircleOutlined, HeartOutlined, FolderOpenOutlined, SearchOutlined } from '@ant-design/icons';
+import { BookOutlined, ClockCircleOutlined, FolderOpenOutlined, HeartOutlined, PlusOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { createQuestionSet, getMyQuestionSets, getAllQuestionSets, deleteQuestionSet } from '../../../services/questionSetService';
 import type { QuestionSetVO } from '../../../../generated_new/question';
+import '../../../styles/uiuxpro.css';
 import './QuestionSets.css';
 
 const { TextArea } = Input;
@@ -120,11 +121,25 @@ const QuestionSets: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-6">
-      {/* 头部 */}
-      <div className="qs-header">
-        <div className="qs-tabs">
+    <div className="uiux-scope uiux-page uiux-qs-page">
+      <div className="uiux-hero">
+        <div className="uiux-hero-inner">
+          <div>
+            <h1 className="uiux-hero-title">题单</h1>
+            <p className="uiux-hero-subtitle">把题目按主题整理成题单，方便复习与分享</p>
+          </div>
+          <button className="uiux-button-primary uiux-focusable" type="button" onClick={() => { resetModal(); setIsModalOpen(true); }}>
+            <PlusOutlined /> 创建题单
+          </button>
+        </div>
+      </div>
+
+      <div className="qs-toolbar uiux-card">
+        <div className="qs-tabs" role="tablist" aria-label="题单视图">
           <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'my'}
             className={`qs-tab ${viewMode === 'my' ? 'active' : ''}`}
             onClick={() => {
               setViewMode('my');
@@ -134,6 +149,9 @@ const QuestionSets: React.FC = () => {
             我的题单
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'all'}
             className={`qs-tab ${viewMode === 'all' ? 'active' : ''}`}
             onClick={() => {
               setViewMode('all');
@@ -145,41 +163,39 @@ const QuestionSets: React.FC = () => {
         </div>
 
         <div className="qs-header-actions">
-          <div className="qs-search">
-            <input
-              placeholder="搜索题单标题"
-              value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-              }}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <button onClick={handleSearch} className="search-btn">
-              <SearchOutlined />
-            </button>
-          </div>
-          <button className="qs-create-btn" onClick={() => { resetModal(); setIsModalOpen(true); }}>
-            <PlusOutlined /> 创建题单
-          </button>
+          <Input
+            allowClear
+            placeholder="搜索题单标题"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onPressEnter={handleSearch}
+            prefix={<SearchOutlined />}
+            className="qs-search-input"
+          />
+          <Button onClick={handleSearch} className="qs-search-btn">
+            搜索
+          </Button>
         </div>
       </div>
 
       {/* 列表 */}
       <div className="qs-container">
         {loading ? (
-          <div className="qs-loading">
+          <div className="qs-loading uiux-card" aria-busy="true" aria-live="polite">
             <Spin size="large" />
           </div>
         ) : questionSets.length === 0 ? (
-          <div className="qs-empty">
-            <div className="qs-empty-icon">📚</div>
-            <div className="qs-empty-text">暂无题单（当前 {viewMode} 模式，共 {total} 条）</div>
+          <div className="qs-empty uiux-card">
+            <div className="qs-empty-icon">
+              <BookOutlined />
+            </div>
+            <div className="qs-empty-text">暂无题单</div>
           </div>
         ) : (
           <>
             <div className="qs-list">
               {questionSets.map((qs) => (
-                <div key={qs.id} className="qs-card">
+                <div key={qs.id} className="qs-card uiux-card">
                   <div className="qs-card-header">
                     <div className="qs-card-title-wrapper">
                       <h3
@@ -214,32 +230,23 @@ const QuestionSets: React.FC = () => {
                   {qs.tags && qs.tags.length > 0 && (
                     <div className="qs-tags">
                       {qs.tags.map((tag, index) => (
-                        <Tag key={index} color="blue">{tag}</Tag>
+                        <Tag key={index} color="green">
+                          {tag}
+                        </Tag>
                       ))}
                     </div>
                   )}
 
                   <div className="qs-actions">
-                    <button
-                      className="qs-action-btn view-btn"
-                      onClick={() => navigate(`/question-set/${qs.id}`)}
-                    >
+                    <button className="qs-action-btn view-btn uiux-focusable" type="button" onClick={() => navigate(`/question-set/${qs.id}`)}>
                       查看详情
                     </button>
                     {(viewMode === 'my') && qs.id && (
                       <div className="qs-manage-actions">
-                        <button
-                          className="qs-action-btn edit-btn"
-                          onClick={() => navigate(`/question-set/edit/${qs.id}`)}
-                        >
+                        <button className="qs-action-btn edit-btn uiux-focusable" type="button" onClick={() => navigate(`/question-set/edit/${qs.id}`)}>
                           编辑
                         </button>
-                        <button
-                          className="qs-action-btn delete-btn"
-                          onClick={() => {
-                            if (qs.id) setDeleteConfirmOpen(qs.id);
-                          }}
-                        >
+                        <button className="qs-action-btn delete-btn uiux-focusable" type="button" onClick={() => { if (qs.id) setDeleteConfirmOpen(qs.id); }}>
                           删除
                         </button>
                       </div>
@@ -250,7 +257,7 @@ const QuestionSets: React.FC = () => {
             </div>
 
             {total > 10 && (
-              <div className="qs-pagination">
+              <div className="qs-pagination uiux-card">
                 <Pagination
                   current={currentPage}
                   pageSize={10}
@@ -278,6 +285,7 @@ const QuestionSets: React.FC = () => {
           </Button>
         ]}
         width={600}
+        className="uiux-scope"
       >
         <Form
           form={form}
@@ -306,13 +314,16 @@ const QuestionSets: React.FC = () => {
 
           <Form.Item label="标签">
             <div className="qs-tags-input">
-              <input
+              <Input
                 placeholder="添加标签（按回车）"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addTag()}
+                maxLength={24}
               />
-              <button type="button" onClick={addTag}>添加</button>
+              <Button type="primary" onClick={addTag} disabled={!tagInput.trim()}>
+                添加
+              </Button>
             </div>
 
             {tags.length > 0 && (
@@ -322,7 +333,7 @@ const QuestionSets: React.FC = () => {
                     key={tag}
                     closable
                     onClose={() => removeTag(tag)}
-                    color="blue"
+                    color="green"
                   >
                     {tag}
                   </Tag>
@@ -342,6 +353,7 @@ const QuestionSets: React.FC = () => {
         okText="删除"
         cancelText="取消"
         okButtonProps={{ danger: true }}
+        className="uiux-scope"
       >
         <p>确定要删除这个题单吗？此操作无法撤销。</p>
       </Modal>

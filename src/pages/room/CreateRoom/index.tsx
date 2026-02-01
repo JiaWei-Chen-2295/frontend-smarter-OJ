@@ -27,6 +27,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { RoomService } from '../../../services/room';
 import type { RoomAddRequest } from '../../../../generated';
+import '../../../styles/uiuxpro.css';
 import './index.css';
 
 const { Title, Text } = Typography;
@@ -133,23 +134,28 @@ const CreateRoom: React.FC = () => {
   }
 
   return (
-    <div className="create-room-container">
+    <div className="uiux-scope uiux-page create-room-container">
       <div className="create-room-header">
-        <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={handleBack}
-          style={{ marginBottom: 16 }}
-        >
-          返回房间列表
-        </Button>
+        <button className="uiux-button uiux-focusable" type="button" onClick={handleBack}>
+          <ArrowLeftOutlined /> 返回房间列表
+        </button>
+      </div>
+
+      <div className="uiux-hero create-room-hero">
+        <div className="uiux-hero-inner">
+          <div>
+            <h1 className="uiux-hero-title">创建房间</h1>
+            <p className="uiux-hero-subtitle">配置人数与可见性，邀请队友一起刷题协作</p>
+          </div>
+        </div>
       </div>
 
       <Row justify="center">
         <Col xs={24} sm={20} md={16} lg={12} xl={10}>
           <Card className="create-room-card">
-            <div className="create-room-title">
+            <div className="create-room-form-title">
               <TeamOutlined className="title-icon" />
-              <Title level={2}>创建房间</Title>
+              <Title level={2} style={{ margin: 0 }}>创建房间</Title>
             </div>
 
             {!canCreate && (

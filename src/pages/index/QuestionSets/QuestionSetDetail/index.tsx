@@ -10,6 +10,7 @@ import {
 } from '../../../../services/questionSetService';
 
 import './QuestionSetDetail.css';
+import '../../../../styles/uiuxpro.css';
 import {
     BaseResponse_Page_QuestionVO_,
     Page_QuestionVO_,
@@ -152,7 +153,7 @@ const QuestionSetDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="qs-detail-loading">
+      <div className="uiux-scope uiux-page qs-detail-loading">
         <Spin size="large" />
       </div>
     );
@@ -160,37 +161,39 @@ const QuestionSetDetail: React.FC = () => {
 
   if (!questionSet) {
     return (
-      <div className="qs-detail-error">
+      <div className="uiux-scope uiux-page qs-detail-error">
         <h2>题单不存在</h2>
-        <button onClick={() => navigate('/question-sets')}>返回题单列表</button>
+        <Button type="primary" onClick={() => navigate('/question-sets')}>
+          返回题单列表
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="qs-detail-container">
+    <div className="uiux-scope uiux-page qs-detail-container">
       <div className="qs-detail-header">
         <div className="header-left">
-          <button className="back-btn" onClick={() => navigate(-1)}>
-            <ArrowLeftOutlined /> 返回
-          </button>
+          <Button className="back-btn" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>
+            返回
+          </Button>
         </div>
         <div className="header-actions">
           {isOwner && (
             <>
-              <button className="add-btn" onClick={() => setIsAddModalOpen(true)}>
-                <PlusOutlined /> 添加题目
-              </button>
-              <button className="delete-btn" onClick={() => setIsDeleteModalOpen(true)}>
-                <DeleteOutlined /> 删除题单
-              </button>
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddModalOpen(true)}>
+                添加题目
+              </Button>
+              <Button danger icon={<DeleteOutlined />} onClick={() => setIsDeleteModalOpen(true)}>
+                删除题单
+              </Button>
             </>
           )}
         </div>
       </div>
 
       <div className="qs-detail-main">
-        <div className="qs-detail-content">
+        <div className="qs-detail-content uiux-card">
           <h1 className="qs-detail-title">{questionSet.title}</h1>
 
           <div className="qs-detail-meta">
@@ -223,7 +226,9 @@ const QuestionSetDetail: React.FC = () => {
           {questionSet.tags && questionSet.tags.length > 0 && (
             <div className="qs-detail-tags">
               {questionSet.tags.map((tag, index) => (
-                <Tag key={index} color="blue">{tag}</Tag>
+                <Tag key={index} color="green">
+                  {tag}
+                </Tag>
               ))}
             </div>
           )}
@@ -252,17 +257,17 @@ const QuestionSetDetail: React.FC = () => {
                     <div className="question-info">
                       <span className="question-index">{index + 1}.</span>
                       <div className="question-title-wrapper">
-                        <div
+                        <button
                           className="question-title"
                           onClick={() => navigate(`/oj/${question.id}`)}
-                          style={{ cursor: 'pointer' }}
+                          type="button"
                         >
                           {question.title}
-                        </div>
+                        </button>
                         {question.tags && question.tags.length > 0 && (
                           <div className="question-tags">
                             {question.tags.slice(0, 3).map((tag, idx) => (
-                              <Tag key={idx} color="default" style={{ fontSize: '12px', margin: '0 4px 0 0' }}>
+                              <Tag key={idx} color="default" className="qs-question-tag">
                                 {tag}
                               </Tag>
                             ))}
@@ -278,13 +283,9 @@ const QuestionSetDetail: React.FC = () => {
                         通过: {question.acceptedNum || 0}
                       </span>
                       {isOwner && (
-                        <button
-                          className="remove-btn"
-                          onClick={() => handleRemoveQuestion(question.id)}
-                          title="从题单中移除"
-                        >
+                        <Button danger size="small" className="remove-btn" onClick={() => handleRemoveQuestion(question.id)}>
                           移除
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -299,7 +300,7 @@ const QuestionSetDetail: React.FC = () => {
         </div>
 
         <div className="qs-detail-sidebar">
-          <div className="sidebar-card">
+          <div className="sidebar-card uiux-card">
             <h3>题单信息</h3>
             <div className="sidebar-info">
               <div className="info-item">
@@ -322,7 +323,7 @@ const QuestionSetDetail: React.FC = () => {
           </div>
 
           {questionSet.userVO && (
-            <div className="sidebar-card">
+            <div className="sidebar-card uiux-card">
               <h3>创建者信息</h3>
               <div className="sidebar-author">
                 <div className="sidebar-author-avatar">
@@ -355,6 +356,7 @@ const QuestionSetDetail: React.FC = () => {
         cancelText="取消"
         width={700}
         okButtonProps={{ disabled: selectedQuestionIds.length === 0 }}
+        className="uiux-scope"
       >
         <div style={{ marginBottom: 16 }}>
           <Input
@@ -421,6 +423,7 @@ const QuestionSetDetail: React.FC = () => {
         okText="删除"
         cancelText="取消"
         okButtonProps={{ danger: true }}
+        className="uiux-scope"
       >
         <p>确定要删除题单 <strong>{questionSet.title}</strong> 吗？</p>
         <p style={{ color: '#ff4d4f' }}>此操作将永久删除，无法恢复！</p>

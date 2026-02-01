@@ -18,6 +18,7 @@ import { getCurrentUser } from '../../../features/userSlice';
 import { RoomService } from '../../../services/room';
 import RoomChat from '../../../components/RoomChat';
 import type { RoomVO } from '../../../../generated';
+import '../../../styles/uiuxpro.css';
 import './index.css';
 
 const { Title, Text } = Typography;
@@ -95,7 +96,7 @@ const RoomChatPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="room-chat-page-container">
+      <div className="uiux-scope room-chat-page-container">
         <div className="loading-container">
           <Spin size="large" />
           <Text style={{ marginTop: 16, color: '#8c8c8c' }}>
@@ -108,7 +109,7 @@ const RoomChatPage: React.FC = () => {
 
   if (error || !room) {
     return (
-      <div className="room-chat-page-container">
+      <div className="uiux-scope room-chat-page-container">
         <Card className="error-card">
           <Result
             status="error"
@@ -131,7 +132,7 @@ const RoomChatPage: React.FC = () => {
   // 检查用户权限
   if (!currentUser || !checkUserPermission()) {
     return (
-      <div className="room-chat-page-container">
+      <div className="uiux-scope room-chat-page-container">
         <Card className="permission-card">
           <Result
             status="403"
@@ -155,7 +156,7 @@ const RoomChatPage: React.FC = () => {
   const isFull = (room.currentNum || 0) >= (room.mateNum || 0);
 
   return (
-    <div className="room-chat-page-container">
+    <div className="uiux-scope room-chat-page-container">
       {/* 页面头部 */}
       <div className="room-chat-header">
         <Card className="room-info-card">
@@ -171,7 +172,7 @@ const RoomChatPage: React.FC = () => {
             <div className="room-basic-info">
               <div className="room-title-section">
                 <Title level={4} style={{ margin: 0 }}>
-                  <MessageOutlined style={{ marginRight: 8, color: '#667eea' }} />
+                  <MessageOutlined style={{ marginRight: 8, color: 'var(--uiux-primary)' }} />
                   {room.name}
                 </Title>
                 <Space>

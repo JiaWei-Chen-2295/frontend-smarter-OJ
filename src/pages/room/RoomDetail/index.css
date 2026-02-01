@@ -1,7 +1,7 @@
 .room-detail-container {
   padding: 32px 24px;
   min-height: calc(100vh - 64px);
-  background: #fafafa;
+  background: var(--uiux-bg);
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -12,9 +12,9 @@
 }
 
 .room-info-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: var(--uiux-shadow-sm);
 }
 
 .room-info-card .ant-card-body {
@@ -32,7 +32,7 @@
   align-items: flex-start;
   margin-bottom: 32px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
 }
 
 .room-title-section {
@@ -64,9 +64,9 @@
 }
 
 .room-members-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: var(--uiux-shadow-sm);
 }
 
 .room-members-card .ant-card-head {
@@ -85,7 +85,7 @@
 
 .room-members-card .ant-list-item {
   padding: 20px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
 }
 
 .room-members-card .ant-list-item:last-child {
@@ -114,7 +114,7 @@
 }
 
 /* Badge 样式 */
-.ant-badge-dot {
+.room-detail-container .ant-badge-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -122,19 +122,19 @@
 
 /* 按钮样式 */
 .room-detail-container .ant-btn-primary {
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 800;
   border: none;
-  background: #228B22;
+  background: var(--uiux-primary);
 }
 
 .room-detail-container .ant-btn-primary:hover {
-  background: #2ea043;
+  background: var(--uiux-primary-hover);
 }
 
 .room-detail-container .ant-btn {
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 800;
 }
 
 /* Modal 样式 */
@@ -152,29 +152,29 @@
 }
 
 /* Form 样式 */
-.ant-form-item-label > label {
-  font-weight: 600;
-  color: #262626;
+.room-detail-container .ant-form-item-label > label {
+  font-weight: 800;
+  color: var(--uiux-text);
 }
 
-.ant-input,
-.ant-input-password,
-.ant-select-selector,
-.ant-input:hover,
-.ant-input-password:hover,
-.ant-select-selector:hover {
+.room-detail-container .ant-input,
+.room-detail-container .ant-input-password,
+.room-detail-container .ant-select-selector,
+.room-detail-container .ant-input:hover,
+.room-detail-container .ant-input-password:hover,
+.room-detail-container .ant-select-selector:hover {
   border-radius: 6px;
 }
 
-.ant-input:focus,
-.ant-input-password:focus,
-.ant-select-focused .ant-select-selector {
-  border-color: #228B22;
-  box-shadow: 0 0 0 2px rgba(34, 139, 34, 0.1);
+.room-detail-container .ant-input:focus,
+.room-detail-container .ant-input-password:focus,
+.room-detail-container .ant-select-focused .ant-select-selector {
+  border-color: var(--uiux-primary);
+  box-shadow: var(--uiux-focus);
 }
 
 /* Tag 样式 */
-.ant-tag {
+.room-detail-container .ant-tag {
   border-radius: 4px;
   font-weight: 500;
   display: inline-flex;
@@ -183,13 +183,13 @@
 }
 
 /* Avatar 样式 */
-.ant-avatar {
+.room-detail-container .ant-avatar {
   border: 2px solid #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* List 样式 */
-.ant-list-empty-text {
+.room-detail-container .ant-list-empty-text {
   color: #8c8c8c;
   font-style: italic;
 }

@@ -33,6 +33,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { RoomService } from '../../../services/room';
 import type { RoomVO, RoomQuitRequest } from '../../../../generated';
+import '../../../styles/uiuxpro.css';
 import './index.css';
 
 const { TabPane } = Tabs;
@@ -259,32 +260,32 @@ const MyRooms: React.FC = () => {
   };
 
   return (
-    <div className="my-rooms-container">
-      <div className="my-rooms-header">
-        <div className="header-left">
-          <Button
-            icon={<ArrowLeftOutlined />}
-            onClick={handleBack}
-            style={{ marginRight: 16 }}
-          >
-            返回房间列表
-          </Button>
-          <div className="my-rooms-title">
-            <h2>我的房间</h2>
-            <p>管理您创建和加入的房间</p>
-          </div>
-        </div>
-        <Button
-          type="primary"
-          icon={<TeamOutlined />}
-          onClick={handleCreateRoom}
-          disabled={createdRooms.length > 0} // 已有创建的房间时禁用
-        >
-          {createdRooms.length > 0 ? '已创建房间' : '创建房间'}
-        </Button>
+    <div className="uiux-scope uiux-page my-rooms-container">
+      <div className="my-rooms-top">
+        <button className="uiux-button uiux-focusable" type="button" onClick={handleBack}>
+          <ArrowLeftOutlined /> 返回房间列表
+        </button>
       </div>
 
-      <div className="my-rooms-content">
+      <div className="uiux-hero">
+        <div className="uiux-hero-inner">
+          <div>
+            <h1 className="uiux-hero-title">我的房间</h1>
+            <p className="uiux-hero-subtitle">管理您创建和加入的房间</p>
+          </div>
+          <Button
+            type="primary"
+            icon={<TeamOutlined />}
+            onClick={handleCreateRoom}
+            disabled={createdRooms.length > 0}
+            size="large"
+          >
+            {createdRooms.length > 0 ? '已创建房间' : '创建房间'}
+          </Button>
+        </div>
+      </div>
+
+      <div className="my-rooms-content uiux-card">
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}

@@ -48,6 +48,7 @@ import type {
   RoomJoinRequest,
   RoomQuitRequest 
 } from '../../../../generated';
+import '../../../styles/uiuxpro.css';
 import './index.css';
 
 const { Title, Text } = Typography;
@@ -237,7 +238,7 @@ const RoomDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="room-detail-container">
+      <div className="uiux-scope room-detail-container">
         <div style={{ textAlign: 'center', padding: '100px 0' }}>
           <Spin size="large" />
         </div>
@@ -247,7 +248,7 @@ const RoomDetail: React.FC = () => {
 
   if (!room) {
     return (
-      <div className="room-detail-container">
+      <div className="uiux-scope room-detail-container">
         <div style={{ textAlign: 'center', padding: '100px 0' }}>
           <Text>房间不存在或已被删除</Text>
           <br />
@@ -260,7 +261,7 @@ const RoomDetail: React.FC = () => {
   }
 
   return (
-    <div className="room-detail-container">
+    <div className="uiux-scope room-detail-container">
       <div className="room-detail-header" style={{ marginBottom: 24 }}>
         <Button
           icon={<ArrowLeftOutlined />}
@@ -289,7 +290,7 @@ const RoomDetail: React.FC = () => {
                     <Badge
                       count={`${room.currentNum || 0}/${room.mateNum || 0}`}
                       style={{ 
-                        backgroundColor: isFull() ? '#ff4d4f' : '#228B22',
+                        backgroundColor: isFull() ? '#ff4d4f' : '#16a34a',
                         fontSize: 12
                       }}
                     />
@@ -467,6 +468,7 @@ const RoomDetail: React.FC = () => {
         onOk={handleEditRoom}
         onCancel={() => setEditModalVisible(false)}
         destroyOnClose
+        className="uiux-scope"
       >
         <Form form={editForm} layout="vertical">
           <Form.Item
@@ -526,6 +528,7 @@ const RoomDetail: React.FC = () => {
           transferForm.resetFields();
         }}
         destroyOnClose
+        className="uiux-scope"
       >
         <div style={{ marginBottom: 24, padding: '12px 16px', background: '#fff7e6', borderRadius: 6, border: '1px solid #ffd591' }}>
           <Text type="warning">选择要转让队长身份的成员，转让后您将失去队长权限</Text>
@@ -564,6 +567,7 @@ const RoomDetail: React.FC = () => {
           joinForm.resetFields();
         }}
         destroyOnClose
+        className="uiux-scope"
       >
         <Space direction="vertical" size={12} style={{ width: '100%', marginBottom: 24 }}>
           <div><Text strong>房间名称：</Text><Text>{room.name}</Text></div>

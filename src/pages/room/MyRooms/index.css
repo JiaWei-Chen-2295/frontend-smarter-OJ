@@ -1,39 +1,16 @@
 .my-rooms-container {
-  padding: 24px;
-  min-height: calc(100vh - 64px);
-  background: #fafafa;
-}
-
-.my-rooms-header {
+  padding: 0;
+  background: transparent;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 24px;
-  padding: 0 4px;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.header-left {
-  display: flex;
-  align-items: flex-end;
-}
-
-.my-rooms-title h2 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  color: #262626;
-}
-
-.my-rooms-title p {
-  margin: 8px 0 0 0;
-  color: #8c8c8c;
-  font-size: 14px;
+.my-rooms-top {
+  margin: 6px 0 0;
 }
 
 .my-rooms-content {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
 
@@ -52,7 +29,7 @@
 }
 
 .my-rooms-tabs .ant-tabs-ink-bar {
-  background: #228B22;
+  background: var(--uiux-primary);
   height: 3px;
 }
 
@@ -62,27 +39,25 @@
 }
 
 .my-room-card {
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f0f0f0;
+  transition: box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease;
+  border: 1px solid rgba(226, 232, 240, 0.95);
 }
 
 .my-room-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  border-color: #228B22;
+  transform: translateY(-1px);
+  box-shadow: var(--uiux-shadow-md);
+  border-color: rgba(22, 163, 74, 0.22);
 }
 
 .room-card-header {
   height: 80px;
-  background: linear-gradient(135deg, #228B22 0%, #2ea043 100%);
+  background: var(--uiux-gradient);
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(34, 139, 34, 0.15);
 }
 
 .room-status {
@@ -99,8 +74,8 @@
 }
 
 .room-name {
-  font-weight: 600;
-  color: #262626;
+  font-weight: 800;
+  color: var(--uiux-text);
   font-size: 16px;
   flex: 1;
   margin-right: 8px;
@@ -115,7 +90,7 @@
 
 .room-desc-text {
   margin: 0 0 12px 0;
-  color: #595959;
+  color: rgba(71, 85, 105, 1);
   font-size: 13px;
   line-height: 1.4;
   height: 34px;
@@ -131,41 +106,38 @@
   align-items: center;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(226, 232, 240, 0.85);
 }
 
 .room-leader {
   font-size: 12px;
-  color: #595959;
-  font-weight: 500;
+  color: rgba(71, 85, 105, 1);
+  font-weight: 700;
 }
 
 .room-time {
   font-size: 12px;
-  color: #8c8c8c;
+  color: var(--uiux-muted);
 }
 
-/* Empty 状态样式 */
-.ant-empty {
+.my-rooms-container .ant-empty {
   padding: 60px 20px;
 }
 
-.ant-empty-description {
-  color: #8c8c8c;
+.my-rooms-container .ant-empty-description {
+  color: var(--uiux-muted);
   font-size: 14px;
 }
 
-/* Button 样式 */
 .my-rooms-container .ant-btn-primary {
-  background: #228B22;
+  background: var(--uiux-primary);
   border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 800;
 }
 
 .my-rooms-container .ant-btn-primary:hover:not(:disabled) {
-  background: #2ea043;
-  box-shadow: 0 2px 8px rgba(34, 139, 34, 0.25);
+  background: var(--uiux-primary-hover);
 }
 
 .my-rooms-container .ant-btn-primary:disabled {
@@ -175,14 +147,14 @@
 }
 
 .my-rooms-container .ant-btn {
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 800;
 }
 
 /* Card actions 样式 */
 .my-room-card .ant-card-actions {
-  border-top: 1px solid #f0f0f0;
-  background: #fafafa;
+  border-top: 1px solid rgba(226, 232, 240, 0.85);
+  background: rgba(241, 245, 249, 0.6);
 }
 
 .my-room-card .ant-card-actions > li {
@@ -190,20 +162,19 @@
 }
 
 .my-room-card .ant-card-actions > li > span {
-  color: #595959;
-  transition: color 0.3s ease;
+  color: rgba(71, 85, 105, 1);
+  transition: color 160ms ease;
 }
 
 .my-room-card .ant-card-actions > li:hover > span {
-  color: #228B22;
+  color: var(--uiux-primary);
 }
 
 .my-room-card .ant-card-actions .ant-btn-dangerous:hover > span {
   color: #ff4d4f;
 }
 
-/* Tag 样式增强 */
-.ant-tag {
+.my-rooms-container .ant-tag {
   border-radius: 4px;
   font-size: 11px;
   font-weight: 500;
@@ -214,14 +185,13 @@
   border: none;
 }
 
-.ant-tag-gold {
+.my-rooms-container .ant-tag-gold {
   background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
   color: #fff;
   border: 1px solid #ffd700;
 }
 
-/* Badge 样式 */
-.ant-badge-count {
+.my-rooms-container .ant-badge-count {
   font-size: 10px;
   font-weight: 600;
   min-width: 18px;
@@ -232,28 +202,12 @@
 
 /* 响应式设计 */
 @media (max-width: 1200px) {
-  .my-rooms-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  .header-left {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .my-rooms-container {
+    gap: 14px;
   }
 }
 
 @media (max-width: 768px) {
-  .my-rooms-container {
-    padding: 16px;
-  }
-  
-  .my-rooms-title h2 {
-    font-size: 24px;
-  }
-  
   .my-rooms-tabs {
     padding: 16px 16px 0 16px;
   }

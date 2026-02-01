@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form, Input, Button, message, Spin, Tag, Breadcrumb } from 'antd';
-import { ArrowLeftOutlined, SaveOutlined, RollbackOutlined } from '@ant-design/icons';
+import { SaveOutlined, RollbackOutlined } from '@ant-design/icons';
 import { getQuestionSetDetail, editQuestionSet } from '../../../../services/questionSetService';
 import type { QuestionSetVO } from '../../../../generated/models/QuestionSetVO';
+import '../../../../styles/uiuxpro.css';
 import './QuestionSetEdit.css';
 
 const { TextArea } = Input;
@@ -82,7 +83,7 @@ const QuestionSetEdit: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="qs-edit-loading">
+      <div className="uiux-scope uiux-page qs-edit-loading">
         <Spin size="large" />
       </div>
     );
@@ -90,15 +91,17 @@ const QuestionSetEdit: React.FC = () => {
 
   if (!questionSet) {
     return (
-      <div className="qs-edit-error">
+      <div className="uiux-scope uiux-page qs-edit-error">
         <h2>题单不存在</h2>
-        <button onClick={() => navigate('/question-sets')}>返回题单列表</button>
+        <Button type="primary" onClick={() => navigate('/question-sets')}>
+          返回题单列表
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="qs-edit-container">
+    <div className="uiux-scope uiux-page qs-edit-container">
       <div className="qs-edit-header">
         <Breadcrumb items={[
           { title: <span onClick={() => navigate('/question-sets')} style={{ cursor: 'pointer' }}>题单列表</span> },
@@ -106,18 +109,14 @@ const QuestionSetEdit: React.FC = () => {
           { title: '编辑' }
         ]} />
         <div className="header-actions">
-          <button
-            className="back-btn"
-            onClick={() => navigate(`/question-set/${id}`)}
-            disabled={submitting}
-          >
-            <RollbackOutlined /> 返回详情
-          </button>
+          <Button icon={<RollbackOutlined />} onClick={() => navigate(`/question-set/${id}`)} disabled={submitting}>
+            返回详情
+          </Button>
         </div>
       </div>
 
       <div className="qs-edit-content">
-        <div className="edit-form-container">
+        <div className="edit-form-container uiux-card">
           <h2 className="form-title">编辑题单</h2>
 
           <Form
@@ -151,13 +150,16 @@ const QuestionSetEdit: React.FC = () => {
 
             <Form.Item label="标签">
               <div className="qs-tags-input">
-                <input
+                <Input
                   placeholder="添加标签（按回车）"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                  onKeyDown={(e) => e.key === 'Enter' && addTag()}
+                  maxLength={24}
                 />
-                <button type="button" onClick={addTag}>添加</button>
+                <Button type="primary" onClick={addTag} disabled={!tagInput.trim()}>
+                  添加
+                </Button>
               </div>
 
               {tags.length > 0 && (
@@ -167,7 +169,7 @@ const QuestionSetEdit: React.FC = () => {
                       key={tag}
                       closable
                       onClose={() => removeTag(tag)}
-                      color="blue"
+                      color="green"
                     >
                       {tag}
                     </Tag>
@@ -204,7 +206,7 @@ const QuestionSetEdit: React.FC = () => {
         </div>
 
         <div className="edit-tips">
-          <div className="tips-card">
+          <div className="tips-card uiux-card">
             <h4>编辑提示</h4>
             <ul>
               <li>标题最多80个字符</li>
@@ -215,7 +217,7 @@ const QuestionSetEdit: React.FC = () => {
             </ul>
           </div>
 
-          <div className="tips-card">
+          <div className="tips-card uiux-card">
             <h4>当前信息</h4>
             <div className="info-list">
               <div className="info-row">

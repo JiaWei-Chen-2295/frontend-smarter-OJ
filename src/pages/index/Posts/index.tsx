@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Modal, message, Spin, Tag } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { HeartOutlined, HeartFilled, StarOutlined, StarFilled, PlusOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Button, Empty, Input, Modal, Pagination, Spin, Tag, message } from 'antd';
+import { Link } from 'react-router-dom';
+import { ClockCircleOutlined, FileTextOutlined, HeartFilled, HeartOutlined, PlusOutlined, StarFilled, StarOutlined, UserOutlined } from '@ant-design/icons';
 import MarkDownNewEditor from '../../../components/MarkDownNewEditor';
 import { createPost, thumbPost, favourPost, getMyPosts, getAllPosts } from '../../../services/postService';
 import type { PostVO } from '../../../../generated/models/PostVO';
+import '../../../styles/uiuxpro.css';
 import './Posts.css';
 
 const Posts: React.FC = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useState<PostVO[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<string[]>([]);
@@ -47,6 +48,8 @@ const Posts: React.FC = () => {
       message.warning('请输入标题');
       return;
     }
+    if (creating) return;
+    setCreating(true);
     try {
       await createPost({ title, content, tags });
       message.success('发布成功');
@@ -57,6 +60,8 @@ const Posts: React.FC = () => {
       fetchPosts(1);
     } catch (error) {
       message.error('发布失败');
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -102,48 +107,61 @@ const Posts: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-6">
-      <div className="posts-header">
-        <div className="posts-tabs">
-          <button 
+    <div className="uiux-scope uiux-page uiux-posts-page">
+      <div className="uiux-hero">
+        <div className="uiux-hero-inner">
+          <div>
+            <h1 className="uiux-hero-title">帖子</h1>
+            <p className="uiux-hero-subtitle">分享刷题经验、复盘思路与学习笔记</p>
+          </div>
+          <button className="uiux-button-primary uiux-focusable" type="button" onClick={() => setIsModalOpen(true)}>
+            <PlusOutlined /> 发布帖子
+          </button>
+        </div>
+      </div>
+
+      <div className="posts-toolbar uiux-card">
+        <div className="posts-tabs" role="tablist" aria-label="帖子视图">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'my'}
             className={`posts-tab ${viewMode === 'my' ? 'active' : ''}`}
             onClick={() => setViewMode('my')}
           >
             我的帖子
           </button>
-          <button 
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === 'all'}
             className={`posts-tab ${viewMode === 'all' ? 'active' : ''}`}
             onClick={() => setViewMode('all')}
           >
             全部帖子
           </button>
         </div>
-        <button className="posts-create-btn" onClick={() => setIsModalOpen(true)}>
-          <PlusOutlined /> 发布帖子
-        </button>
       </div>
 
       <div className="posts-container">
         {loading ? (
-          <div className="posts-loading">
+          <div className="posts-loading uiux-card" aria-busy="true" aria-live="polite">
             <Spin size="large" />
           </div>
         ) : posts.length === 0 ? (
-          <div className="posts-empty">
-            <div className="posts-empty-icon">📝</div>
-            <div className="posts-empty-text">暂无帖子</div>
+          <div className="posts-empty uiux-card">
+            <Empty
+              image={<FileTextOutlined style={{ fontSize: 48, color: 'rgba(100, 116, 139, 0.6)' }} />}
+              description={<span className="posts-empty-text">暂无帖子</span>}
+            />
           </div>
         ) : (
           posts.map((post, index) => (
-            <div key={post.id} className="post-card">
+            <div key={post.id} className="post-card uiux-card">
               <div className="post-header">
-                <h3 
-                  className="post-title" 
-                  onClick={() => navigate(`/post/${post.id}`)}
-                  style={{ cursor: 'pointer' }}
-                >
+                <Link className="post-title-link uiux-focusable" to={`/post/${post.id}`}>
                   {post.title}
-                </h3>
+                </Link>
                 <div className="post-meta">
                   <span className="post-author">
                     <UserOutlined /> {post.user?.userName || '匿名'}
@@ -159,7 +177,9 @@ const Posts: React.FC = () => {
               {post.tagList && post.tagList.length > 0 && (
                 <div className="post-tags">
                   {post.tagList.map(tag => (
-                    <Tag key={tag} color="blue">{tag}</Tag>
+                    <Tag key={tag} color="green">
+                      {tag}
+                    </Tag>
                   ))}
                 </div>
               )}
@@ -168,6 +188,9 @@ const Posts: React.FC = () => {
                 <button 
                   className={`post-action-btn ${post.hasThumb ? 'active' : ''}`}
                   onClick={() => handleThumb(index)}
+                  type="button"
+                  aria-label={`点赞，当前 ${post.thumbNum || 0}`}
+                  aria-pressed={!!post.hasThumb}
                 >
                   {post.hasThumb ? <HeartFilled /> : <HeartOutlined />}
                   <span>{post.thumbNum || 0}</span>
@@ -175,6 +198,9 @@ const Posts: React.FC = () => {
                 <button 
                   className={`post-action-btn ${post.hasFavour ? 'active' : ''}`}
                   onClick={() => handleFavour(index)}
+                  type="button"
+                  aria-label={`收藏，当前 ${post.favourNum || 0}`}
+                  aria-pressed={!!post.hasFavour}
                 >
                   {post.hasFavour ? <StarFilled /> : <StarOutlined />}
                   <span>{post.favourNum || 0}</span>
@@ -186,20 +212,14 @@ const Posts: React.FC = () => {
       </div>
 
       {total > 10 && (
-        <div className="posts-pagination">
-          <button 
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
-          >
-            上一页
-          </button>
-          <span>{currentPage} / {Math.ceil(total / 10)}</span>
-          <button 
-            disabled={currentPage >= Math.ceil(total / 10)}
-            onClick={() => setCurrentPage(currentPage + 1)}
-          >
-            下一页
-          </button>
+        <div className="posts-pagination uiux-card">
+          <Pagination
+            current={currentPage}
+            pageSize={10}
+            total={total}
+            onChange={(page) => setCurrentPage(page)}
+            showSizeChanger={false}
+          />
         </div>
       )}
 
@@ -211,29 +231,38 @@ const Posts: React.FC = () => {
         width={800}
         okText="发布"
         cancelText="取消"
+        confirmLoading={creating}
+        okButtonProps={{ disabled: !title.trim() }}
+        className="uiux-scope"
       >
         <div className="create-post-form">
-          <input
+          <Input
+            size="large"
             className="post-title-input"
             placeholder="输入标题"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            maxLength={80}
+            showCount
           />
           
           <div className="post-tags-input">
-            <input
+            <Input
               placeholder="添加标签（按回车）"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addTag()}
+              onKeyDown={(e) => e.key === 'Enter' && addTag()}
+              maxLength={24}
             />
-            <button onClick={addTag}>添加</button>
+            <Button type="primary" onClick={addTag} disabled={!tagInput.trim()}>
+              添加
+            </Button>
           </div>
           
           {tags.length > 0 && (
             <div className="post-tags">
               {tags.map(tag => (
-                <Tag key={tag} closable onClose={() => removeTag(tag)} color="blue">
+                <Tag key={tag} closable onClose={() => removeTag(tag)} color="green">
                   {tag}
                 </Tag>
               ))}
