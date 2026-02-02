@@ -1,7 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { ProTable, ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
-import { Button, message, Modal } from 'antd';
+import { ProTable, ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import { Button, Descriptions, message, Modal, Space, Tag, Typography } from 'antd';
 import { useRef, useState } from 'react';
 import { userApi } from '../../../api';
 import type { User, UserAddRequest, UserUpdateRequest, UserQueryRequest } from '../../../../generated_new/user';
@@ -10,7 +10,36 @@ const UserManager: React.FC = () => {
     const actionRef = useRef<ActionType>();
     const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
     const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
+    const [detailModalVisible, setDetailModalVisible] = useState<boolean>(false);
     const [currentRow, setCurrentRow] = useState<User>();
+
+    const getSafeUserDetail = (user?: User) => {
+        if (!user) return undefined;
+        const { userPassword, ...rest } = user;
+        return {
+            ...rest,
+            userPassword: userPassword ? '******' : undefined,
+        } as User;
+    };
+
+    const handleSetRole = async (row: User, userRole: string) => {
+        if (!row?.id) return false;
+        const hide = message.loading('正在更新角色');
+        try {
+            await userApi.updateUser({
+                id: row.id,
+                userRole,
+            });
+            hide();
+            message.success('更新成功');
+            actionRef.current?.reload();
+            return true;
+        } catch (error: any) {
+            hide();
+            message.error('更新失败请重试！');
+            return false;
+        }
+    };
 
     /**
      * 添加用户
@@ -84,13 +113,19 @@ const UserManager: React.FC = () => {
             dataIndex: 'userAccount',
             valueType: 'text',
             copyable: true,
-            hideInSearch: true,
         },
         {
             title: '用户名',
             dataIndex: 'userName',
             valueType: 'text',
             copyable: true,
+        },
+        {
+            title: '手机号',
+            dataIndex: 'phone',
+            valueType: 'text',
+            copyable: true,
+            hideInTable: true,
         },
         {
             title: '头像',
@@ -105,7 +140,7 @@ const UserManager: React.FC = () => {
             title: '简介',
             dataIndex: 'userProfile',
             valueType: 'textarea',
-            hideInSearch: true,
+            hideInTable: true,
         },
         {
             title: '角色',
@@ -127,11 +162,43 @@ const UserManager: React.FC = () => {
             },
         },
         {
+            title: 'unionId',
+            dataIndex: 'unionId',
+            valueType: 'text',
+            copyable: true,
+            hideInTable: true,
+        },
+        {
+            title: 'mpOpenId',
+            dataIndex: 'mpOpenId',
+            valueType: 'text',
+            copyable: true,
+            hideInTable: true,
+        },
+        {
             title: '创建时间',
             dataIndex: 'createTime',
             valueType: 'dateTime',
             sorter: true,
             hideInSearch: true,
+        },
+        {
+            title: '更新时间',
+            dataIndex: 'updateTime',
+            valueType: 'dateTime',
+            sorter: true,
+            hideInSearch: true,
+        },
+        {
+            title: '是否删除',
+            dataIndex: 'isDelete',
+            valueType: 'select',
+            valueEnum: {
+                0: { text: '否', status: 'Success' },
+                1: { text: '是', status: 'Error' },
+            },
+            hideInSearch: true,
+            hideInTable: true,
         },
         {
             title: '操作',
@@ -146,6 +213,49 @@ const UserManager: React.FC = () => {
                     }}
                 >
                     修改
+                </a>,
+                <a
+                    key="detail"
+                    onClick={() => {
+                        setCurrentRow(record);
+                        setDetailModalVisible(true);
+                    }}
+                >
+                    详情
+                </a>,
+                <a
+                    key="profile"
+                    onClick={() => {
+                        if (!record.id) return;
+                        window.open(`/profile?userId=${record.id}`, '_blank');
+                    }}
+                >
+                    主页
+                </a>,
+                <a
+                    key="submits"
+                    onClick={() => {
+                        if (!record.id) return;
+                        window.open(`/admin/user-submit-manager?userId=${record.id}`, '_blank');
+                    }}
+                >
+                    提交
+                </a>,
+                <a
+                    key="ban"
+                    style={{ color: record.userRole === 'ban' ? undefined : '#fa541c' }}
+                    onClick={() => {
+                        const nextRole = record.userRole === 'ban' ? 'user' : 'ban';
+                        Modal.confirm({
+                            title: nextRole === 'ban' ? '确认封禁该用户？' : '确认解封该用户？',
+                            content: nextRole === 'ban' ? '封禁后用户将无法正常使用系统' : '解封后用户将恢复正常权限',
+                            onOk: async () => {
+                                await handleSetRole(record, nextRole);
+                            },
+                        });
+                    }}
+                >
+                    {record.userRole === 'ban' ? '解封' : '封禁'}
                 </a>,
                 <a
                     key="delete"
@@ -193,10 +303,14 @@ const UserManager: React.FC = () => {
                     const requestParams: UserQueryRequest = {
                         current: params.current,
                         pageSize: params.pageSize,
+                        userAccount: params.userAccount,
                         userName: params.userName,
                         userProfile: params.userProfile,
                         userRole: params.userRole,
                         id: params.id, // Add ID search
+                        phone: params.phone,
+                        unionId: params.unionId,
+                        mpOpenId: params.mpOpenId,
                         sortField: sortField,
                         sortOrder: sortOrder,
                         ...filter,
@@ -243,6 +357,23 @@ const UserManager: React.FC = () => {
                         { min: 8, message: '密码长度不能小于8位' },
                     ]}
                 />
+                <ProFormText
+                    label="用户名"
+                    name="userName"
+                />
+                <ProFormText
+                    label="手机号"
+                    name="phone"
+                />
+                <ProFormSelect
+                    label="角色"
+                    name="userRole"
+                    options={[
+                        { label: '普通用户', value: 'user' },
+                        { label: '管理员', value: 'admin' },
+                        { label: '被封号', value: 'ban' },
+                    ]}
+                />
             </ModalForm>
             <ModalForm
                 title="修改用户"
@@ -272,12 +403,90 @@ const UserManager: React.FC = () => {
                     label="简介"
                     name="userProfile"
                 />
-                <ProFormText
+                <ProFormSelect
                     label="角色"
                     name="userRole"
-                    placeholder="请输入 admin / user / ban"
+                    options={[
+                        { label: '普通用户', value: 'user' },
+                        { label: '管理员', value: 'admin' },
+                        { label: '被封号', value: 'ban' },
+                    ]}
                 />
             </ModalForm>
+            <Modal
+                title="用户详情"
+                open={detailModalVisible}
+                onCancel={() => setDetailModalVisible(false)}
+                footer={
+                    <Space>
+                        <Button onClick={() => setDetailModalVisible(false)}>关闭</Button>
+                    </Space>
+                }
+                width={760}
+            >
+                {(() => {
+                    const user = getSafeUserDetail(currentRow);
+                    if (!user) return null;
+                    return (
+                        <>
+                            <Descriptions bordered size="small" column={2}>
+                                <Descriptions.Item label="ID">
+                                    <Typography.Text copyable>{user.id}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="账号">
+                                    <Typography.Text copyable>{user.userAccount}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="用户名">{user.userName || '-'}</Descriptions.Item>
+                                <Descriptions.Item label="手机号">
+                                    <Typography.Text copyable>{user.phone || '-'}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="角色">
+                                    {user.userRole ? (
+                                        <Tag
+                                            color={
+                                                user.userRole === 'admin'
+                                                    ? 'green'
+                                                    : user.userRole === 'ban'
+                                                        ? 'red'
+                                                        : 'default'
+                                            }
+                                        >
+                                            {user.userRole}
+                                        </Tag>
+                                    ) : (
+                                        '-'
+                                    )}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="unionId">
+                                    <Typography.Text copyable>{user.unionId || '-'}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="mpOpenId">
+                                    <Typography.Text copyable>{user.mpOpenId || '-'}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="头像" span={2}>
+                                    <Typography.Text copyable>{user.userAvatar || '-'}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="简介" span={2}>
+                                    <Typography.Paragraph style={{ marginBottom: 0 }}>
+                                        {user.userProfile || '-'}
+                                    </Typography.Paragraph>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="密码" span={2}>
+                                    {user.userPassword || '-'}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="创建时间">{user.createTime || '-'}</Descriptions.Item>
+                                <Descriptions.Item label="更新时间">{user.updateTime || '-'}</Descriptions.Item>
+                            </Descriptions>
+                            <Typography.Title level={5} style={{ marginTop: 16 }}>
+                                原始数据
+                            </Typography.Title>
+                            <pre style={{ maxHeight: 260, overflow: 'auto', marginBottom: 0 }}>
+                                {JSON.stringify(user, null, 2)}
+                            </pre>
+                        </>
+                    );
+                })()}
+            </Modal>
         </div>
     );
 };

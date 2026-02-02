@@ -2,7 +2,7 @@
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable, ModalForm, ProFormText, ProFormTextArea, ProFormDigit, ProFormSelect } from '@ant-design/pro-components';
-import { Button, message, Modal } from 'antd';
+import { Button, Descriptions, message, Modal, Space, Tag, Typography } from 'antd';
 import { useRef, useState } from 'react';
 import { roomApi } from '../../../api';
 import type { Room, RoomAddRequest, RoomUpdateRequest, RoomQueryRequest } from '../../../../generated_new/room';
@@ -11,7 +11,16 @@ const RoomManager: React.FC = () => {
     const actionRef = useRef<ActionType>();
     const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
     const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
+    const [detailModalVisible, setDetailModalVisible] = useState<boolean>(false);
     const [currentRow, setCurrentRow] = useState<Room>();
+
+    const getSafeRoomDetail = (room?: Room) => {
+        if (!room) return undefined;
+        return {
+            ...room,
+            password: room.password ? '******' : undefined,
+        };
+    };
 
     /**
      * 添加房间
@@ -103,6 +112,13 @@ const RoomManager: React.FC = () => {
             valueType: 'text',
         },
         {
+            title: '密码',
+            dataIndex: 'password',
+            valueType: 'text',
+            hideInSearch: true,
+            render: (_, record) => (record.password ? <Tag color="orange">有</Tag> : <Tag>无</Tag>),
+        },
+        {
             title: '状态',
             dataIndex: 'status',
             valueType: 'select',
@@ -129,6 +145,25 @@ const RoomManager: React.FC = () => {
             hideInSearch: true,
         },
         {
+            title: '更新时间',
+            dataIndex: 'updateTime',
+            valueType: 'dateTime',
+            sorter: true,
+            hideInSearch: true,
+            hideInTable: true,
+        },
+        {
+            title: '是否删除',
+            dataIndex: 'isDelete',
+            valueType: 'select',
+            valueEnum: {
+                0: { text: '否', status: 'Success' },
+                1: { text: '是', status: 'Error' },
+            },
+            hideInSearch: true,
+            hideInTable: true,
+        },
+        {
             title: '操作',
             dataIndex: 'option',
             valueType: 'option',
@@ -141,6 +176,15 @@ const RoomManager: React.FC = () => {
                     }}
                 >
                     修改
+                </a>,
+                <a
+                    key="detail"
+                    onClick={() => {
+                        setCurrentRow(record);
+                        setDetailModalVisible(true);
+                    }}
+                >
+                    详情
                 </a>,
                 <a
                     key="delete"
@@ -246,6 +290,11 @@ const RoomManager: React.FC = () => {
                         { label: '已结束', value: 2 },
                     ]}
                 />
+                <ProFormText.Password
+                    label="房间密码"
+                    name="password"
+                    placeholder="不填则无密码"
+                />
             </ModalForm>
             <ModalForm
                 title="修改房间"
@@ -276,6 +325,10 @@ const RoomManager: React.FC = () => {
                     name="mateNum"
                     min={1}
                 />
+                <ProFormText
+                    label="房主ID"
+                    name="userId"
+                />
                 <ProFormSelect
                     label="状态"
                     name="status"
@@ -285,7 +338,59 @@ const RoomManager: React.FC = () => {
                         { label: '已结束', value: 2 },
                     ]}
                 />
+                <ProFormText.Password
+                    label="房间密码"
+                    name="password"
+                    placeholder="不填则不修改"
+                />
             </ModalForm>
+            <Modal
+                title="房间详情"
+                open={detailModalVisible}
+                onCancel={() => setDetailModalVisible(false)}
+                footer={
+                    <Space>
+                        <Button onClick={() => setDetailModalVisible(false)}>关闭</Button>
+                    </Space>
+                }
+                width={760}
+            >
+                {(() => {
+                    const room = getSafeRoomDetail(currentRow);
+                    if (!room) return null;
+                    return (
+                        <>
+                            <Descriptions bordered size="small" column={2}>
+                                <Descriptions.Item label="ID">
+                                    <Typography.Text copyable>{room.id}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="房间名称">{room.name || '-'}</Descriptions.Item>
+                                <Descriptions.Item label="房主ID">
+                                    <Typography.Text copyable>{room.userId || '-'}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="最大人数">{room.mateNum ?? '-'}</Descriptions.Item>
+                                <Descriptions.Item label="状态">
+                                    {room.status === 0 ? '未开始' : room.status === 1 ? '进行中' : room.status === 2 ? '已结束' : '-'}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="密码">{room.password || '-'}</Descriptions.Item>
+                                <Descriptions.Item label="描述" span={2}>
+                                    <Typography.Paragraph style={{ marginBottom: 0 }}>
+                                        {room.description || '-'}
+                                    </Typography.Paragraph>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="创建时间">{room.createTime || '-'}</Descriptions.Item>
+                                <Descriptions.Item label="更新时间">{room.updateTime || '-'}</Descriptions.Item>
+                            </Descriptions>
+                            <Typography.Title level={5} style={{ marginTop: 16 }}>
+                                原始数据
+                            </Typography.Title>
+                            <pre style={{ maxHeight: 260, overflow: 'auto', marginBottom: 0 }}>
+                                {JSON.stringify(room, null, 2)}
+                            </pre>
+                        </>
+                    );
+                })()}
+            </Modal>
         </div>
     );
 };
