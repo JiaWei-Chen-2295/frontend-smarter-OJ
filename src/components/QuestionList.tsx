@@ -3,7 +3,7 @@ import { ProTable, ProColumns, ActionType } from "@ant-design/pro-components";
 import { questionApi, questionDefaultApi } from "../api";
 import type { Question, QuestionQueryRequest, QuestionVO } from "../../../generated_new/question";
 
-import { Tag, Button, Modal, Form, InputNumber, message, Row, Col, Tooltip, Space } from "antd";
+import { Tag, Button, Modal, Form, InputNumber, message, Row, Col, Tooltip, Space, Descriptions } from "antd";
 import { EditOutlined, PlusOutlined, DeleteOutlined, ExclamationCircleFilled, InboxOutlined } from "@ant-design/icons";
 import { ProForm, ProFormText, ProFormTextArea, ProFormItem } from '@ant-design/pro-components';
 import MarkDownNewEditor from "../components/MarkDownNewEditor";
@@ -46,6 +46,8 @@ export default function QuestionList() {
     const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
 
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+    const [detailModalVisible, setDetailModalVisible] = useState(false);
+    const [detailQuestion, setDetailQuestion] = useState<Question | null>(null);
     const [modal, contextHolder] = Modal.useModal();
 
     // === Import State ===
@@ -90,6 +92,29 @@ export default function QuestionList() {
         }
     };
 
+    const fetchQuestionDetail = async (id: number) => {
+        setConfirmLoading(true);
+        setDetailQuestion(null);
+        try {
+            const response = await questionApi.getQuestionById1(id);
+            if (response.data.code === 0 && response.data.data) {
+                const questionData: any = response.data.data;
+                questionData.tags = JSON.parse(questionData?.tags ?? "[]");
+                questionData.judgeCase = JSON.parse(questionData?.judgeCase ?? "[]");
+                questionData.judgeConfig = JSON.parse(questionData?.judgeConfig ?? "{}");
+                setDetailQuestion(questionData);
+                setDetailModalVisible(true);
+            } else {
+                message.error('获取题目详情失败：' + (response.data.message || '未知错误'));
+            }
+        } catch (error) {
+            console.error('Failed to fetch question detail:', error);
+            message.error('获取题目详情失败，请重试');
+        } finally {
+            setConfirmLoading(false);
+        }
+    };
+
     const showModal = (id: number | null = null) => {
         form.resetFields();
         setCurrentQuestion(null);
@@ -102,6 +127,10 @@ export default function QuestionList() {
             setEditingQuestionId(null);
             setOpen(true);
         }
+    };
+
+    const showDetail = (id: number) => {
+        fetchQuestionDetail(id);
     };
 
     const handleOk = async () => {
@@ -265,10 +294,10 @@ export default function QuestionList() {
                             编辑
                         </Button>
                         <Button
-                            key="edit"
+                            key="detail"
                             type="link"
                             icon={<InboxOutlined />}
-                            onClick={() => showModal(record.id as number)}
+                            onClick={() => showDetail(record.id as number)}
                         >
                             详情
                         </Button>
@@ -349,6 +378,80 @@ export default function QuestionList() {
                     </Button>,
                 ]}
             />
+
+            <Modal
+                title="题目详情"
+                open={detailModalVisible}
+                onCancel={() => setDetailModalVisible(false)}
+                footer={[
+                    <Button key="close" type="primary" onClick={() => setDetailModalVisible(false)}>
+                        关闭
+                    </Button>
+                ]}
+                width={900}
+            >
+                {detailQuestion ? (
+                    <>
+                        <Descriptions bordered size="small" column={2}>
+                            <Descriptions.Item label="ID">
+                                <Typography.Text copyable>{detailQuestion.id}</Typography.Text>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="标题">{detailQuestion.title || "-"}</Descriptions.Item>
+                            <Descriptions.Item label="创建人ID">
+                                <Typography.Text copyable>{detailQuestion.userId || "-"}</Typography.Text>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="题单ID">
+                                <Typography.Text copyable>{detailQuestion.questionSetId || "-"}</Typography.Text>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="提交数">{detailQuestion.submitNum ?? "-"}</Descriptions.Item>
+                            <Descriptions.Item label="通过数">{detailQuestion.acceptedNum ?? "-"}</Descriptions.Item>
+                            <Descriptions.Item label="收藏数">{detailQuestion.favourNum ?? "-"}</Descriptions.Item>
+                            <Descriptions.Item label="创建时间">{detailQuestion.createTime || "-"}</Descriptions.Item>
+                            <Descriptions.Item label="更新时间">{detailQuestion.updateTime || "-"}</Descriptions.Item>
+                            <Descriptions.Item label="标签" span={2}>
+                                {Array.isArray((detailQuestion as any).tags) && (detailQuestion as any).tags.length ? (
+                                    (detailQuestion as any).tags.map((tag: string) => <Tag key={tag}>{tag}</Tag>)
+                                ) : (
+                                    "-"
+                                )}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="判题配置" span={2}>
+                                <pre style={{ maxHeight: 180, overflow: "auto", marginBottom: 0 }}>
+                                    {JSON.stringify((detailQuestion as any).judgeConfig ?? {}, null, 2)}
+                                </pre>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="判题用例" span={2}>
+                                <pre style={{ maxHeight: 180, overflow: "auto", marginBottom: 0 }}>
+                                    {JSON.stringify((detailQuestion as any).judgeCase ?? [], null, 2)}
+                                </pre>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="代码模板" span={2}>
+                                <pre style={{ maxHeight: 220, overflow: "auto", marginBottom: 0, whiteSpace: "pre" }}>
+                                    {detailQuestion.codeTemplate || "-"}
+                                </pre>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="题目内容" span={2}>
+                                <pre style={{ maxHeight: 260, overflow: "auto", marginBottom: 0, whiteSpace: "pre-wrap" }}>
+                                    {detailQuestion.content || "-"}
+                                </pre>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="答案" span={2}>
+                                <pre style={{ maxHeight: 260, overflow: "auto", marginBottom: 0, whiteSpace: "pre-wrap" }}>
+                                    {detailQuestion.answer || "-"}
+                                </pre>
+                            </Descriptions.Item>
+                        </Descriptions>
+                        <Typography.Title level={5} style={{ marginTop: 16 }}>
+                            原始数据
+                        </Typography.Title>
+                        <pre style={{ maxHeight: 260, overflow: "auto", marginBottom: 0 }}>
+                            {JSON.stringify(detailQuestion, null, 2)}
+                        </pre>
+                    </>
+                ) : (
+                    <div style={{ padding: 16 }}>{confirmLoading ? "加载中..." : "暂无数据"}</div>
+                )}
+            </Modal>
 
             {/* === Import Result Modal === */}
             <Modal

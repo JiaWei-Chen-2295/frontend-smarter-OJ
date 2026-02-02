@@ -2,7 +2,7 @@
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable, ModalForm, ProFormText, ProFormTextArea, ProFormSelect } from '@ant-design/pro-components';
-import { Button, message, Modal, Tag } from 'antd';
+import { Button, Descriptions, message, Modal, Space, Tag, Typography } from 'antd';
 import { useRef, useState } from 'react';
 import { questionSetApi } from '../../../api';
 import type { QuestionSet, QuestionSetAddRequest, QuestionSetUpdateRequest, QuestionSetQueryRequest } from '../../../../generated_new/question';
@@ -11,7 +11,18 @@ const QuestionSetManager: React.FC = () => {
     const actionRef = useRef<ActionType>();
     const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
     const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
+    const [detailModalVisible, setDetailModalVisible] = useState<boolean>(false);
     const [currentRow, setCurrentRow] = useState<QuestionSet>();
+
+    const safeParseTags = (tags?: string) => {
+        if (!tags) return [];
+        try {
+            const parsed = JSON.parse(tags);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    };
 
     /**
      * 添加题目单
@@ -121,6 +132,18 @@ const QuestionSetManager: React.FC = () => {
             },
         },
         {
+            title: '题目数',
+            dataIndex: 'questionNum',
+            valueType: 'digit',
+            hideInSearch: true,
+        },
+        {
+            title: '收藏数',
+            dataIndex: 'favourNum',
+            valueType: 'digit',
+            hideInSearch: true,
+        },
+        {
             title: '创建人ID',
             dataIndex: 'userId',
             valueType: 'text',
@@ -131,6 +154,25 @@ const QuestionSetManager: React.FC = () => {
             valueType: 'dateTime',
             sorter: true,
             hideInSearch: true,
+        },
+        {
+            title: '更新时间',
+            dataIndex: 'updateTime',
+            valueType: 'dateTime',
+            sorter: true,
+            hideInSearch: true,
+            hideInTable: true,
+        },
+        {
+            title: '是否删除',
+            dataIndex: 'isDelete',
+            valueType: 'select',
+            valueEnum: {
+                0: { text: '否', status: 'Success' },
+                1: { text: '是', status: 'Error' },
+            },
+            hideInSearch: true,
+            hideInTable: true,
         },
         {
             title: '操作',
@@ -151,6 +193,15 @@ const QuestionSetManager: React.FC = () => {
                     }}
                 >
                     修改
+                </a>,
+                <a
+                    key="detail"
+                    onClick={() => {
+                        setCurrentRow(record);
+                        setDetailModalVisible(true);
+                    }}
+                >
+                    详情
                 </a>,
                 <a
                     key="delete"
@@ -279,6 +330,63 @@ const QuestionSetManager: React.FC = () => {
                     placeholder="请输入标签"
                 />
             </ModalForm>
+            <Modal
+                title="题目单详情"
+                open={detailModalVisible}
+                onCancel={() => setDetailModalVisible(false)}
+                footer={
+                    <Space>
+                        <Button onClick={() => setDetailModalVisible(false)}>关闭</Button>
+                    </Space>
+                }
+                width={760}
+            >
+                {(() => {
+                    if (!currentRow) return null;
+                    const tags = safeParseTags(currentRow.tags);
+                    return (
+                        <>
+                            <Descriptions bordered size="small" column={2}>
+                                <Descriptions.Item label="ID">
+                                    <Typography.Text copyable>{currentRow.id}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="标题">{currentRow.title || '-'}</Descriptions.Item>
+                                <Descriptions.Item label="创建人ID">
+                                    <Typography.Text copyable>{currentRow.userId || '-'}</Typography.Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="题目数">{currentRow.questionNum ?? '-'}</Descriptions.Item>
+                                <Descriptions.Item label="收藏数">{currentRow.favourNum ?? '-'}</Descriptions.Item>
+                                <Descriptions.Item label="标签" span={2}>
+                                    {tags.length ? (
+                                        <>
+                                            {tags.map((tag) => (
+                                                <Tag key={tag} color="blue">
+                                                    {tag}
+                                                </Tag>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        '-'
+                                    )}
+                                </Descriptions.Item>
+                                <Descriptions.Item label="描述" span={2}>
+                                    <Typography.Paragraph style={{ marginBottom: 0 }}>
+                                        {currentRow.description || '-'}
+                                    </Typography.Paragraph>
+                                </Descriptions.Item>
+                                <Descriptions.Item label="创建时间">{currentRow.createTime || '-'}</Descriptions.Item>
+                                <Descriptions.Item label="更新时间">{currentRow.updateTime || '-'}</Descriptions.Item>
+                            </Descriptions>
+                            <Typography.Title level={5} style={{ marginTop: 16 }}>
+                                原始数据
+                            </Typography.Title>
+                            <pre style={{ maxHeight: 260, overflow: 'auto', marginBottom: 0 }}>
+                                {JSON.stringify(currentRow, null, 2)}
+                            </pre>
+                        </>
+                    );
+                })()}
+            </Modal>
         </div>
     );
 };

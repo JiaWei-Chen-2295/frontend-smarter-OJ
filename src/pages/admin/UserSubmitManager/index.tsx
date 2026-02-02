@@ -1,8 +1,10 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ProTable, ProColumns, ActionType } from "@ant-design/pro-components";
 import { QuestionControllerService, QuestionSubmit, QuestionSubmitQueryRequest } from "../../../../generated";
-import { Tag, Tooltip, Button, message } from "antd";
+import { Button, Descriptions, message, Modal, Space, Tabs, Tag, Tooltip, Typography } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
+import { useSearchParams } from "react-router-dom";
+import Editor from "@monaco-editor/react";
 
 // 定义提交状态对应的文字和颜色
 const statusMap: Record<number, { text: string; color: string }> = {
@@ -30,6 +32,10 @@ const judgeMessageMap: Record<string, { text: string; color: string }> = {
 
 function UserSubmitManager() {
   const actionRef = useRef<ActionType>();
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [currentRow, setCurrentRow] = useState<QuestionSubmit>();
+  const [searchParams] = useSearchParams();
+  const initialUserId = searchParams.get("userId");
 
   // 格式化编程语言显示
   const formatLanguage = (language?: string) => {
@@ -46,38 +52,108 @@ function UserSubmitManager() {
     return languageMap[language.toLowerCase()] || language;
   };
 
-  // 解析 judgeInfo 字符串为对象
-  const parseJudgeInfo = (judgeInfoStr?: string) => {
-    if (!judgeInfoStr) return null;
+  const getMonacoLanguage = (language?: string) => {
+    if (!language) return "plaintext";
+    const normalized = language.toLowerCase();
+    if (normalized === "c++") return "cpp";
+    if (normalized === "golang") return "go";
+    return normalized;
+  };
+
+  const parseNumberLike = (value: unknown) => {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim() !== "" && Number.isFinite(Number(value))) return Number(value);
+    return undefined;
+  };
+
+  const toPrettyText = (value: unknown) => {
+    if (value === null || value === undefined) return "-";
+    if (typeof value === "string") return value;
     try {
-      return JSON.parse(judgeInfoStr);
-    } catch (e) {
-      console.error("解析判题信息失败:", e);
-      return null;
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
     }
   };
 
-  // 渲染判题结果标签
-  const renderJudgeMessage = (judgeInfoStr?: string) => {
-    const judgeInfo = parseJudgeInfo(judgeInfoStr);
-    if (!judgeInfo || !judgeInfo.message) return <Tag>未知</Tag>;
+  const parseJudgeInfo = (judgeInfo: unknown) => {
+    if (judgeInfo === null || judgeInfo === undefined) return null;
+    if (typeof judgeInfo === "string") {
+      try {
+        return JSON.parse(judgeInfo);
+      } catch (e) {
+        console.error("解析判题信息失败:", e);
+        return null;
+      }
+    }
+    if (typeof judgeInfo === "object") return judgeInfo as any;
+    return null;
+  };
 
-    const message = judgeInfo.message;
-    const mapInfo = judgeMessageMap[message] || { text: message, color: "default" };
+  const normalizeJudgeInfo = (judgeInfo: unknown) => {
+    const parsed: any = parseJudgeInfo(judgeInfo);
+    if (!parsed) return null;
+
+    const rawMessage = parsed.message;
+    const message =
+      typeof rawMessage === "string"
+        ? rawMessage
+        : rawMessage && typeof rawMessage === "object" && typeof rawMessage.message === "string"
+          ? rawMessage.message
+          : undefined;
+
+    const time =
+      parseNumberLike(parsed.time) ??
+      (rawMessage && typeof rawMessage === "object" ? parseNumberLike((rawMessage as any).time) : undefined);
+
+    const memory =
+      parseNumberLike(parsed.memory) ??
+      (rawMessage && typeof rawMessage === "object" ? parseNumberLike((rawMessage as any).memory) : undefined);
+
+    return {
+      message,
+      time,
+      memory,
+      raw: parsed,
+    };
+  };
+
+  const mapJudgeMessage = (messageText: string) => {
+    const trimmed = messageText.trim();
+    for (const key of Object.keys(judgeMessageMap)) {
+      if (trimmed === key || trimmed.startsWith(key) || trimmed.includes(key)) {
+        return judgeMessageMap[key];
+      }
+    }
+    if (/compilation\s*error/i.test(trimmed)) return { text: "编译错误", color: "error" };
+    if (/wrong\s*answer/i.test(trimmed)) return { text: "答案错误", color: "error" };
+    if (/time\s*limit/i.test(trimmed)) return { text: "超时", color: "warning" };
+    if (/memory\s*limit/i.test(trimmed)) return { text: "内存超限", color: "warning" };
+    if (/runtime\s*error/i.test(trimmed)) return { text: "运行错误", color: "error" };
+    if (/accepted/i.test(trimmed)) return { text: "通过", color: "success" };
+    return { text: trimmed, color: "default" };
+  };
+
+  // 渲染判题结果标签
+  const renderJudgeMessage = (judgeInfo?: unknown) => {
+    const info = normalizeJudgeInfo(judgeInfo);
+    const messageText = info?.message;
+    if (!messageText) return <Tag>未知</Tag>;
+
+    const mapInfo = mapJudgeMessage(messageText);
 
     return (
       <Tag color={mapInfo.color}>
-        {mapInfo.text}
+        {typeof mapInfo.text === "string" ? mapInfo.text : toPrettyText(mapInfo.text)}
       </Tag>
     );
   };
 
   // 格式化时间和内存显示
-  const formatPerformance = (judgeInfoStr?: string) => {
-    const judgeInfo = parseJudgeInfo(judgeInfoStr);
-    if (!judgeInfo) return "-";
-
-    const { time, memory } = judgeInfo;
+  const formatPerformance = (judgeInfo?: unknown) => {
+    const info = normalizeJudgeInfo(judgeInfo);
+    if (!info) return "-";
+    const { time, memory } = info;
     if (!time && !memory) return "-";
 
     const timeStr = time !== undefined ? `${time} ms` : "-";
@@ -179,8 +255,8 @@ function UserSubmitManager() {
             type="link"
             icon={<EyeOutlined />}
             onClick={() => {
-              // 实现代码查看逻辑
-              message.info(`查看提交ID: ${record.id} 的代码`);
+              setCurrentRow(record);
+              setDetailModalVisible(true);
             }}
           >
             查看
@@ -196,6 +272,9 @@ function UserSubmitManager() {
         headerTitle="用户提交管理"
         actionRef={actionRef}
         rowKey="id"
+        params={{
+          userId: initialUserId ? Number(initialUserId) : undefined,
+        }}
         search={{
           labelWidth: 'auto',
         }}
@@ -245,6 +324,138 @@ function UserSubmitManager() {
           showSizeChanger: true,
         }}
       />
+      <Modal
+        title="提交详情"
+        open={detailModalVisible}
+        onCancel={() => setDetailModalVisible(false)}
+        footer={
+          <Space>
+            <Button onClick={() => setDetailModalVisible(false)}>关闭</Button>
+          </Space>
+        }
+        width={900}
+      >
+        {(() => {
+          if (!currentRow) return null;
+          const judgeInfo = normalizeJudgeInfo(currentRow.judgeInfo);
+          const codeText = typeof currentRow.code === "string" ? currentRow.code : toPrettyText(currentRow.code);
+          const outputText = typeof currentRow.outputResult === "string" ? currentRow.outputResult : toPrettyText(currentRow.outputResult);
+          const judgeMessageText = judgeInfo?.message || "";
+          const judgeJsonText = judgeInfo?.raw ? toPrettyText(judgeInfo.raw) : toPrettyText(currentRow.judgeInfo);
+          const editorOptions = {
+            readOnly: true,
+            minimap: { enabled: false },
+            fontSize: 13,
+            lineNumbers: "on" as const,
+            scrollBeyondLastLine: false,
+            wordWrap: "on" as const,
+            automaticLayout: true,
+          };
+          return (
+            <>
+              <Descriptions bordered size="small" column={2}>
+                <Descriptions.Item label="提交ID">
+                  <Typography.Text copyable>{currentRow.id}</Typography.Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="题目ID">
+                  <Typography.Text copyable>{currentRow.questionId}</Typography.Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="用户ID">
+                  <Typography.Text copyable>{currentRow.userId}</Typography.Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="语言">{currentRow.language || "-"}</Descriptions.Item>
+                <Descriptions.Item label="状态">{currentRow.status ?? "-"}</Descriptions.Item>
+                <Descriptions.Item label="是否删除">{currentRow.isDelete ?? "-"}</Descriptions.Item>
+                <Descriptions.Item label="创建时间">{currentRow.createTime || "-"}</Descriptions.Item>
+                <Descriptions.Item label="更新时间">{currentRow.updateTime || "-"}</Descriptions.Item>
+                <Descriptions.Item label="判题结果">
+                  {renderJudgeMessage(currentRow.judgeInfo)}
+                </Descriptions.Item>
+                <Descriptions.Item label="性能">
+                  {formatPerformance(currentRow.judgeInfo)}
+                </Descriptions.Item>
+                <Descriptions.Item label="详情" span={2}>
+                  <Tabs
+                    defaultActiveKey="code"
+                    items={[
+                      {
+                        key: "code",
+                        label: "代码",
+                        children: (
+                          <div style={{ border: "1px solid #f0f0f0", borderRadius: 8, overflow: "hidden" }}>
+                            <Editor
+                              height="320px"
+                              language={getMonacoLanguage(currentRow.language)}
+                              value={codeText}
+                              options={editorOptions}
+                            />
+                          </div>
+                        ),
+                      },
+                      {
+                        key: "judge-message",
+                        label: "判题信息",
+                        children: (
+                          <div style={{ border: "1px solid #f0f0f0", borderRadius: 8, overflow: "hidden" }}>
+                            <Editor
+                              height="220px"
+                              language="plaintext"
+                              value={judgeMessageText || "-"}
+                              options={editorOptions}
+                            />
+                          </div>
+                        ),
+                      },
+                      {
+                        key: "judge-json",
+                        label: "判题 JSON",
+                        children: (
+                          <div style={{ border: "1px solid #f0f0f0", borderRadius: 8, overflow: "hidden" }}>
+                            <Editor
+                              height="220px"
+                              language="json"
+                              value={judgeJsonText}
+                              options={editorOptions}
+                            />
+                          </div>
+                        ),
+                      },
+                      {
+                        key: "output",
+                        label: "输出结果",
+                        children: (
+                          <div style={{ border: "1px solid #f0f0f0", borderRadius: 8, overflow: "hidden" }}>
+                            <Editor
+                              height="220px"
+                              language="json"
+                              value={outputText}
+                              options={editorOptions}
+                            />
+                          </div>
+                        ),
+                      },
+                      {
+                        key: "raw",
+                        label: "原始数据",
+                        children: (
+                          <div style={{ border: "1px solid #f0f0f0", borderRadius: 8, overflow: "hidden" }}>
+                            <Editor
+                              height="260px"
+                              language="json"
+                              value={toPrettyText(currentRow)}
+                              options={editorOptions}
+                            />
+                          </div>
+                        ),
+                      },
+                    ]}
+                  />
+                </Descriptions.Item>
+              </Descriptions>
+            </>
+          );
+        })()}
+      </Modal>
     </div>
   );
 }

@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { Form, Input, Button, Card, Avatar, message, Upload, Spin, Tag, Modal, Tabs, List, Space } from 'antd';
 import { UserOutlined, UploadOutlined, ArrowLeftOutlined, HeartOutlined, HeartFilled, StarOutlined, StarFilled, PlusOutlined, ClockCircleOutlined, EditOutlined } from '@ant-design/icons';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { userApi, questionApi } from '../../../api';
 import type { UserUpdateMyRequest } from '../../../../generated_new/user';
-import type { LoginUserVO } from '../../../../generated_new/user';
+import type { LoginUserVO, UserVO } from '../../../../generated_new/user';
 import type { PostVO } from '../../../../generated_new/post';
 import type { QuestionSubmitVO } from '../../../../generated_new/question';
 import { FileControllerService } from '../../../../generated/services/FileControllerService';
-import { createPost, thumbPost, favourPost, getMyPosts } from '../../../services/postService';
+import { createPost, thumbPost, favourPost, getAllPosts, getMyPosts } from '../../../services/postService';
 import MarkDownNewEditor from '../../../components/MarkDownNewEditor';
 import Heatmap from '../../../components/Heatmap';
 
@@ -18,7 +18,7 @@ import './index.css';
 const Profile = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState<LoginUserVO | null>(null);
+  const [userInfo, setUserInfo] = useState<(LoginUserVO | UserVO) | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [editMode, setEditMode] = useState(false);
   const [posts, setPosts] = useState<PostVO[]>([]);
@@ -30,16 +30,19 @@ const Profile = () => {
   const [tagInput, setTagInput] = useState('');
   const [submissions, setSubmissions] = useState<QuestionSubmitVO[]>([]);
   const [submissionsLoading, setSubmissionsLoading] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const targetUserId = searchParams.get('userId');
 
   useEffect(() => {
     loadUserInfo();
-    fetchPosts();
-  }, []);
+  }, [targetUserId]);
 
   useEffect(() => {
     if (userInfo?.id) {
       fetchSubmissions(userInfo.id);
+      fetchPosts();
     }
   }, [userInfo?.id]);
 
@@ -48,12 +51,37 @@ const Profile = () => {
     try {
       const res = await userApi.getLoginUser();
       if (res.data.code === 0 && res.data.data) {
-        setUserInfo(res.data.data);
-        setAvatarUrl(res.data.data.userAvatar || '');
-        form.setFieldsValue({
-          userName: res.data.data.userName,
-          userProfile: res.data.data.userProfile,
-        });
+        const loginUser = res.data.data;
+
+        if (targetUserId && loginUser.id && String(targetUserId) !== String(loginUser.id)) {
+          setReadOnly(true);
+          setEditMode(false);
+          const userVoRes = await userApi.getUserVOById(String(targetUserId));
+          if (userVoRes.data.code === 0 && userVoRes.data.data) {
+            setUserInfo(userVoRes.data.data);
+            setAvatarUrl(userVoRes.data.data.userAvatar || '');
+            form.setFieldsValue({
+              userName: userVoRes.data.data.userName,
+              userProfile: userVoRes.data.data.userProfile,
+            });
+          } else {
+            setUserInfo(loginUser);
+            setReadOnly(false);
+            setAvatarUrl(loginUser.userAvatar || '');
+            form.setFieldsValue({
+              userName: loginUser.userName,
+              userProfile: loginUser.userProfile,
+            });
+          }
+        } else {
+          setUserInfo(loginUser);
+          setReadOnly(false);
+          setAvatarUrl(loginUser.userAvatar || '');
+          form.setFieldsValue({
+            userName: loginUser.userName,
+            userProfile: loginUser.userProfile,
+          });
+        }
       }
     } catch (error) {
       message.error('加载用户信息失败');
@@ -61,6 +89,10 @@ const Profile = () => {
   };
 
   const handleUpload = async (file: File) => {
+    if (readOnly) {
+      message.warning('只读模式下无法修改头像');
+      return false;
+    }
     try {
       const res = await FileControllerService.uploadFileUsingPost(file);
       if (res.code === 0) {
@@ -78,7 +110,9 @@ const Profile = () => {
   const fetchPosts = async () => {
     setPostsLoading(true);
     try {
-      const resp = await getMyPosts({ current: 1, pageSize: 10 });
+      const resp = readOnly
+        ? await getAllPosts({ current: 1, pageSize: 10, userId: String(userInfo?.id || '') })
+        : await getMyPosts({ current: 1, pageSize: 10 });
       if (resp.code === 0 && resp.data) {
         setPosts(resp.data.records || []);
       }
@@ -89,11 +123,16 @@ const Profile = () => {
     }
   };
 
-  const fetchSubmissions = async (userId: number) => {
+  const fetchSubmissions = async (userId: string | number) => {
     setSubmissionsLoading(true);
     try {
+      const uid = Number(userId);
+      if (Number.isNaN(uid)) {
+        setSubmissions([]);
+        return;
+      }
       const resp = await questionApi.listQuestionSubmitByPage({
-        userId: userId,
+        userId: String(uid),
         current: 1,
         pageSize: 20,
         sortField: 'createTime',
@@ -110,6 +149,10 @@ const Profile = () => {
   };
 
   const onFinish = async (values: any) => {
+    if (readOnly) {
+      message.warning('只读模式下无法修改资料');
+      return;
+    }
     setLoading(true);
     try {
       const request: UserUpdateMyRequest = {
@@ -133,6 +176,10 @@ const Profile = () => {
   };
 
   const handleCreatePost = async () => {
+    if (readOnly) {
+      message.warning('只读模式下无法发布帖子');
+      return;
+    }
     if (!title.trim()) {
       message.warning('请输入标题');
       return;
@@ -192,7 +239,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="profile-container">
+    <div className="uiux-scope profile-container">
       <Button
         type="text"
         icon={<ArrowLeftOutlined />}
@@ -201,6 +248,17 @@ const Profile = () => {
       >
         返回
       </Button>
+
+      <div className="uiux-hero" style={{ marginBottom: 20 }}>
+        <div className="uiux-hero-inner">
+          <div>
+            <h1 className="uiux-hero-title">{readOnly ? `${userInfo?.userName || '用户'}的主页` : '个人主页'}</h1>
+            <p className="uiux-hero-subtitle">
+              {readOnly ? '只读查看用户信息、帖子与提交记录' : '管理你的资料、帖子与提交记录'}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="profile-main">
         <div className="profile-sidebar">
@@ -234,14 +292,20 @@ const Profile = () => {
                     <span className="meta-value">{posts.length}</span>
                   </div>
                 </div>
-                <Button
-                  type="primary"
-                  icon={<EditOutlined />}
-                  onClick={() => setEditMode(true)}
-                  block
-                >
-                  编辑资料
-                </Button>
+                {readOnly ? (
+                  <Tag color="processing" style={{ textAlign: 'center', width: '100%' }}>
+                    只读查看
+                  </Tag>
+                ) : (
+                  <Button
+                    type="primary"
+                    icon={<EditOutlined />}
+                    onClick={() => setEditMode(true)}
+                    block
+                  >
+                    编辑资料
+                  </Button>
+                )}
               </div>
             ) : (
               <Form
@@ -281,18 +345,20 @@ const Profile = () => {
             items={[
               {
                 key: 'posts',
-                label: '我的帖子',
+                label: readOnly ? 'TA的帖子' : '我的帖子',
                 children: (
                   <div>
                     <div className="posts-header" style={{ marginTop: 0 }}>
-                      <h2>我的帖子</h2>
-                      <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => setIsModalOpen(true)}
-                      >
-                        发布帖子
-                      </Button>
+                      <h2>{readOnly ? 'TA的帖子' : '我的帖子'}</h2>
+                      {!readOnly && (
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() => setIsModalOpen(true)}
+                        >
+                          发布帖子
+                        </Button>
+                      )}
                     </div>
 
                     <div className="posts-list">
@@ -302,7 +368,7 @@ const Profile = () => {
                         </div>
                       ) : posts.length === 0 ? (
                         <div className="posts-empty">
-                          <div className="posts-empty-icon">📝</div>
+                          <div className="posts-empty-icon"><EditOutlined /></div>
                           <div className="posts-empty-text">暂无帖子，快来发布第一篇吧！</div>
                         </div>
                       ) : (
